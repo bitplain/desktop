@@ -1,11 +1,12 @@
 import { execFile } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readdir, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { promisify } from "node:util";
 import { hash } from "bcryptjs";
 import { getPrisma } from "./db";
 import { loadRuntimeConfig, resolveConfigPath, type RuntimeConfig } from "./runtimeConfig";
+import { pickMigrationMode } from "./setupMigrations";
 import { validateDatabaseUrl } from "./setupValidation";
 import { validateEmail, validatePassword } from "./validation";
 
@@ -99,7 +100,16 @@ export function createDefaultSetupDeps(): SetupCompletionDeps {
     },
     runMigrations: async () => {
       const prismaBin = resolve(process.cwd(), "node_modules/.bin/prisma");
-      await execFileAsync(prismaBin, ["migrate", "deploy"], { env: process.env });
+      const migrationsDir = resolve(process.cwd(), "prisma/migrations");
+      let entries: string[] | null = null;
+      try {
+        entries = await readdir(migrationsDir);
+      } catch {
+        entries = null;
+      }
+      const mode = pickMigrationMode(entries);
+      const args = mode.mode === "deploy" ? ["migrate", "deploy"] : ["db", "push"];
+      await execFileAsync(prismaBin, args, { env: process.env });
     },
     getUserCount: async () => {
       const prisma = getPrisma();
