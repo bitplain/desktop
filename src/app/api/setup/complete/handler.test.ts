@@ -7,10 +7,15 @@ const makeRequest = (body: unknown) =>
     body: JSON.stringify(body),
   });
 
+const baseDeps = {
+  createDefaultSetupDeps: () => ({}),
+};
+
 describe("setup complete handler", () => {
   it("maps invalid status to 400", async () => {
     const response = await handleSetupComplete(makeRequest({}), {
       completeSetup: async () => ({ status: "invalid", error: "bad" }),
+      ...baseDeps,
     });
     expect(response.status).toBe(400);
     expect((await response.json()).error).toBe("bad");
@@ -19,6 +24,7 @@ describe("setup complete handler", () => {
   it("maps alreadySetup to 409", async () => {
     const response = await handleSetupComplete(makeRequest({}), {
       completeSetup: async () => ({ status: "alreadySetup" }),
+      ...baseDeps,
     });
     expect(response.status).toBe(409);
   });
@@ -26,6 +32,7 @@ describe("setup complete handler", () => {
   it("maps ok to 200", async () => {
     const response = await handleSetupComplete(makeRequest({}), {
       completeSetup: async () => ({ status: "ok" }),
+      ...baseDeps,
     });
     expect(response.status).toBe(200);
     expect((await response.json()).ok).toBe(true);
