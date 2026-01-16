@@ -12,6 +12,7 @@
   "dependencies": {
     "@prisma/adapter-pg": "^6.19.2",
     "@prisma/client": "^6.19.2",
+    "bcryptjs": "^3.0.3",
     "next": "16.1.2",
     "pg": "^8.17.1",
     "react": "19.2.3",
