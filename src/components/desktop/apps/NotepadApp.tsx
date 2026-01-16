@@ -5,14 +5,12 @@ import { useEffect, useState } from "react";
 const STORAGE_KEY = "desktop.notepad";
 
 export default function NotepadApp() {
-  const [value, setValue] = useState("");
-
-  useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      setValue(saved);
+  const [value, setValue] = useState(() => {
+    if (typeof window === "undefined") {
+      return "";
     }
-  }, []);
+    return window.localStorage.getItem(STORAGE_KEY) ?? "";
+  });
 
   useEffect(() => {
     window.localStorage.setItem(STORAGE_KEY, value);

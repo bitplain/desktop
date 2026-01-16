@@ -2,10 +2,11 @@ import { hash, compare } from "bcryptjs";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
-import { prisma } from "@/lib/db";
+import { getPrisma } from "@/lib/db";
 import { validatePassword } from "@/lib/validation";
 
 export async function POST(request: Request) {
+  const prisma = getPrisma();
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

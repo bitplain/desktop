@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
-import { prisma } from "@/lib/db";
+import { getPrisma } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { verifyInviteCode } from "@/lib/inviteCodes";
 import { validateEmail, validatePassword } from "@/lib/validation";
 
 export async function POST(request: Request) {
+  const prisma = getPrisma();
   const body = await request.json();
   const emailCheck = validateEmail(String(body?.email ?? ""));
   const passwordCheck = validatePassword(String(body?.password ?? ""));
@@ -30,7 +32,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid invite code" }, { status: 400 });
   }
   const passwordHash = await hash(passwordCheck.value, 12);
-  await prisma.$transaction(async (tx) => {
+  await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const user = await tx.user.create({
       data: { email: emailCheck.value, passwordHash, role: "USER" },
     });

@@ -10,7 +10,8 @@ export async function getSetupStatus(options?: { mockConfig?: RuntimeConfig | nu
     return "needsSetup" as const;
   }
   try {
-    const { prisma } = await import("./db");
+    const { getPrisma } = await import("./db");
+    const prisma = getPrisma();
     const count = await prisma.user.count();
     return count === 0 ? "needsAdmin" : "ready";
   } catch {

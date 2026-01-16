@@ -55,22 +55,16 @@ function loadSettings(): SettingsState {
 }
 
 export default function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const [settings, setSettings] = useState<SettingsState>(defaultSettings);
-  const [hydrated, setHydrated] = useState(false);
+  const [settings, setSettings] = useState<SettingsState>(() => loadSettings());
   const [audioReady, setAudioReady] = useState(false);
 
   useEffect(() => {
-    setSettings(loadSettings());
-    setHydrated(true);
-  }, []);
-
-  useEffect(() => {
-    if (!hydrated) {
+    if (typeof window === "undefined") {
       return;
     }
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
     document.documentElement.dataset.theme = settings.theme;
-  }, [hydrated, settings]);
+  }, [settings]);
 
   useEffect(() => {
     const handler = () => setAudioReady(true);

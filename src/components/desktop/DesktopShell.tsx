@@ -101,48 +101,46 @@ export default function DesktopShell({
     }));
   }, [modules, userEmail]);
 
-  const [windows, setWindows] = useState<WindowState[]>(() =>
-    createInitialState(windowConfigs)
-  );
-
-  useEffect(() => {
+  const [windows, setWindows] = useState<WindowState[]>(() => {
+    const base = createInitialState(windowConfigs);
     const saved = loadWindowLayout();
     if (!saved) {
-      return;
+      return base;
     }
     const viewWidth = typeof window !== "undefined" ? window.innerWidth : 1024;
     const viewHeight =
       typeof window !== "undefined" ? window.innerHeight - TASKBAR_HEIGHT : 768;
-    const maxZ = saved.reduce((max, item) => Math.max(max, item.zIndex), 100);
+    return base.map((item) => {
+      const match = saved.find((savedItem) => savedItem.id === item.id);
+      if (!match) {
+        return item;
+      }
+      const baseSize = match.size?.width ? match.size : item.size;
+      const basePosition = match.position ?? item.position;
+      const clamped = clampWindowBounds({
+        size: baseSize,
+        position: basePosition,
+        viewWidth,
+        viewHeight,
+      });
+      const maximizedBounds = match.isMaximized ? getMaximizedBounds() : null;
+      const nextBounds = maximizedBounds ?? clamped;
+      return {
+        ...item,
+        position: nextBounds.position,
+        size: nextBounds.size,
+        zIndex: match.zIndex,
+        isOpen: match.isOpen,
+        isMinimized: match.isMinimized,
+        isMaximized: match.isMaximized ?? false,
+      };
+    });
+  });
+
+  useEffect(() => {
+    const maxZ = windows.reduce((max, item) => Math.max(max, item.zIndex), 100);
     zCounter.current = maxZ;
-    setWindows((prev) =>
-      prev.map((item) => {
-        const match = saved.find((savedItem) => savedItem.id === item.id);
-        if (!match) {
-          return item;
-        }
-        const baseSize = match.size?.width ? match.size : item.size;
-        const basePosition = match.position ?? item.position;
-        const clamped = clampWindowBounds({
-          size: baseSize,
-          position: basePosition,
-          viewWidth,
-          viewHeight,
-        });
-        const maximizedBounds = match.isMaximized ? getMaximizedBounds() : null;
-        const nextBounds = maximizedBounds ?? clamped;
-        return {
-          ...item,
-          position: nextBounds.position,
-          size: nextBounds.size,
-          zIndex: match.zIndex,
-          isOpen: match.isOpen,
-          isMinimized: match.isMinimized,
-          isMaximized: match.isMaximized ?? false,
-        };
-      })
-    );
-  }, []);
+  }, [windows]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -592,6 +590,7 @@ export default function DesktopShell({
         </div>
       ) : null}
       <StartMenu
+        key={startOpen ? "open" : "closed"}
         open={startOpen}
         leftItems={startLeft}
         rightItems={startRight}

@@ -1,9 +1,9 @@
 import type { ModuleManifest } from "@/modules/types";
 import ClockApp from "@/components/desktop/apps/ClockApp";
 
-const ClockWindow = (_props: { userEmail?: string | null }) => <ClockApp />;
+const ClockWindow: ModuleManifest["Window"] = () => <ClockApp />;
 
-const module: ModuleManifest = {
+const manifest: ModuleManifest = {
   id: "clock",
   title: "Clock",
   subtitle: "Время системы",
@@ -13,4 +13,4 @@ const module: ModuleManifest = {
   Window: ClockWindow,
 };
 
-export default module;
+export default manifest;

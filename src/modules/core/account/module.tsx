@@ -5,7 +5,7 @@ const AccountWindow = ({ userEmail }: { userEmail?: string | null }) => (
   <AccountApp email={userEmail} />
 );
 
-const module: ModuleManifest = {
+const manifest: ModuleManifest = {
   id: "account",
   title: "Account",
   subtitle: "Профиль и пароль",
@@ -15,4 +15,4 @@ const module: ModuleManifest = {
   Window: AccountWindow,
 };
 
-export default module;
+export default manifest;

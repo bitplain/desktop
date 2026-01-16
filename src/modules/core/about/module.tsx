@@ -1,9 +1,9 @@
 import type { ModuleManifest } from "@/modules/types";
 import AboutApp from "@/components/desktop/apps/AboutApp";
 
-const AboutWindow = (_props: { userEmail?: string | null }) => <AboutApp />;
+const AboutWindow: ModuleManifest["Window"] = () => <AboutApp />;
 
-const module: ModuleManifest = {
+const manifest: ModuleManifest = {
   id: "about",
   title: "About",
   subtitle: "О программе",
@@ -14,4 +14,4 @@ const module: ModuleManifest = {
   Window: AboutWindow,
 };
 
-export default module;
+export default manifest;

@@ -1,9 +1,9 @@
 import type { ModuleManifest } from "@/modules/types";
 import NotepadApp from "@/components/desktop/apps/NotepadApp";
 
-const NotepadWindow = (_props: { userEmail?: string | null }) => <NotepadApp />;
+const NotepadWindow: ModuleManifest["Window"] = () => <NotepadApp />;
 
-const module: ModuleManifest = {
+const manifest: ModuleManifest = {
   id: "notepad",
   title: "Notepad",
   subtitle: "Быстрые заметки",
@@ -13,4 +13,4 @@ const module: ModuleManifest = {
   Window: NotepadWindow,
 };
 
-export default module;
+export default manifest;

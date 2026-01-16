@@ -1,9 +1,9 @@
 import type { ModuleManifest } from "@/modules/types";
 import CalculatorApp from "@/components/desktop/apps/CalculatorApp";
 
-const CalculatorWindow = (_props: { userEmail?: string | null }) => <CalculatorApp />;
+const CalculatorWindow: ModuleManifest["Window"] = () => <CalculatorApp />;
 
-const module: ModuleManifest = {
+const manifest: ModuleManifest = {
   id: "calculator",
   title: "Calculator",
   subtitle: "Быстрые расчеты",
@@ -13,4 +13,4 @@ const module: ModuleManifest = {
   Window: CalculatorWindow,
 };
 
-export default module;
+export default manifest;

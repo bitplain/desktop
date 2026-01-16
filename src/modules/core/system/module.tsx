@@ -1,14 +1,14 @@
 import type { ModuleManifest } from "@/modules/types";
 import SystemApp from "@/components/desktop/apps/SystemApp";
 
-const SystemWindow = (_props: { userEmail?: string | null }) => (
+const SystemWindow: ModuleManifest["Window"] = () => (
   <SystemApp
     title="System"
     message="Настройки рабочего стола, звуки и сеть управляются локально."
   />
 );
 
-const module: ModuleManifest = {
+const manifest: ModuleManifest = {
   id: "system",
   title: "System",
   subtitle: "Настройки рабочего стола",
@@ -18,4 +18,4 @@ const module: ModuleManifest = {
   Window: SystemWindow,
 };
 
-export default module;
+export default manifest;

@@ -1,7 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
-import { prisma } from "./db";
+import { getPrisma } from "./db";
 import { loadRuntimeConfig } from "./runtimeConfig";
 
 loadRuntimeConfig();
@@ -18,6 +18,7 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null;
         }
+        const prisma = getPrisma();
         const email = String(credentials.email).toLowerCase();
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user) {

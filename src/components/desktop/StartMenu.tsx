@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { handleLogoutFlow } from "@/lib/authFlow";
@@ -38,12 +38,6 @@ export default function StartMenu({
   const router = useRouter();
   const { playSound } = useSettings();
   const [programsOpen, setProgramsOpen] = useState(false);
-
-  useEffect(() => {
-    if (!open) {
-      setProgramsOpen(false);
-    }
-  }, [open]);
 
   if (!open) {
     return null;

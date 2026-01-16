@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
-import { prisma } from "@/lib/db";
+import { getPrisma } from "@/lib/db";
 import { validateEmail, validatePassword } from "@/lib/validation";
 
 export async function POST(request: Request) {
+  const prisma = getPrisma();
   const body = await request.json();
   const emailCheck = validateEmail(String(body?.email ?? ""));
   const passwordCheck = validatePassword(String(body?.password ?? ""));
