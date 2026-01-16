@@ -1,0 +1,18 @@
+import type { ModuleManifest } from "@/modules/types";
+import AccountApp from "@/components/desktop/apps/AccountApp";
+
+const AccountWindow = ({ userEmail }: { userEmail?: string | null }) => (
+  <AccountApp email={userEmail} />
+);
+
+const module: ModuleManifest = {
+  id: "account",
+  title: "Account",
+  subtitle: "Профиль и пароль",
+  icon: "/icons/xp/user.svg",
+  desktopIcon: true,
+  startMenu: true,
+  Window: AccountWindow,
+};
+
+export default module;

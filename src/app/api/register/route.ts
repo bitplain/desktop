@@ -2,13 +2,14 @@ import { NextResponse } from "next/server";
 import { hash } from "bcryptjs";
 import { prisma } from "@/lib/db";
 import { verifyInviteCode } from "@/lib/inviteCodes";
+import { validateEmail, validatePassword } from "@/lib/validation";
 
 export async function POST(request: Request) {
   const body = await request.json();
-  const email = String(body?.email || "").toLowerCase().trim();
-  const password = String(body?.password || "");
+  const emailCheck = validateEmail(String(body?.email ?? ""));
+  const passwordCheck = validatePassword(String(body?.password ?? ""));
   const inviteCode = String(body?.inviteCode || "").trim();
-  if (!email || password.length < 6 || !inviteCode) {
+  if (!emailCheck.ok || !passwordCheck.ok || !inviteCode) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
   const now = new Date();
@@ -28,9 +29,11 @@ export async function POST(request: Request) {
   if (!matchedInvite) {
     return NextResponse.json({ error: "Invalid invite code" }, { status: 400 });
   }
-  const passwordHash = await hash(password, 10);
+  const passwordHash = await hash(passwordCheck.value, 12);
   await prisma.$transaction(async (tx) => {
-    const user = await tx.user.create({ data: { email, passwordHash, role: "USER" } });
+    const user = await tx.user.create({
+      data: { email: emailCheck.value, passwordHash, role: "USER" },
+    });
     await tx.invite.update({
       where: { id: matchedInvite.id },
       data: { usedAt: now, usedBy: user.id },
