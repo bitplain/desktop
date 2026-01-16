@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSettings } from "@/components/desktop/SettingsProvider";
 import { handleLoginSuccessFlow } from "@/lib/authFlow";
+import { getSetupRedirect } from "@/lib/setupRoutes";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 
 export default function LoginPage() {
@@ -16,6 +17,25 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const checkSetup = async () => {
+      const response = await fetch("/api/setup/status");
+      const data = await response.json().catch(() => null);
+      if (!active || !data?.status) {
+        return;
+      }
+      const target = getSetupRedirect(data.status);
+      if (target) {
+        router.replace(target);
+      }
+    };
+    void checkSetup();
+    return () => {
+      active = false;
+    };
+  }, [router]);
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();

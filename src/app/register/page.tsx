@@ -1,20 +1,42 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useSettings } from "@/components/desktop/SettingsProvider";
 import { postJson } from "@/lib/http";
+import { getSetupRedirect } from "@/lib/setupRoutes";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 
 export default function RegisterPage() {
   const { playSound } = useSettings();
   const online = useNetworkStatus();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [inviteCode, setInviteCode] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const checkSetup = async () => {
+      const response = await fetch("/api/setup/status");
+      const data = await response.json().catch(() => null);
+      if (!active || !data?.status) {
+        return;
+      }
+      const target = getSetupRedirect(data.status);
+      if (target) {
+        router.replace(target);
+      }
+    };
+    void checkSetup();
+    return () => {
+      active = false;
+    };
+  }, [router]);
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
