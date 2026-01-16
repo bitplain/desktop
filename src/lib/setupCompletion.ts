@@ -93,7 +93,9 @@ export function createDefaultSetupDeps(): SetupCompletionDeps {
       await writeFile(path, JSON.stringify(config, null, 2), { mode: 0o600 });
     },
     applyConfig: (config) => {
-      loadRuntimeConfig({ mockConfig: config });
+      process.env.DATABASE_URL = config.databaseUrl;
+      process.env.NEXTAUTH_SECRET = config.nextAuthSecret;
+      process.env.KEYS_ENCRYPTION_SECRET = config.keysEncryptionSecret;
     },
     runMigrations: async () => {
       const prismaBin = resolve(process.cwd(), "node_modules/.bin/prisma");
