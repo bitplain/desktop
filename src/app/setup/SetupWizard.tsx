@@ -9,37 +9,63 @@ type WizardProps = {
   initialStatus: Exclude<SetupStatus, "ready">;
 };
 
+type WizardStep = "db" | "admin";
+
 type LayoutProps = {
   status: Exclude<SetupStatus, "ready">;
+  step: WizardStep;
   email: string;
   password: string;
   databaseUrl: string;
+  dbHost: string;
+  dbPort: string;
+  dbUser: string;
+  dbPassword: string;
+  dbName: string;
   loading: boolean;
   error: string | null;
   success: boolean;
   onChangeEmail: (value: string) => void;
   onChangePassword: (value: string) => void;
   onChangeDatabaseUrl: (value: string) => void;
+  onChangeDbHost: (value: string) => void;
+  onChangeDbPort: (value: string) => void;
+  onChangeDbUser: (value: string) => void;
+  onChangeDbPassword: (value: string) => void;
+  onChangeDbName: (value: string) => void;
   onSubmit: (event: React.FormEvent) => void;
+  onNext: () => void;
+  onBack: () => void;
   onLogin: () => void;
 };
 
 export function SetupWizardLayout({
   status,
+  step,
   email,
   password,
   databaseUrl,
+  dbHost,
+  dbPort,
+  dbUser,
+  dbPassword,
+  dbName,
   loading,
   error,
   success,
   onChangeEmail,
   onChangePassword,
   onChangeDatabaseUrl,
+  onChangeDbHost,
+  onChangeDbPort,
+  onChangeDbUser,
+  onChangeDbPassword,
+  onChangeDbName,
   onSubmit,
+  onNext,
+  onBack,
   onLogin,
 }: LayoutProps) {
-  const needsDatabase = status === "needsSetup";
-
   return (
     <div className="login-screen">
       <div className="login-panel setup-panel">
@@ -66,44 +92,105 @@ export function SetupWizardLayout({
           {!success ? (
             <form className="stack" onSubmit={onSubmit}>
               <div className="login-form-header">Setup wizard</div>
-              {needsDatabase ? (
-                <label className="setup-field">
-                  <span>DATABASE_URL</span>
-                  <input
-                    className="xp-input"
-                    value={databaseUrl}
-                    onChange={(event) => onChangeDatabaseUrl(event.target.value)}
-                    placeholder="postgresql://user:pass@host/db"
-                    required
-                  />
-                </label>
+              {step === "db" ? (
+                <div className="setup-db">
+                  <label className="setup-field">
+                    <span>Host</span>
+                    <input
+                      className="xp-input"
+                      value={dbHost}
+                      onChange={(event) => onChangeDbHost(event.target.value)}
+                      placeholder="db"
+                      required
+                    />
+                  </label>
+                  <label className="setup-field">
+                    <span>Port</span>
+                    <input
+                      className="xp-input"
+                      value={dbPort}
+                      onChange={(event) => onChangeDbPort(event.target.value)}
+                      placeholder="5432"
+                      required
+                    />
+                  </label>
+                  <label className="setup-field">
+                    <span>User</span>
+                    <input
+                      className="xp-input"
+                      value={dbUser}
+                      onChange={(event) => onChangeDbUser(event.target.value)}
+                      placeholder="desktop"
+                      required
+                    />
+                  </label>
+                  <label className="setup-field">
+                    <span>Password</span>
+                    <input
+                      className="xp-input"
+                      type="password"
+                      value={dbPassword}
+                      onChange={(event) => onChangeDbPassword(event.target.value)}
+                      placeholder="desktop"
+                      required
+                    />
+                  </label>
+                  <label className="setup-field">
+                    <span>Database</span>
+                    <input
+                      className="xp-input"
+                      value={dbName}
+                      onChange={(event) => onChangeDbName(event.target.value)}
+                      placeholder="desktop"
+                      required
+                    />
+                  </label>
+                  <div className="setup-note">Для docker-compose host=db.</div>
+                </div>
               ) : (
-                <div className="setup-note">База уже настроена. Создайте администратора.</div>
+                <>
+                  {status === "needsAdmin" ? (
+                    <div className="setup-note">База уже настроена. Создайте администратора.</div>
+                  ) : null}
+                  <label className="setup-field">
+                    <span>Email администратора</span>
+                    <input
+                      className="xp-input"
+                      type="email"
+                      value={email}
+                      onChange={(event) => onChangeEmail(event.target.value)}
+                      required
+                    />
+                  </label>
+                  <label className="setup-field">
+                    <span>Пароль администратора</span>
+                    <input
+                      className="xp-input"
+                      type="password"
+                      value={password}
+                      onChange={(event) => onChangePassword(event.target.value)}
+                      required
+                    />
+                  </label>
+                </>
               )}
-              <label className="setup-field">
-                <span>Email администратора</span>
-                <input
-                  className="xp-input"
-                  type="email"
-                  value={email}
-                  onChange={(event) => onChangeEmail(event.target.value)}
-                  required
-                />
-              </label>
-              <label className="setup-field">
-                <span>Пароль администратора</span>
-                <input
-                  className="xp-input"
-                  type="password"
-                  value={password}
-                  onChange={(event) => onChangePassword(event.target.value)}
-                  required
-                />
-              </label>
               {error ? <div className="notice">{error}</div> : null}
-              <button className="xp-button" type="submit" disabled={loading}>
-                {loading ? "Настраиваем..." : "Запустить настройку"}
-              </button>
+              <div className="setup-actions">
+                {step === "admin" && status === "needsSetup" ? (
+                  <button className="xp-button secondary" type="button" onClick={onBack}>
+                    Назад
+                  </button>
+                ) : null}
+                {step === "db" ? (
+                  <button className="xp-button" type="button" onClick={onNext}>
+                    Далее
+                  </button>
+                ) : (
+                  <button className="xp-button" type="submit" disabled={loading}>
+                    {loading ? "Настраиваем..." : "Запустить настройку"}
+                  </button>
+                )}
+              </div>
             </form>
           ) : (
             <div className="setup-success">
@@ -127,7 +214,15 @@ export function SetupWizardLayout({
 export default function SetupWizard({ initialStatus }: WizardProps) {
   const router = useRouter();
   const [status] = useState(initialStatus);
+  const [step, setStep] = useState<WizardStep>(
+    initialStatus === "needsSetup" ? "db" : "admin"
+  );
   const [databaseUrl, setDatabaseUrl] = useState("");
+  const [dbHost, setDbHost] = useState("");
+  const [dbPort, setDbPort] = useState("");
+  const [dbUser, setDbUser] = useState("");
+  const [dbPassword, setDbPassword] = useState("");
+  const [dbName, setDbName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -135,9 +230,32 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
   const [success, setSuccess] = useState(false);
 
   const payload = useMemo(
-    () => ({ databaseUrl, email, password }),
-    [databaseUrl, email, password]
+    () => ({
+      databaseUrl,
+      dbHost,
+      dbPort,
+      dbUser,
+      dbPassword,
+      dbName,
+      email,
+      password,
+    }),
+    [databaseUrl, dbHost, dbPort, dbUser, dbPassword, dbName, email, password]
   );
+
+  const onNext = () => {
+    setError(null);
+    if (!dbHost.trim() || !dbPort.trim() || !dbUser.trim() || !dbPassword.trim() || !dbName.trim()) {
+      setError("Заполните все поля базы данных.");
+      return;
+    }
+    setStep("admin");
+  };
+
+  const onBack = () => {
+    setError(null);
+    setStep("db");
+  };
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -157,16 +275,29 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
   return (
     <SetupWizardLayout
       status={status}
+      step={step}
       email={email}
       password={password}
       databaseUrl={databaseUrl}
+      dbHost={dbHost}
+      dbPort={dbPort}
+      dbUser={dbUser}
+      dbPassword={dbPassword}
+      dbName={dbName}
       loading={loading}
       error={error}
       success={success}
       onChangeEmail={setEmail}
       onChangePassword={setPassword}
       onChangeDatabaseUrl={setDatabaseUrl}
+      onChangeDbHost={setDbHost}
+      onChangeDbPort={setDbPort}
+      onChangeDbUser={setDbUser}
+      onChangeDbPassword={setDbPassword}
+      onChangeDbName={setDbName}
       onSubmit={onSubmit}
+      onNext={onNext}
+      onBack={onBack}
       onLogin={() => router.push("/login")}
     />
   );

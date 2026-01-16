@@ -4,29 +4,48 @@ import { SetupWizardLayout } from "../SetupWizard";
 
 const baseProps = {
   status: "needsSetup" as const,
+  step: "db" as const,
   email: "",
   password: "",
   databaseUrl: "",
+  dbHost: "",
+  dbPort: "",
+  dbUser: "",
+  dbPassword: "",
+  dbName: "",
   loading: false,
   error: null as string | null,
   success: false,
   onChangeEmail: () => undefined,
   onChangePassword: () => undefined,
   onChangeDatabaseUrl: () => undefined,
+  onChangeDbHost: () => undefined,
+  onChangeDbPort: () => undefined,
+  onChangeDbUser: () => undefined,
+  onChangeDbPassword: () => undefined,
+  onChangeDbName: () => undefined,
   onSubmit: () => undefined,
+  onNext: () => undefined,
+  onBack: () => undefined,
   onLogin: () => undefined,
 };
 
 describe("setup wizard layout", () => {
-  it("renders database url field for needsSetup", () => {
-    const html = renderToString(<SetupWizardLayout {...baseProps} />);
-    expect(html).toContain("DATABASE_URL");
+  it("renders host/port/user/password/db fields on db step", () => {
+    const html = renderToString(<SetupWizardLayout {...baseProps} step="db" />);
+    expect(html).toContain("Host");
+    expect(html).toContain("Port");
+    expect(html).toContain("User");
+    expect(html).toContain("Password");
+    expect(html).toContain("Database");
   });
 
-  it("hides database url field for needsAdmin", () => {
-    const html = renderToString(
-      <SetupWizardLayout {...baseProps} status="needsAdmin" />
+  it("shows next button on db step and submit on admin step", () => {
+    const dbHtml = renderToString(<SetupWizardLayout {...baseProps} step="db" />);
+    const adminHtml = renderToString(
+      <SetupWizardLayout {...baseProps} step="admin" />
     );
-    expect(html).not.toContain("DATABASE_URL");
+    expect(dbHtml).toContain("Далее");
+    expect(adminHtml).toContain("Запустить настройку");
   });
 });

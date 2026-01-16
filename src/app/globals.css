@@ -242,6 +242,17 @@ textarea {
   border-radius: 10px;
 }
 
+.setup-db {
+  display: grid;
+  gap: 12px;
+}
+
+.setup-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
 .login-form-header {
   font-family: var(--font-display);
   font-size: 1.25rem;
