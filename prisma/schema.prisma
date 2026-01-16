@@ -1,0 +1,33 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  invites      Invite[] @relation("InvitesCreated")
+}
+
+model Invite {
+  id        String   @id @default(cuid())
+  codeHash  String   @unique
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdBy String
+  usedBy    String?
+  creator   User     @relation("InvitesCreated", fields: [createdBy], references: [id])
+}
+
+enum Role {
+  ADMIN
+  USER
+}
