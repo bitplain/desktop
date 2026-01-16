@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { redirect } from "next/navigation";
 import { getSetupStatus } from "@/lib/setupStatus";
 import SetupWizard from "./SetupWizard";
