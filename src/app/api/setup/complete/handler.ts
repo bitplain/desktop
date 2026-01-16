@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { buildDatabaseUrl } from "@/lib/buildDatabaseUrl";
 import { completeSetup, createDefaultSetupDeps } from "@/lib/setupCompletion";
 
 type SetupHandlerDeps = {
@@ -11,8 +12,17 @@ export async function handleSetupComplete(
   deps: SetupHandlerDeps = { completeSetup, createDefaultSetupDeps }
 ) {
   const body = await request.json().catch(() => ({}));
+  const rawDatabaseUrl = String(body?.databaseUrl ?? "");
+  const builtDatabaseUrl = buildDatabaseUrl({
+    host: String(body?.dbHost ?? ""),
+    port: String(body?.dbPort ?? ""),
+    user: String(body?.dbUser ?? ""),
+    password: String(body?.dbPassword ?? ""),
+    database: String(body?.dbName ?? ""),
+  });
+  const databaseUrl = rawDatabaseUrl || (builtDatabaseUrl.ok ? builtDatabaseUrl.value : "");
   const result = await deps.completeSetup({
-    databaseUrl: String(body?.databaseUrl ?? ""),
+    databaseUrl,
     email: String(body?.email ?? ""),
     password: String(body?.password ?? ""),
   }, deps.createDefaultSetupDeps());

@@ -37,4 +37,29 @@ describe("setup complete handler", () => {
     expect(response.status).toBe(200);
     expect((await response.json()).ok).toBe(true);
   });
+
+  it("builds database url from db fields", async () => {
+    let received: { databaseUrl?: string } | null = null;
+    const response = await handleSetupComplete(
+      makeRequest({
+        dbHost: "db",
+        dbPort: "5432",
+        dbUser: "desktop",
+        dbPassword: "desktop",
+        dbName: "desktop",
+        email: "admin@test.dev",
+        password: "Password1!",
+      }),
+      {
+        completeSetup: async (input) => {
+          received = input;
+          return { status: "ok" };
+        },
+        ...baseDeps,
+      }
+    );
+
+    expect(response.status).toBe(200);
+    expect(received?.databaseUrl).toBe("postgresql://desktop:desktop@db:5432/desktop");
+  });
 });
