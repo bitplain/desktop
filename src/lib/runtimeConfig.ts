@@ -20,13 +20,24 @@ function readConfigFile(path: string): RuntimeConfig | null {
   return JSON.parse(raw) as RuntimeConfig;
 }
 
-export function loadRuntimeConfig(options?: { mockConfig?: RuntimeConfig | null }) {
-  const config = options?.mockConfig ?? readConfigFile(resolveConfigPath());
-  if (!config) {
+function buildEnvConfig(): RuntimeConfig | null {
+  const databaseUrl = process.env.DATABASE_URL?.trim() || "";
+  const nextAuthSecret = process.env.NEXTAUTH_SECRET?.trim() || "";
+  const keysEncryptionSecret = process.env.KEYS_ENCRYPTION_SECRET?.trim() || "";
+  if (!databaseUrl || !nextAuthSecret || !keysEncryptionSecret) {
     return null;
   }
-  process.env.DATABASE_URL ||= config.databaseUrl;
-  process.env.NEXTAUTH_SECRET ||= config.nextAuthSecret;
-  process.env.KEYS_ENCRYPTION_SECRET ||= config.keysEncryptionSecret;
-  return config;
+  return { databaseUrl, nextAuthSecret, keysEncryptionSecret };
+}
+
+export function loadRuntimeConfig(options?: { mockConfig?: RuntimeConfig | null }) {
+  const config = options?.mockConfig ?? readConfigFile(resolveConfigPath());
+  const resolved = config ?? buildEnvConfig();
+  if (!resolved) {
+    return null;
+  }
+  process.env.DATABASE_URL ||= resolved.databaseUrl;
+  process.env.NEXTAUTH_SECRET ||= resolved.nextAuthSecret;
+  process.env.KEYS_ENCRYPTION_SECRET ||= resolved.keysEncryptionSecret;
+  return resolved;
 }

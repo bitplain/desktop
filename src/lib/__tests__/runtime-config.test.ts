@@ -20,4 +20,12 @@ describe("runtime config", () => {
     expect(load.databaseUrl).toBe(config.databaseUrl);
     expect(process.env.DATABASE_URL).toBe(config.databaseUrl);
   });
+
+  it("falls back to env vars when config file is missing", () => {
+    vi.stubEnv("DATABASE_URL", "postgresql://user:pass@db:5432/desktop");
+    vi.stubEnv("NEXTAUTH_SECRET", "secret1234567890abcd");
+    vi.stubEnv("KEYS_ENCRYPTION_SECRET", "secret1234567890abcd");
+    const load = loadRuntimeConfig({ mockConfig: null });
+    expect(load?.databaseUrl).toBe("postgresql://user:pass@db:5432/desktop");
+  });
 });
