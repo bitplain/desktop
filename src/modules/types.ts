@@ -8,5 +8,9 @@ export type ModuleManifest = {
   desktopIcon?: boolean;
   startMenu?: boolean;
   defaultOpen?: boolean;
-  Window: ComponentType<{ userEmail?: string | null }>;
+  order?: number;
 };
+
+export type ModuleLoader = () => Promise<{
+  default: ComponentType<{ userEmail?: string | null }>;
+}>;
