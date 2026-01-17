@@ -5,6 +5,7 @@ const baseDeps = (): SetupCompletionDeps => ({
   loadConfig: () => null,
   writeConfig: vi.fn().mockResolvedValue(undefined),
   applyConfig: vi.fn(),
+  ensureDatabaseExists: vi.fn().mockResolvedValue(undefined),
   runMigrations: vi.fn().mockResolvedValue(undefined),
   getUserCount: vi.fn().mockResolvedValue(0),
   createAdmin: vi.fn().mockResolvedValue(undefined),
@@ -34,6 +35,7 @@ describe("setup completion", () => {
     expect(result.status).toBe("ok");
     expect(deps.writeConfig).toHaveBeenCalledOnce();
     expect(deps.applyConfig).toHaveBeenCalledOnce();
+    expect(deps.ensureDatabaseExists).toHaveBeenCalledOnce();
     expect(deps.runMigrations).toHaveBeenCalledOnce();
     expect(deps.createAdmin).toHaveBeenCalledOnce();
   });
@@ -51,6 +53,7 @@ describe("setup completion", () => {
     );
     expect(result.status).toBe("ok");
     expect(deps.writeConfig).not.toHaveBeenCalled();
+    expect(deps.ensureDatabaseExists).toHaveBeenCalledOnce();
   });
 
   it("returns alreadySetup when users exist", async () => {
@@ -62,5 +65,6 @@ describe("setup completion", () => {
     );
     expect(result.status).toBe("alreadySetup");
     expect(deps.createAdmin).not.toHaveBeenCalled();
+    expect(deps.ensureDatabaseExists).toHaveBeenCalledOnce();
   });
 });
