@@ -6,8 +6,16 @@ import { getPrisma } from "@/lib/db";
 import { validatePassword } from "@/lib/validation";
 import { consumeRateLimit } from "@/lib/rateLimit";
 import { getRequestIp } from "@/lib/requestIp";
+import { getCookieValue, validateCsrf } from "@/lib/csrf";
 
 export async function POST(request: Request) {
+  const csrfCheck = validateCsrf(
+    getCookieValue(request.headers.get("cookie"), "csrf-token"),
+    request.headers.get("x-csrf-token")
+  );
+  if (!csrfCheck.ok) {
+    return NextResponse.json({ error: csrfCheck.error }, { status: 403 });
+  }
   const prisma = getPrisma();
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {

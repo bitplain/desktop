@@ -17,6 +17,17 @@ export async function postJson(url: string, body?: unknown) {
   const headers: Record<string, string> = {};
   const init: RequestInit = { method: "POST", headers };
 
+  if (typeof document !== "undefined") {
+    const token = document.cookie
+      .split(";")
+      .map((part) => part.trim())
+      .find((part) => part.startsWith("csrf-token="))
+      ?.split("=")[1];
+    if (token) {
+      headers["x-csrf-token"] = decodeURIComponent(token);
+    }
+  }
+
   if (body !== undefined) {
     headers["Content-Type"] = "application/json";
     init.body = JSON.stringify(body);

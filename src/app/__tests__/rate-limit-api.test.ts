@@ -48,6 +48,10 @@ describe("register rate limit", () => {
     const makeRequest = () =>
       new Request("http://localhost/api/register", {
         method: "POST",
+        headers: {
+          cookie: "csrf-token=test-token",
+          "x-csrf-token": "test-token",
+        },
         body: JSON.stringify({
           email: "admin@test.dev",
           password: "Password1!",

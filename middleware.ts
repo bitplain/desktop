@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { createCsrfToken } from "@/lib/csrf";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -22,8 +23,22 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
     pathname.startsWith("/setup");
+  const withCsrfCookie = (response: NextResponse) => {
+    if (request.cookies.get("csrf-token")) {
+      return response;
+    }
+    const tokenValue = createCsrfToken();
+    response.cookies.set("csrf-token", tokenValue, {
+      httpOnly: false,
+      sameSite: "lax",
+      secure: request.nextUrl.protocol === "https:",
+      path: "/",
+    });
+    return response;
+  };
+
   if (!token && !isAuthRoute) {
-    return NextResponse.redirect(new URL("/login", request.url));
+    return withCsrfCookie(NextResponse.redirect(new URL("/login", request.url)));
   }
-  return NextResponse.next();
+  return withCsrfCookie(NextResponse.next());
 }

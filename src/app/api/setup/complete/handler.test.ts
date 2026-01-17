@@ -12,6 +12,10 @@ vi.mock("@/lib/rateLimit", () => ({
 const makeRequest = (body: unknown) =>
   new Request("http://localhost/api/setup/complete", {
     method: "POST",
+    headers: {
+      cookie: "csrf-token=test-token",
+      "x-csrf-token": "test-token",
+    },
     body: JSON.stringify(body),
   });
 

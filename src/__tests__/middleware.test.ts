@@ -8,8 +8,16 @@ vi.mock("next-auth/jwt", () => ({
 
 const mockGetToken = getToken as unknown as ReturnType<typeof vi.fn>;
 
-const makeRequest = (pathname: string) =>
-  ({ nextUrl: { pathname }, url: `http://localhost${pathname}` } as any);
+const makeRequest = (pathname: string) => {
+  const nextUrl = new URL(`http://localhost${pathname}`);
+  return {
+    nextUrl,
+    url: nextUrl.toString(),
+    cookies: {
+      get: () => undefined,
+    },
+  } as any;
+};
 
 describe("middleware", () => {
   beforeEach(() => {

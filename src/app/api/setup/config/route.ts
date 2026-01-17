@@ -5,8 +5,16 @@ import { validateSecrets, validateDatabaseUrl } from "@/lib/setupValidation";
 import { encryptConfigPayload } from "@/lib/configCrypto";
 import { consumeRateLimit } from "@/lib/rateLimit";
 import { getRequestIp } from "@/lib/requestIp";
+import { getCookieValue, validateCsrf } from "@/lib/csrf";
 
 export async function POST(request: Request) {
+  const csrfCheck = validateCsrf(
+    getCookieValue(request.headers.get("cookie"), "csrf-token"),
+    request.headers.get("x-csrf-token")
+  );
+  if (!csrfCheck.ok) {
+    return NextResponse.json({ error: csrfCheck.error }, { status: 403 });
+  }
   const body = await request.json();
   const nextAuth = String(body?.nextAuthSecret || "");
   const keys = String(body?.keysEncryptionSecret || "");

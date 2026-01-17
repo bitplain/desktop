@@ -3,6 +3,7 @@ import { buildDatabaseUrl } from "@/lib/buildDatabaseUrl";
 import { completeSetup, createDefaultSetupDeps } from "@/lib/setupCompletion";
 import { consumeRateLimit } from "@/lib/rateLimit";
 import { getRequestIp } from "@/lib/requestIp";
+import { getCookieValue, validateCsrf } from "@/lib/csrf";
 
 type SetupHandlerDeps = {
   completeSetup: typeof completeSetup;
@@ -13,6 +14,13 @@ export async function handleSetupComplete(
   request: Request,
   deps: SetupHandlerDeps = { completeSetup, createDefaultSetupDeps }
 ) {
+  const csrfCheck = validateCsrf(
+    getCookieValue(request.headers.get("cookie"), "csrf-token"),
+    request.headers.get("x-csrf-token")
+  );
+  if (!csrfCheck.ok) {
+    return NextResponse.json({ error: csrfCheck.error }, { status: 403 });
+  }
   const body = await request.json().catch(() => ({}));
   const ip = getRequestIp(request.headers);
   const rateLimitKey = `setup|${ip}`;
