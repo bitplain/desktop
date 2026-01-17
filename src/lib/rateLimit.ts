@@ -11,12 +11,55 @@ export type RateLimitResult = {
   resetAt: Date;
 };
 
+type MemoryBucket = {
+  hits: number;
+  resetAt: Date;
+};
+
+const memoryBuckets = new Map<string, MemoryBucket>();
+
+function consumeMemoryRateLimit(key: string, options: RateLimitOptions): RateLimitResult {
+  const now = new Date();
+  const windowReset = new Date(now.getTime() + options.windowMs);
+  const existing = memoryBuckets.get(key);
+
+  if (!existing || existing.resetAt <= now) {
+    memoryBuckets.set(key, { hits: 1, resetAt: windowReset });
+    return {
+      allowed: true,
+      remaining: Math.max(0, options.limit - 1),
+      resetAt: windowReset,
+    };
+  }
+
+  if (existing.hits + 1 > options.limit) {
+    return {
+      allowed: false,
+      remaining: 0,
+      resetAt: existing.resetAt,
+    };
+  }
+
+  const next = { hits: existing.hits + 1, resetAt: existing.resetAt };
+  memoryBuckets.set(key, next);
+  return {
+    allowed: true,
+    remaining: Math.max(0, options.limit - next.hits),
+    resetAt: next.resetAt,
+  };
+}
+
 export async function consumeRateLimit(
   key: string,
   options: RateLimitOptions
 ): Promise<RateLimitResult> {
   const now = new Date();
-  const prisma = getPrisma();
+  let prisma: ReturnType<typeof getPrisma>;
+  try {
+    prisma = getPrisma();
+  } catch {
+    return consumeMemoryRateLimit(key, options);
+  }
   const existing = await prisma.rateLimitBucket.findUnique({ where: { key } });
   const windowReset = new Date(now.getTime() + options.windowMs);
 
