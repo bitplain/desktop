@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSettings } from "./SettingsProvider";
+import { computeVirtualRows } from "@/lib/iconLayout";
 
 export type DesktopIcon = {
   id: string;
@@ -24,13 +25,84 @@ export default function DesktopIcons({
   const router = useRouter();
   const { playSound } = useSettings();
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [viewport, setViewport] = useState({ width: 0, height: 0, scrollTop: 0 });
+
+  useEffect(() => {
+    const node = containerRef.current;
+    if (!node) {
+      return;
+    }
+    const updateSize = () => {
+      const rect = node.getBoundingClientRect();
+      setViewport((prev) => ({
+        ...prev,
+        width: rect.width,
+        height: rect.height,
+      }));
+    };
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
+
+  const layout = useMemo(() => {
+    const shouldVirtualize = icons.length > 32 && viewport.height > 0;
+    const gridGap = 18;
+    const iconWidth = 88;
+    const rowHeight = 108;
+    const columns = Math.max(
+      1,
+      Math.floor((viewport.width + gridGap) / (iconWidth + gridGap))
+    );
+    if (!shouldVirtualize) {
+      return {
+        shouldVirtualize,
+        rowHeight,
+        topSpacerHeight: 0,
+        bottomSpacerHeight: 0,
+        visibleIcons: icons,
+      };
+    }
+    const virtual = computeVirtualRows(viewport.height, rowHeight, icons, {
+      columns,
+      scrollTop: viewport.scrollTop,
+      overscan: 1,
+    });
+    return {
+      shouldVirtualize,
+      rowHeight,
+      topSpacerHeight: virtual.topSpacerHeight,
+      bottomSpacerHeight: virtual.bottomSpacerHeight,
+      visibleIcons: icons.slice(virtual.startIndex, virtual.endIndex + 1),
+    };
+  }, [icons, viewport.height, viewport.scrollTop, viewport.width]);
 
   return (
     <div
       className="desktop-icons"
+      ref={containerRef}
       onClick={() => setSelectedId(null)}
+      onScroll={(event) => {
+        const nextScrollTop = (event.currentTarget as HTMLDivElement).scrollTop;
+        setViewport((prev) =>
+          prev.scrollTop === nextScrollTop ? prev : { ...prev, scrollTop: nextScrollTop }
+        );
+      }}
+      style={
+        layout.shouldVirtualize
+          ? {
+              maxHeight: "calc(100vh - 140px)",
+              overflowY: "auto",
+              gridAutoRows: `${layout.rowHeight}px`,
+            }
+          : undefined
+      }
     >
-      {icons.map((icon) => (
+      {layout.topSpacerHeight ? (
+        <div style={{ height: layout.topSpacerHeight, gridColumn: "1 / -1" }} />
+      ) : null}
+      {layout.visibleIcons.map((icon) => (
         <button
           key={icon.id}
           className={`desktop-icon variant-${icon.variant} ${
@@ -81,6 +153,9 @@ export default function DesktopIcons({
           <span className="desktop-icon-label">{icon.label}</span>
         </button>
       ))}
+      {layout.bottomSpacerHeight ? (
+        <div style={{ height: layout.bottomSpacerHeight, gridColumn: "1 / -1" }} />
+      ) : null}
     </div>
   );
 }

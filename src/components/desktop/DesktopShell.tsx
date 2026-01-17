@@ -18,6 +18,7 @@ import {
 } from "@/lib/windowLayouts";
 import { debounce } from "@/lib/debounce";
 import { clampWindowBounds } from "@/lib/windowBounds";
+import { groupIconsByCategory, sortIconsByLabel } from "@/lib/iconLayout";
 import type { ModuleLoader, ModuleManifest } from "@/modules/types";
 
 type WindowConfig = {
@@ -476,13 +477,17 @@ export default function DesktopShell({
     action: { type: "window", target: module.id },
   });
 
-  const icons: DesktopIcon[] = desktopModules.map((module) => ({
-    id: `desktop-${module.id}`,
-    label: module.title,
-    variant: "app",
-    icon: module.icon,
-    action: { type: "window", target: module.id },
-  }));
+  const icons = useMemo(() => {
+    const baseIcons: DesktopIcon[] = desktopModules.map((module) => ({
+      id: `desktop-${module.id}`,
+      label: module.title,
+      variant: "app",
+      icon: module.icon,
+      action: { type: "window", target: module.id },
+    }));
+    const grouped = groupIconsByCategory(baseIcons);
+    return grouped.flatMap((group) => sortIconsByLabel(group.items));
+  }, [desktopModules]);
 
   const startLeft: StartMenuItem[] = startMenuModules
     .slice(0, 4)
