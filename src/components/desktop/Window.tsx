@@ -101,10 +101,8 @@ export default function Window({
     isMaximized,
     onPositionChange,
     onSizeChange,
-    position.x,
-    position.y,
-    size.height,
-    size.width,
+    position,
+    size,
   ]);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {

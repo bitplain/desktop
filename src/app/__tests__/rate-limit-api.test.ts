@@ -3,6 +3,11 @@ vi.mock("@/lib/inviteCodes", () => ({
   verifyInviteCode: vi.fn().mockResolvedValue(true),
 }));
 
+type TransactionStub = {
+  user: { create: () => Promise<{ id: string }> };
+  invite: { update: () => Promise<{ id: string }> };
+};
+
 vi.mock("@/lib/db", () => ({
   getPrisma: () => ({
     invite: {
@@ -15,7 +20,7 @@ vi.mock("@/lib/db", () => ({
         },
       ],
     },
-    $transaction: async (handler: (tx: any) => Promise<void>) =>
+    $transaction: async (handler: (tx: TransactionStub) => Promise<void>) =>
       handler({
         user: {
           create: async () => ({ id: "user-1" }),

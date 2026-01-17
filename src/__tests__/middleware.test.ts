@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { NextRequest } from "next/server";
 import { middleware } from "../../middleware";
 import { getToken } from "next-auth/jwt";
 
@@ -16,7 +17,7 @@ const makeRequest = (pathname: string) => {
     cookies: {
       get: () => undefined,
     },
-  } as any;
+  } as unknown as NextRequest;
 };
 
 describe("middleware", () => {
