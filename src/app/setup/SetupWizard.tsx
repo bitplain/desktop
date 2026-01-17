@@ -235,7 +235,10 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
     const result = await postJson("/api/setup/complete", payload);
     if (!result.ok) {
       const message = result.data?.error || "Ошибка настройки.";
-      setError(message);
+      const friendly = message.includes("CONFIG_ENCRYPTION_KEY")
+        ? "На сервере не задан CONFIG_ENCRYPTION_KEY."
+        : message;
+      setError(friendly);
       setLoading(false);
       return;
     }

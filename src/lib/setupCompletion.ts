@@ -10,6 +10,7 @@ import { loadRuntimeConfig, resolveConfigPath, type RuntimeConfig } from "./runt
 import { pickMigrationMode } from "./setupMigrations";
 import { validateDatabaseUrl } from "./setupValidation";
 import { validateEmail, validatePassword } from "./validation";
+import { encryptConfigPayload } from "./configCrypto";
 
 export type SetupCompletionInput = {
   databaseUrl?: string;
@@ -63,7 +64,14 @@ export async function completeSetup(
       nextAuthSecret: deps.generateSecret(),
       keysEncryptionSecret: deps.generateSecret(),
     };
-    await deps.writeConfig(config);
+    try {
+      await deps.writeConfig(config);
+    } catch (error) {
+      return {
+        status: "invalid",
+        error: error instanceof Error ? error.message : "Config write failed",
+      };
+    }
   }
 
   deps.applyConfig(config);
@@ -93,8 +101,13 @@ export function createDefaultSetupDeps(): SetupCompletionDeps {
     loadConfig: () => loadRuntimeConfig(),
     writeConfig: async (config) => {
       const path = resolveConfigPath();
+      const encryptionKey = process.env.CONFIG_ENCRYPTION_KEY?.trim() || "";
+      if (!encryptionKey) {
+        throw new Error("CONFIG_ENCRYPTION_KEY is required");
+      }
+      const encrypted = encryptConfigPayload(config, encryptionKey);
       await mkdir(path.replace("/config.json", ""), { recursive: true });
-      await writeFile(path, JSON.stringify(config, null, 2), { mode: 0o600 });
+      await writeFile(path, JSON.stringify(encrypted, null, 2), { mode: 0o600 });
     },
     applyConfig: (config) => {
       process.env.DATABASE_URL = config.databaseUrl;
