@@ -7,23 +7,19 @@ const baseProps = {
   step: "db" as const,
   email: "",
   password: "",
-  databaseUrl: "",
   dbHost: "",
   dbPort: "",
   dbUser: "",
   dbPassword: "",
-  dbName: "",
   loading: false,
   error: null as string | null,
   success: false,
   onChangeEmail: () => undefined,
   onChangePassword: () => undefined,
-  onChangeDatabaseUrl: () => undefined,
   onChangeDbHost: () => undefined,
   onChangeDbPort: () => undefined,
   onChangeDbUser: () => undefined,
   onChangeDbPassword: () => undefined,
-  onChangeDbName: () => undefined,
   onSubmit: () => undefined,
   onNext: () => undefined,
   onBack: () => undefined,
@@ -37,7 +33,12 @@ describe("setup wizard layout", () => {
     expect(html).toContain("Port");
     expect(html).toContain("User");
     expect(html).toContain("Password");
-    expect(html).toContain("Database");
+    expect(html).not.toContain("Database");
+  });
+
+  it("omits database name and secrets step", () => {
+    const html = renderToString(<SetupWizardLayout {...baseProps} step="db" />);
+    expect(html).not.toContain("Конфигурация и секреты");
   });
 
   it("shows next button on db step and submit on admin step", () => {

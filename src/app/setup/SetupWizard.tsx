@@ -16,23 +16,19 @@ type LayoutProps = {
   step: WizardStep;
   email: string;
   password: string;
-  databaseUrl: string;
   dbHost: string;
   dbPort: string;
   dbUser: string;
   dbPassword: string;
-  dbName: string;
   loading: boolean;
   error: string | null;
   success: boolean;
   onChangeEmail: (value: string) => void;
   onChangePassword: (value: string) => void;
-  onChangeDatabaseUrl: (value: string) => void;
   onChangeDbHost: (value: string) => void;
   onChangeDbPort: (value: string) => void;
   onChangeDbUser: (value: string) => void;
   onChangeDbPassword: (value: string) => void;
-  onChangeDbName: (value: string) => void;
   onSubmit: (event: React.FormEvent) => void;
   onNext: () => void;
   onBack: () => void;
@@ -44,23 +40,19 @@ export function SetupWizardLayout({
   step,
   email,
   password,
-  databaseUrl,
   dbHost,
   dbPort,
   dbUser,
   dbPassword,
-  dbName,
   loading,
   error,
   success,
   onChangeEmail,
   onChangePassword,
-  onChangeDatabaseUrl,
   onChangeDbHost,
   onChangeDbPort,
   onChangeDbUser,
   onChangeDbPassword,
-  onChangeDbName,
   onSubmit,
   onNext,
   onBack,
@@ -82,11 +74,9 @@ export function SetupWizardLayout({
             </div>
           </div>
           <div className="setup-steps">
-            <div className="setup-step">1. Конфигурация и секреты</div>
-            <div className="setup-step">2. Миграции базы</div>
-            <div className="setup-step">3. Администратор</div>
+            <div className="setup-step">1. База данных</div>
+            <div className="setup-step">2. Администратор</div>
           </div>
-          <div className="setup-note">Секреты будут сгенерированы автоматически.</div>
         </div>
         <div className="login-form">
           {!success ? (
@@ -100,7 +90,6 @@ export function SetupWizardLayout({
                       className="xp-input"
                       value={dbHost}
                       onChange={(event) => onChangeDbHost(event.target.value)}
-                      placeholder="db"
                       required
                     />
                   </label>
@@ -110,7 +99,6 @@ export function SetupWizardLayout({
                       className="xp-input"
                       value={dbPort}
                       onChange={(event) => onChangeDbPort(event.target.value)}
-                      placeholder="5432"
                       required
                     />
                   </label>
@@ -120,7 +108,6 @@ export function SetupWizardLayout({
                       className="xp-input"
                       value={dbUser}
                       onChange={(event) => onChangeDbUser(event.target.value)}
-                      placeholder="desktop"
                       required
                     />
                   </label>
@@ -131,21 +118,9 @@ export function SetupWizardLayout({
                       type="password"
                       value={dbPassword}
                       onChange={(event) => onChangeDbPassword(event.target.value)}
-                      placeholder="desktop"
                       required
                     />
                   </label>
-                  <label className="setup-field">
-                    <span>Database</span>
-                    <input
-                      className="xp-input"
-                      value={dbName}
-                      onChange={(event) => onChangeDbName(event.target.value)}
-                      placeholder="desktop"
-                      required
-                    />
-                  </label>
-                  <div className="setup-note">Для docker-compose host=db.</div>
                 </div>
               ) : (
                 <>
@@ -217,12 +192,10 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
   const [step, setStep] = useState<WizardStep>(
     initialStatus === "needsSetup" ? "db" : "admin"
   );
-  const [databaseUrl, setDatabaseUrl] = useState("");
   const [dbHost, setDbHost] = useState("");
   const [dbPort, setDbPort] = useState("");
   const [dbUser, setDbUser] = useState("");
   const [dbPassword, setDbPassword] = useState("");
-  const [dbName, setDbName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -231,21 +204,19 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
 
   const payload = useMemo(
     () => ({
-      databaseUrl,
       dbHost,
       dbPort,
       dbUser,
       dbPassword,
-      dbName,
       email,
       password,
     }),
-    [databaseUrl, dbHost, dbPort, dbUser, dbPassword, dbName, email, password]
+    [dbHost, dbPort, dbUser, dbPassword, email, password]
   );
 
   const onNext = () => {
     setError(null);
-    if (!dbHost.trim() || !dbPort.trim() || !dbUser.trim() || !dbPassword.trim() || !dbName.trim()) {
+    if (!dbHost.trim() || !dbPort.trim() || !dbUser.trim() || !dbPassword.trim()) {
       setError("Заполните все поля базы данных.");
       return;
     }
@@ -278,23 +249,19 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
       step={step}
       email={email}
       password={password}
-      databaseUrl={databaseUrl}
       dbHost={dbHost}
       dbPort={dbPort}
       dbUser={dbUser}
       dbPassword={dbPassword}
-      dbName={dbName}
       loading={loading}
       error={error}
       success={success}
       onChangeEmail={setEmail}
       onChangePassword={setPassword}
-      onChangeDatabaseUrl={setDatabaseUrl}
       onChangeDbHost={setDbHost}
       onChangeDbPort={setDbPort}
       onChangeDbUser={setDbUser}
       onChangeDbPassword={setDbPassword}
-      onChangeDbName={setDbName}
       onSubmit={onSubmit}
       onNext={onNext}
       onBack={onBack}
