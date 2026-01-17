@@ -1,7 +1,4 @@
 import type { ModuleManifest } from "@/modules/types";
-import CalculatorApp from "@/components/desktop/apps/CalculatorApp";
-
-const CalculatorWindow: ModuleManifest["Window"] = () => <CalculatorApp />;
 
 const manifest: ModuleManifest = {
   id: "calculator",
@@ -10,7 +7,6 @@ const manifest: ModuleManifest = {
   icon: "/icons/xp/window.png",
   desktopIcon: true,
   startMenu: true,
-  Window: CalculatorWindow,
 };
 
 export default manifest;

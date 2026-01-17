@@ -1,9 +1,4 @@
 import type { ModuleManifest } from "@/modules/types";
-import AccountApp from "@/components/desktop/apps/AccountApp";
-
-const AccountWindow = ({ userEmail }: { userEmail?: string | null }) => (
-  <AccountApp email={userEmail} />
-);
 
 const manifest: ModuleManifest = {
   id: "account",
@@ -12,7 +7,6 @@ const manifest: ModuleManifest = {
   icon: "/icons/xp/user.svg",
   desktopIcon: true,
   startMenu: true,
-  Window: AccountWindow,
 };
 
 export default manifest;

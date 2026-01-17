@@ -1,7 +1,4 @@
 import type { ModuleManifest } from "@/modules/types";
-import AboutApp from "@/components/desktop/apps/AboutApp";
-
-const AboutWindow: ModuleManifest["Window"] = () => <AboutApp />;
 
 const manifest: ModuleManifest = {
   id: "about",
@@ -11,7 +8,6 @@ const manifest: ModuleManifest = {
   desktopIcon: true,
   startMenu: true,
   defaultOpen: true,
-  Window: AboutWindow,
 };
 
 export default manifest;

@@ -1,7 +1,4 @@
 import type { ModuleManifest } from "@/modules/types";
-import NotepadApp from "@/components/desktop/apps/NotepadApp";
-
-const NotepadWindow: ModuleManifest["Window"] = () => <NotepadApp />;
 
 const manifest: ModuleManifest = {
   id: "notepad",
@@ -10,7 +7,6 @@ const manifest: ModuleManifest = {
   icon: "/icons/xp/docs.png",
   desktopIcon: true,
   startMenu: true,
-  Window: NotepadWindow,
 };
 
 export default manifest;

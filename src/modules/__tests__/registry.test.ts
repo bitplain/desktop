@@ -6,4 +6,11 @@ describe("module registry", () => {
     expect(Array.isArray(modulesMeta)).toBe(true);
     expect(typeof moduleLoaders).toBe("object");
   });
+
+  it("includes notepad loader", async () => {
+    const loader = moduleLoaders["notepad"];
+    expect(loader).toBeTruthy();
+    const mod = await loader();
+    expect(typeof mod.default).toBe("function");
+  });
 });
