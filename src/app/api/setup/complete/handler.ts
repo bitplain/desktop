@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { buildDatabaseUrl } from "@/lib/buildDatabaseUrl";
 import { completeSetup, createDefaultSetupDeps } from "@/lib/setupCompletion";
+import { consumeRateLimit } from "@/lib/rateLimit";
+import { getRequestIp } from "@/lib/requestIp";
 
 type SetupHandlerDeps = {
   completeSetup: typeof completeSetup;
@@ -12,6 +14,18 @@ export async function handleSetupComplete(
   deps: SetupHandlerDeps = { completeSetup, createDefaultSetupDeps }
 ) {
   const body = await request.json().catch(() => ({}));
+  const ip = getRequestIp(request.headers);
+  const rateLimitKey = `setup|${ip}`;
+  const rateLimit = await consumeRateLimit(rateLimitKey, {
+    limit: 5,
+    windowMs: 60 * 60 * 1000,
+  });
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Слишком много попыток настройки." },
+      { status: 429 }
+    );
+  }
   const rawDatabaseUrl = String(body?.databaseUrl ?? "");
   const builtDatabaseUrl = buildDatabaseUrl({
     host: String(body?.dbHost ?? ""),

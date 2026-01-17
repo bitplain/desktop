@@ -4,9 +4,10 @@ import { getPrisma } from "@/lib/db";
 import { Prisma } from "@prisma/client";
 import { verifyInviteCode } from "@/lib/inviteCodes";
 import { validateEmail, validatePassword } from "@/lib/validation";
+import { consumeRateLimit } from "@/lib/rateLimit";
+import { getRequestIp } from "@/lib/requestIp";
 
 export async function POST(request: Request) {
-  const prisma = getPrisma();
   const body = await request.json();
   const emailCheck = validateEmail(String(body?.email ?? ""));
   const passwordCheck = validatePassword(String(body?.password ?? ""));
@@ -14,6 +15,19 @@ export async function POST(request: Request) {
   if (!emailCheck.ok || !passwordCheck.ok || !inviteCode) {
     return NextResponse.json({ error: "Invalid input" }, { status: 400 });
   }
+  const ip = getRequestIp(request.headers);
+  const rateLimitKey = `register|${ip}|${emailCheck.value}`;
+  const rateLimit = await consumeRateLimit(rateLimitKey, {
+    limit: 5,
+    windowMs: 10 * 60 * 1000,
+  });
+  if (!rateLimit.allowed) {
+    return NextResponse.json(
+      { error: "Слишком много попыток. Повторите позже." },
+      { status: 429 }
+    );
+  }
+  const prisma = getPrisma();
   const now = new Date();
   const invites = await prisma.invite.findMany({
     where: {

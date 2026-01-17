@@ -4,12 +4,23 @@ import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 import { getPrisma } from "@/lib/db";
 import { validatePassword } from "@/lib/validation";
+import { consumeRateLimit } from "@/lib/rateLimit";
+import { getRequestIp } from "@/lib/requestIp";
 
 export async function POST(request: Request) {
   const prisma = getPrisma();
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  const ip = getRequestIp(request.headers);
+  const rateLimitKey = `password|${ip}|${session.user.id}`;
+  const rateLimit = await consumeRateLimit(rateLimitKey, {
+    limit: 5,
+    windowMs: 10 * 60 * 1000,
+  });
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: "Слишком много попыток. Повторите позже." }, { status: 429 });
   }
 
   try {

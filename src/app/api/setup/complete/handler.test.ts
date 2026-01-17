@@ -1,5 +1,13 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { handleSetupComplete } from "./handler";
+
+vi.mock("@/lib/rateLimit", () => ({
+  consumeRateLimit: vi.fn().mockResolvedValue({
+    allowed: true,
+    remaining: 1,
+    resetAt: new Date(),
+  }),
+}));
 
 const makeRequest = (body: unknown) =>
   new Request("http://localhost/api/setup/complete", {
