@@ -40,6 +40,25 @@ describe("setup completion", () => {
     expect(deps.createAdmin).toHaveBeenCalledOnce();
   });
 
+  it("uses env secrets when provided", async () => {
+    vi.stubEnv("NEXTAUTH_SECRET", "env-nextauth");
+    vi.stubEnv("KEYS_ENCRYPTION_SECRET", "env-keys");
+    const deps = baseDeps();
+    let writtenConfig:
+      | { databaseUrl: string; nextAuthSecret: string; keysEncryptionSecret: string }
+      | null = null;
+    deps.writeConfig = vi.fn(async (config) => {
+      writtenConfig = config;
+    });
+    const result = await completeSetup(
+      { databaseUrl: "postgres://db", email: "admin@test.dev", password: "Password1!" },
+      deps
+    );
+    expect(result.status).toBe("ok");
+    expect(writtenConfig?.nextAuthSecret).toBe("env-nextauth");
+    expect(writtenConfig?.keysEncryptionSecret).toBe("env-keys");
+  });
+
   it("skips config write when config exists", async () => {
     const deps = baseDeps();
     deps.loadConfig = () => ({

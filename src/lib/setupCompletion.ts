@@ -59,10 +59,12 @@ export async function completeSetup(
     if (!dbCheck.ok) {
       return { status: "invalid", error: dbCheck.error ?? "Invalid database url" };
     }
+    const envNextAuth = process.env.NEXTAUTH_SECRET?.trim() || "";
+    const envKeys = process.env.KEYS_ENCRYPTION_SECRET?.trim() || "";
     config = {
       databaseUrl: input.databaseUrl ?? "",
-      nextAuthSecret: deps.generateSecret(),
-      keysEncryptionSecret: deps.generateSecret(),
+      nextAuthSecret: envNextAuth || deps.generateSecret(),
+      keysEncryptionSecret: envKeys || deps.generateSecret(),
     };
     try {
       await deps.writeConfig(config);

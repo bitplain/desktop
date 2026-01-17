@@ -15,6 +15,10 @@ services:
       - "3000:3000"
     volumes:
       - ./data:/data
+    environment:
+      CONFIG_ENCRYPTION_KEY: "71cf76fe73f7f6d34d5f8f09677efbc1dbd7ba30a7a81766950010dd20dff644"
+      NEXTAUTH_SECRET: "6137dafc5b7d2e773866094c43be3cc5851d70eb30a569296f6a06b3355132e1"
+      KEYS_ENCRYPTION_SECRET: "2b9299409332902a7139c6b25f6cc4432bc143db9134395cab52acc432e3f466"
     depends_on:
       - db
 
