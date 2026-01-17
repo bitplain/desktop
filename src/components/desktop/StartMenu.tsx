@@ -23,6 +23,7 @@ export default function StartMenu({
   onTile,
   onClose,
   onOpenWindow,
+  onPrefetchWindow,
   userEmail,
 }: {
   open: boolean;
@@ -33,6 +34,7 @@ export default function StartMenu({
   onTile: () => void;
   onClose: () => void;
   onOpenWindow: (id: string) => void;
+  onPrefetchWindow?: (id: string) => void;
   userEmail?: string | null;
 }) {
   const router = useRouter();
@@ -83,6 +85,11 @@ export default function StartMenu({
               className="start-menu-item"
               type="button"
               onClick={() => handleAction(item)}
+              onMouseEnter={() => {
+                if (item.action.type === "window") {
+                  onPrefetchWindow?.(item.action.target);
+                }
+              }}
             >
               {item.icon ? (
                 <span
@@ -150,6 +157,11 @@ export default function StartMenu({
               className="start-menu-item"
               type="button"
               onClick={() => handleAction(item)}
+              onMouseEnter={() => {
+                if (item.action.type === "window") {
+                  onPrefetchWindow?.(item.action.target);
+                }
+              }}
             >
               {item.icon ? (
                 <span
@@ -180,6 +192,11 @@ export default function StartMenu({
               className="start-menu-item"
               type="button"
               onClick={() => handleAction(item)}
+              onMouseEnter={() => {
+                if (item.action.type === "window") {
+                  onPrefetchWindow?.(item.action.target);
+                }
+              }}
             >
               {item.icon ? (
                 <span

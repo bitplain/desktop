@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { useSettings } from "./SettingsProvider";
 import DesktopIcons, { DesktopIcon } from "./DesktopIcons";
 import StartMenu, { StartMenuItem } from "./StartMenu";
 import Taskbar from "./Taskbar";
 import Window from "./Window";
+import WindowLoading from "./WindowLoading";
 import OfflineBanner from "@/components/OfflineBanner";
 import {
   cascadeLayout,
@@ -16,7 +18,7 @@ import {
 } from "@/lib/windowLayouts";
 import { debounce } from "@/lib/debounce";
 import { clampWindowBounds } from "@/lib/windowBounds";
-import type { ModuleManifest } from "@/modules/types";
+import type { ModuleLoader, ModuleManifest } from "@/modules/types";
 
 type WindowConfig = {
   id: string;
@@ -74,9 +76,11 @@ function createInitialState(configs: WindowConfig[]): WindowState[] {
 
 export default function DesktopShell({
   modules,
+  moduleLoaders,
   userEmail,
 }: {
   modules: ModuleManifest[];
+  moduleLoaders: Record<string, ModuleLoader>;
   userEmail?: string | null;
 }) {
   const { playSound } = useSettings();
@@ -90,16 +94,25 @@ export default function DesktopShell({
   const saveLayout = useMemo(() => debounce(saveWindowLayout, 250), []);
 
   const windowConfigs = useMemo<WindowConfig[]>(() => {
-    return modules.map((module) => ({
-      id: module.id,
-      title: module.title,
-      subtitle: module.subtitle,
-      icon: module.icon,
-      content: <module.Window userEmail={userEmail} />,
-      defaultOpen: module.defaultOpen ?? false,
-      canClose: true,
-    }));
-  }, [modules, userEmail]);
+    return modules.map((module) => {
+      const loader = moduleLoaders[module.id];
+      const WindowComponent = loader
+        ? dynamic(loader, {
+            loading: () => <WindowLoading />,
+            ssr: false,
+          })
+        : WindowLoading;
+      return {
+        id: module.id,
+        title: module.title,
+        subtitle: module.subtitle,
+        icon: module.icon,
+        content: <WindowComponent userEmail={userEmail} />,
+        defaultOpen: module.defaultOpen ?? false,
+        canClose: true,
+      };
+    });
+  }, [modules, moduleLoaders, userEmail]);
 
   const [windows, setWindows] = useState<WindowState[]>(() => {
     const base = createInitialState(windowConfigs);
@@ -197,6 +210,16 @@ export default function DesktopShell({
     windows.forEach((item) => map.set(item.id, item));
     return map;
   }, [windows]);
+
+  const prefetchWindow = useCallback(
+    (id: string) => {
+      const loader = moduleLoaders[id];
+      if (loader) {
+        void loader();
+      }
+    },
+    [moduleLoaders]
+  );
 
   const openWindow = (id: string) => {
     playSound("notify");
@@ -485,7 +508,11 @@ export default function DesktopShell({
     >
       <div className="desktop-wallpaper" aria-hidden />
       <OfflineBanner />
-      <DesktopIcons icons={icons} onOpenWindow={openWindow} />
+      <DesktopIcons
+        icons={icons}
+        onOpenWindow={openWindow}
+        onPrefetchWindow={prefetchWindow}
+      />
       <div className="desktop-windows">
         {openWindows.map((config) => {
           const state = windowsMap.get(config.id);
@@ -599,6 +626,7 @@ export default function DesktopShell({
         onTile={tileWindows}
         onClose={() => setStartOpen(false)}
         onOpenWindow={openWindow}
+        onPrefetchWindow={prefetchWindow}
         userEmail={userEmail}
       />
       <Taskbar

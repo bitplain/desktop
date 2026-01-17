@@ -15,9 +15,11 @@ export type DesktopIcon = {
 export default function DesktopIcons({
   icons,
   onOpenWindow,
+  onPrefetchWindow,
 }: {
   icons: DesktopIcon[];
   onOpenWindow: (id: string) => void;
+  onPrefetchWindow?: (id: string) => void;
 }) {
   const router = useRouter();
   const { playSound } = useSettings();
@@ -39,6 +41,16 @@ export default function DesktopIcons({
             event.stopPropagation();
             playSound("click");
             setSelectedId(icon.id);
+          }}
+          onMouseEnter={() => {
+            if (icon.action.type === "window") {
+              onPrefetchWindow?.(icon.action.target);
+            }
+          }}
+          onFocus={() => {
+            if (icon.action.type === "window") {
+              onPrefetchWindow?.(icon.action.target);
+            }
           }}
           onDoubleClick={(event) => {
             event.stopPropagation();
