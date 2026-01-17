@@ -13,8 +13,11 @@ import {
   cascadeLayout,
   clearWindowLayout,
   loadWindowLayout,
-  saveWindowLayout,
+  cancelSaveWindowLayoutIdle,
+  saveWindowLayoutIdle,
+  shouldPersistLayout,
   tileLayout,
+  type WindowLayout,
 } from "@/lib/windowLayouts";
 import { debounce } from "@/lib/debounce";
 import { clampWindowBounds } from "@/lib/windowBounds";
@@ -92,7 +95,11 @@ export default function DesktopShell({
     y: number;
   }>({ open: false, x: 0, y: 0 });
   const zCounter = useRef(100);
-  const saveLayout = useMemo(() => debounce(saveWindowLayout, 250), []);
+  const lastSavedLayout = useRef<WindowLayout[] | null>(null);
+  const saveLayout = useMemo(
+    () => debounce((layout: WindowLayout[]) => saveWindowLayoutIdle(layout), 250),
+    []
+  );
 
   const windowConfigs = useMemo<WindowConfig[]>(() => {
     return modules.map((module) => {
@@ -344,8 +351,14 @@ export default function DesktopShell({
       isMinimized: item.isMinimized,
       isMaximized: item.isMaximized,
     }));
-    saveLayout(payload);
-    return () => saveLayout.cancel();
+    if (!lastSavedLayout.current || shouldPersistLayout(lastSavedLayout.current, payload)) {
+      saveLayout(payload);
+      lastSavedLayout.current = payload;
+    }
+    return () => {
+      saveLayout.cancel();
+      cancelSaveWindowLayoutIdle();
+    };
   }, [saveLayout, windows]);
 
   const cascadeWindows = () => {

@@ -36,6 +36,96 @@ export function saveWindowLayout(layout: WindowLayout[]) {
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
 }
 
+type IdleCallback = (deadline: { didTimeout: boolean; timeRemaining: () => number }) => void;
+
+let idleHandle: number | null = null;
+
+function getIdleScheduler() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+  const requestIdle = (window as Window & { requestIdleCallback?: (cb: IdleCallback) => number })
+    .requestIdleCallback;
+  const cancelIdle = (window as Window & { cancelIdleCallback?: (handle: number) => void })
+    .cancelIdleCallback;
+  return {
+    requestIdle:
+      requestIdle ??
+      ((callback: IdleCallback) =>
+        window.setTimeout(
+          () => callback({ didTimeout: true, timeRemaining: () => 0 }),
+          200
+        )),
+    cancelIdle: cancelIdle ?? ((handle: number) => window.clearTimeout(handle)),
+  };
+}
+
+export function saveWindowLayoutIdle(layout: WindowLayout[]) {
+  if (typeof window === "undefined") {
+    return;
+  }
+  const scheduler = getIdleScheduler();
+  if (!scheduler) {
+    return;
+  }
+  if (idleHandle !== null) {
+    scheduler.cancelIdle(idleHandle);
+  }
+  idleHandle = scheduler.requestIdle(() => {
+    saveWindowLayout(layout);
+    idleHandle = null;
+  });
+}
+
+export function cancelSaveWindowLayoutIdle() {
+  const scheduler = getIdleScheduler();
+  if (!scheduler || idleHandle === null) {
+    return;
+  }
+  scheduler.cancelIdle(idleHandle);
+  idleHandle = null;
+}
+
+export function shouldPersistLayout(prev: WindowLayout[], next: WindowLayout[]) {
+  if (prev.length !== next.length) {
+    return true;
+  }
+  for (let index = 0; index < prev.length; index += 1) {
+    const a = prev[index];
+    const b = next[index];
+    if (a.id !== b.id) {
+      return true;
+    }
+    if (a.zIndex !== b.zIndex) {
+      return true;
+    }
+    if (a.isOpen !== b.isOpen) {
+      return true;
+    }
+    if (a.isMinimized !== b.isMinimized) {
+      return true;
+    }
+    if ((a.isMaximized ?? false) !== (b.isMaximized ?? false)) {
+      return true;
+    }
+    if (a.position.x !== b.position.x || a.position.y !== b.position.y) {
+      return true;
+    }
+    const aSize = a.size;
+    const bSize = b.size;
+    if (!aSize && !bSize) {
+      continue;
+    }
+    if (!aSize || !bSize) {
+      return true;
+    }
+    if (aSize.width !== bSize.width || aSize.height !== bSize.height) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function clearWindowLayout() {
   if (typeof window === "undefined") {
     return;
