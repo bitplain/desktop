@@ -46,7 +46,6 @@ describe("setup complete handler", () => {
         dbPort: "5432",
         dbUser: "desktop",
         dbPassword: "desktop",
-        dbName: "desktop",
         email: "admin@test.dev",
         password: "Password1!",
       }),

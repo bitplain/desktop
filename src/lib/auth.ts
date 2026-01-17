@@ -6,7 +6,11 @@ import { loadRuntimeConfig } from "./runtimeConfig";
 
 loadRuntimeConfig();
 
+const nextAuthUrl = process.env.NEXTAUTH_URL?.trim() ?? "";
+const useSecureCookies = nextAuthUrl.startsWith("https://");
+
 export const authOptions: NextAuthOptions = {
+  useSecureCookies,
   providers: [
     CredentialsProvider({
       name: "Credentials",

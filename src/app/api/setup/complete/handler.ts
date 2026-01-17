@@ -18,7 +18,7 @@ export async function handleSetupComplete(
     port: String(body?.dbPort ?? ""),
     user: String(body?.dbUser ?? ""),
     password: String(body?.dbPassword ?? ""),
-    database: String(body?.dbName ?? ""),
+    database: "desktop",
   });
   const databaseUrl = rawDatabaseUrl || (builtDatabaseUrl.ok ? builtDatabaseUrl.value : "");
   const result = await deps.completeSetup({

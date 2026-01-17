@@ -5,6 +5,7 @@ import { resolve } from "node:path";
 import { promisify } from "node:util";
 import { hash } from "bcryptjs";
 import { getPrisma } from "./db";
+import { ensureDatabaseExists } from "./ensureDatabaseExists";
 import { loadRuntimeConfig, resolveConfigPath, type RuntimeConfig } from "./runtimeConfig";
 import { pickMigrationMode } from "./setupMigrations";
 import { validateDatabaseUrl } from "./setupValidation";
@@ -26,6 +27,7 @@ export type SetupCompletionDeps = {
   loadConfig: () => RuntimeConfig | null;
   writeConfig: (config: RuntimeConfig) => Promise<void>;
   applyConfig: (config: RuntimeConfig) => void;
+  ensureDatabaseExists: (databaseUrl: string) => Promise<void>;
   runMigrations: () => Promise<void>;
   getUserCount: () => Promise<number>;
   createAdmin: (input: { email: string; password: string }) => Promise<void>;
@@ -67,6 +69,7 @@ export async function completeSetup(
   deps.applyConfig(config);
 
   try {
+    await deps.ensureDatabaseExists(config.databaseUrl);
     await deps.runMigrations();
     const count = await deps.getUserCount();
     if (count > 0) {
@@ -97,6 +100,9 @@ export function createDefaultSetupDeps(): SetupCompletionDeps {
       process.env.DATABASE_URL = config.databaseUrl;
       process.env.NEXTAUTH_SECRET = config.nextAuthSecret;
       process.env.KEYS_ENCRYPTION_SECRET = config.keysEncryptionSecret;
+    },
+    ensureDatabaseExists: async (databaseUrl) => {
+      await ensureDatabaseExists(databaseUrl);
     },
     runMigrations: async () => {
       const prismaBin = resolve(process.cwd(), "node_modules/.bin/prisma");

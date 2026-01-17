@@ -21,4 +21,9 @@ describe("default setup deps", () => {
     expect(process.env.NEXTAUTH_SECRET).toBe("new-secret-1234567890");
     expect(process.env.KEYS_ENCRYPTION_SECRET).toBe("new-keys-1234567890");
   });
+
+  it("exposes ensureDatabaseExists", () => {
+    const deps = createDefaultSetupDeps();
+    expect(typeof deps.ensureDatabaseExists).toBe("function");
+  });
 });

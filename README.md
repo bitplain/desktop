@@ -5,16 +5,14 @@ XP-style desktop shell built with Next.js App Router, NextAuth Credentials, and 
 ## Setup flow
 
 1. Start the app (see Docker or Local Dev below).
-2. Visit `/setup` to provide:
-   - `databaseUrl`
-   - `nextAuthSecret`
-   - `keysEncryptionSecret`
-3. Visit `/setup/admin` to create the first admin.
-4. Create invite codes as admin via `POST /api/invites`.
-5. Register users at `/register` using an invite code, then log in at `/login`.
+2. Visit `/setup` to provide DB host/port/user/password and create the first admin.
+3. Create invite codes as admin via `POST /api/invites`.
+4. Register users at `/register` using an invite code, then log in at `/login`.
 
 Notes:
 - Runtime config is stored at `/data/config.json` (override base path with `DATA_DIR`).
+- Secrets are generated automatically during setup.
+- The database name is fixed to `desktop`.
 - Invites expire after 12 hours and are single-use.
 
 ## Docker
