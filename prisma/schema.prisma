@@ -27,6 +27,13 @@ model Invite {
   creator   User     @relation("InvitesCreated", fields: [createdBy], references: [id])
 }
 
+model RateLimitBucket {
+  key       String   @id
+  hits      Int
+  resetAt   DateTime
+  updatedAt DateTime @updatedAt
+}
+
 enum Role {
   ADMIN
   USER
