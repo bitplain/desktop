@@ -17,6 +17,9 @@ export async function middleware(request: NextRequest) {
   ) {
     return NextResponse.next();
   }
+  if (!process.env.NEXTAUTH_SECRET) {
+    return NextResponse.next();
+  }
   const token = await getToken({ req: request });
   const isAuthRoute =
     pathname.startsWith("/login") ||
