@@ -8,5 +8,8 @@ export type ModuleManifest = {
   desktopIcon?: boolean;
   startMenu?: boolean;
   defaultOpen?: boolean;
-  Window: ComponentType<{ userEmail?: string | null }>;
+  Window: ComponentType<{
+    userEmail?: string | null;
+    openWindow?: (id: string) => void;
+  }>;
 };

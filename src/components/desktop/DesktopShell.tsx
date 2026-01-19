@@ -23,7 +23,7 @@ type WindowConfig = {
   title: string;
   subtitle?: string;
   icon?: string;
-  content: React.ReactNode;
+  Window: ModuleManifest["Window"];
   defaultOpen?: boolean;
   canClose?: boolean;
 };
@@ -95,7 +95,7 @@ export default function DesktopShell({
       title: module.title,
       subtitle: module.subtitle,
       icon: module.icon,
-      content: <module.Window userEmail={userEmail} />,
+      Window: module.Window,
       defaultOpen: module.defaultOpen ?? false,
       canClose: true,
     }));
@@ -529,7 +529,7 @@ export default function DesktopShell({
               onPositionChange={updatePosition}
               onSizeChange={updateSize}
             >
-              {config.content}
+              <config.Window userEmail={userEmail} openWindow={openWindow} />
             </Window>
           );
         })}
