@@ -140,6 +140,10 @@ export default function FileManagerApp({
     const normalizedPath = entry.path.startsWith("video/")
       ? entry.path
       : buildPath(listPath, entry.name);
+    if (!normalizedPath.startsWith("video/")) {
+      setError("Видео доступны только внутри папки video.");
+      return;
+    }
     setCurrentVideo({ path: normalizedPath, name: entry.name });
     onOpenVideo();
   };
