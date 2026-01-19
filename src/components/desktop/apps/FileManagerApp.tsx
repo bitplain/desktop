@@ -30,7 +30,7 @@ type UploadItem = {
   error?: string;
 };
 
-function formatBytes(bytes: number) {
+function formatBytes(bytes: number | null) {
   if (bytes === null) return "—";
   if (bytes < 1024) return `${bytes} B`;
   const kb = bytes / 1024;
