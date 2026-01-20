@@ -1455,6 +1455,45 @@ textarea {
   color: #2c4675;
 }
 
+.upload-manager {
+  display: grid;
+  gap: 12px;
+  padding: 6px;
+}
+
+.upload-manager-list {
+  display: grid;
+  gap: 12px;
+}
+
+.upload-manager-item {
+  display: grid;
+  gap: 6px;
+}
+
+.upload-manager-name {
+  font-weight: 700;
+  color: #1c3763;
+}
+
+.upload-manager-progress {
+  height: 12px;
+  border: 1px solid #9db4db;
+  border-radius: 6px;
+  background: #eff4ff;
+  overflow: hidden;
+}
+
+.upload-manager-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4bd047 0%, #2c9c2a 100%);
+}
+
+.upload-manager-status {
+  font-size: 0.8rem;
+  color: #2c4675;
+}
+
 @media (max-width: 768px) {
   .xp-chrome {
     grid-template-columns: 1fr;
