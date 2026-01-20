@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { setVideoSelection } from "@/lib/videoSelectionStore";
-import { addUpload, updateUpload } from "@/lib/uploadStore";
+import { addUpload, updateUpload, type UploadItem } from "@/lib/uploadStore";
 import { XpChrome } from "@/components/desktop/apps/shared/XpChrome";
 import { TaskPane, type FileManagerView } from "@/components/desktop/apps/filemanager/TaskPane";
 import {
@@ -249,7 +249,7 @@ export default function FileManagerApp({
 
     Array.from(filesToUpload).forEach((file) => {
       const id = `${Date.now()}-${file.name}-${Math.random().toString(36).slice(2, 8)}`;
-      const item = {
+      const item: UploadItem = {
         id,
         name: file.name,
         progress: 0,
