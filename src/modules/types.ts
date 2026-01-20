@@ -11,5 +11,6 @@ export type ModuleManifest = {
   Window: ComponentType<{
     userEmail?: string | null;
     openWindow?: (id: string) => void;
+    closeWindow?: (id: string) => void;
   }>;
 };

@@ -529,7 +529,11 @@ export default function DesktopShell({
               onPositionChange={updatePosition}
               onSizeChange={updateSize}
             >
-              <config.Window userEmail={userEmail} openWindow={openWindow} />
+              <config.Window
+                userEmail={userEmail}
+                openWindow={openWindow}
+                closeWindow={closeWindow}
+              />
             </Window>
           );
         })}
