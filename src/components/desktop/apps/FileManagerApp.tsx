@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { setCurrentVideo } from "@/lib/videoSelectionStore";
+import { setVideoSelection } from "@/lib/videoSelectionStore";
+import { XpChrome } from "@/components/desktop/apps/shared/XpChrome";
+import { TaskPane, type FileManagerView } from "@/components/desktop/apps/filemanager/TaskPane";
+import {
+  IconGrid,
+  type FileManagerEntry,
+} from "@/components/desktop/apps/filemanager/IconGrid";
 
-const VIEW_VIDEO = "video";
-const VIEW_FAVORITES = "favorites";
-const VIEW_ROOT = "root";
+const VIEW_VIDEO: FileManagerView = "video";
+const VIEW_FAVORITES: FileManagerView = "favorites";
+const VIEW_ROOT: FileManagerView = "root";
 
 type FolderEntry = {
   name: string;
@@ -30,22 +36,6 @@ type UploadItem = {
   error?: string;
 };
 
-function formatBytes(bytes: number | null) {
-  if (bytes === null) return "—";
-  if (bytes < 1024) return `${bytes} B`;
-  const kb = bytes / 1024;
-  if (kb < 1024) return `${kb.toFixed(1)} KB`;
-  const mb = kb / 1024;
-  return `${mb.toFixed(1)} MB`;
-}
-
-function formatDate(value: string) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleString();
-}
-
 function buildPath(base: string, name: string) {
   return [base, name].filter(Boolean).join("/");
 }
@@ -55,15 +45,13 @@ export default function FileManagerApp({
 }: {
   onOpenVideo: () => void;
 }) {
-  const [view, setView] = useState(VIEW_VIDEO);
+  const [view, setView] = useState<FileManagerView>(VIEW_VIDEO);
   const [currentPath, setCurrentPath] = useState("video");
   const [folders, setFolders] = useState<FolderEntry[]>([]);
   const [files, setFiles] = useState<FileEntry[]>([]);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [creatingFolder, setCreatingFolder] = useState(false);
-  const [newFolderName, setNewFolderName] = useState("");
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
   const [uploads, setUploads] = useState<UploadItem[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -89,6 +77,29 @@ export default function FileManagerApp({
   const activeFiles = view === VIEW_FAVORITES ? favoritesList : files;
 
   const listPath = view === VIEW_ROOT ? "" : currentPath;
+
+  const gridEntries: FileManagerEntry[] = useMemo(() => {
+    if (view === VIEW_FAVORITES) {
+      return favoritesList.map((file) => ({
+        type: "file",
+        name: file.name,
+        path: file.path,
+      }));
+    }
+    return entries.map((entry) => ({
+      type: entry.type,
+      name: entry.name,
+      path: entry.path,
+    }));
+  }, [entries, favoritesList, view]);
+
+  const isEmpty = view === VIEW_FAVORITES ? favoritesList.length === 0 : entries.length === 0;
+
+  const selectedLabel = useMemo(() => {
+    if (!selectedPath) return null;
+    const match = gridEntries.find((entry) => entry.path === selectedPath);
+    return match?.name ?? null;
+  }, [gridEntries, selectedPath]);
 
   const loadFavorites = async () => {
     const res = await fetch("/api/filemanager/favorites");
@@ -124,7 +135,18 @@ export default function FileManagerApp({
     loadFavorites();
   }, [listPath]);
 
-  const openFolder = (folder: FolderEntry) => {
+  const handleViewChange = (nextView: FileManagerView) => {
+    setView(nextView);
+    setSelectedPath(null);
+    setError(null);
+    if (nextView === VIEW_ROOT) {
+      setCurrentPath("");
+      return;
+    }
+    setCurrentPath("video");
+  };
+
+  const openFolder = (folder: { name: string; path: string }) => {
     if (view === VIEW_FAVORITES) return;
     const nextPath = buildPath(listPath, folder.name);
     setCurrentPath(nextPath);
@@ -132,7 +154,7 @@ export default function FileManagerApp({
     setSelectedPath(null);
   };
 
-  const handleDoubleClick = (entry: Entry) => {
+  const handleOpenEntry = (entry: FileManagerEntry) => {
     if (entry.type === "folder") {
       openFolder(entry);
       return;
@@ -144,25 +166,33 @@ export default function FileManagerApp({
       setError("Видео доступны только внутри папки video.");
       return;
     }
-    setCurrentVideo({ path: normalizedPath, name: entry.name });
+    const playlist = activeFiles.map((file) => ({
+      path: file.path,
+      name: file.name,
+    }));
+    const hasItem = playlist.some((item) => item.path === normalizedPath);
+    if (!hasItem) {
+      playlist.unshift({ path: normalizedPath, name: entry.name });
+    }
+    setVideoSelection(playlist, normalizedPath);
     onOpenVideo();
   };
 
   const handleCreateFolder = async () => {
-    const name = newFolderName.trim();
+    const name = window.prompt("Имя папки");
     if (!name) return;
+    const trimmed = name.trim();
+    if (!trimmed) return;
     const parentPath = view === VIEW_ROOT ? "" : listPath;
     try {
       const res = await fetch("/api/filemanager/folders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ parentPath, name }),
+        body: JSON.stringify({ parentPath, name: trimmed }),
       });
       if (!res.ok) {
         throw new Error("Не удалось создать папку");
       }
-      setCreatingFolder(false);
-      setNewFolderName("");
       await loadEntries();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Ошибка";
@@ -174,7 +204,8 @@ export default function FileManagerApp({
     if (!selectedPath) return;
     const directEntry = entries.find((item) => item.path === selectedPath);
     const fileEntry = activeFiles.find((item) => item.path === selectedPath);
-    const entry: Entry | null = directEntry ?? (fileEntry ? { ...fileEntry, type: "file" } : null);
+    const entry: Entry | null =
+      directEntry ?? (fileEntry ? { ...fileEntry, type: "file" } : null);
     if (!entry) return;
     const confirmed = window.confirm(`Удалить ${entry.name}?`);
     if (!confirmed) return;
@@ -278,171 +309,45 @@ export default function FileManagerApp({
   };
 
   return (
-    <div className="filemanager">
-      <aside className="filemanager-sidebar">
-        <div className="panel-title">Папки</div>
-        <div className="filemanager-links">
-          <button
-            type="button"
-            className={`filemanager-link ${view === VIEW_VIDEO ? "active" : ""}`}
-            onClick={() => {
-              setView(VIEW_VIDEO);
-              setCurrentPath("video");
-            }}
-          >
-            Видео
-          </button>
-          <button
-            type="button"
-            className={`filemanager-link ${view === VIEW_FAVORITES ? "active" : ""}`}
-            onClick={() => setView(VIEW_FAVORITES)}
-          >
-            Избранное
-          </button>
-          <button
-            type="button"
-            className={`filemanager-link ${view === VIEW_ROOT ? "active" : ""}`}
-            onClick={() => {
-              setView(VIEW_ROOT);
-              setCurrentPath("");
-            }}
-          >
-            Корень
-          </button>
+    <XpChrome
+      left={
+        <TaskPane
+          view={view}
+          loading={loading}
+          error={error}
+          selectedLabel={selectedLabel}
+          onViewChange={handleViewChange}
+          onCreateFolder={handleCreateFolder}
+          onUpload={() => fileInputRef.current?.click()}
+          onDelete={handleDelete}
+        />
+      }
+    >
+      <div className="filemanager-view">
+        <div className="filemanager-address">
+          <span className="filemanager-address-label">Адрес:</span>
+          <span className="filemanager-address-value">
+            {view === VIEW_FAVORITES ? "Избранное" : listPath || "Корень"}
+          </span>
         </div>
-        <div className="filemanager-actions">
-          <button
-            type="button"
-            className="xp-button"
-            onClick={() => setCreatingFolder((prev) => !prev)}
-          >
-            Создать папку
-          </button>
-          <button
-            type="button"
-            className="xp-button secondary"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            Загрузить
-          </button>
-          <button
-            type="button"
-            className="xp-button secondary"
-            disabled={!selectedPath}
-            onClick={handleDelete}
-          >
-            Удалить
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            accept="video/mp4"
-            className="filemanager-hidden"
-            onChange={(event) => handleUpload(event.target.files)}
-          />
-        </div>
-        {creatingFolder ? (
-          <div className="filemanager-new-folder">
-            <input
-              className="xp-input"
-              value={newFolderName}
-              onChange={(event) => setNewFolderName(event.target.value)}
-              placeholder="Имя папки"
-            />
-            <div className="filemanager-new-folder-actions">
-              <button type="button" className="xp-button" onClick={handleCreateFolder}>
-                Создать
-              </button>
-              <button
-                type="button"
-                className="xp-button secondary"
-                onClick={() => {
-                  setCreatingFolder(false);
-                  setNewFolderName("");
-                }}
-              >
-                Отмена
-              </button>
-            </div>
-          </div>
+        <IconGrid
+          view={view}
+          entries={gridEntries}
+          favorites={favorites}
+          selectedPath={selectedPath}
+          onSelect={setSelectedPath}
+          onOpen={handleOpenEntry}
+          onToggleFavorite={(entry) => {
+            const file = activeFiles.find((item) => item.path === entry.path);
+            if (file) toggleFavorite(file);
+          }}
+          onOpenFavorites={() => handleViewChange(VIEW_FAVORITES)}
+          onOpenVideo={() => handleViewChange(VIEW_VIDEO)}
+        />
+
+        {!loading && isEmpty ? (
+          <div className="muted">Папка пуста.</div>
         ) : null}
-      </aside>
-
-      <section className="filemanager-content">
-        <div className="filemanager-header">
-          <div>
-            <div className="panel-title">{view === VIEW_FAVORITES ? "Избранное" : listPath}</div>
-            <div className="muted">{loading ? "Загрузка..." : "Готово"}</div>
-          </div>
-        </div>
-
-        {error ? <div className="filemanager-alert">{error}</div> : null}
-
-        <div className="filemanager-list">
-          {view !== VIEW_FAVORITES
-            ? folders.map((folder) => (
-                <div
-                  key={folder.path}
-                  role="button"
-                  tabIndex={0}
-                  className={`filemanager-row ${selectedPath === folder.path ? "selected" : ""}`}
-                  onClick={() => setSelectedPath(folder.path)}
-                  onDoubleClick={() => openFolder(folder)}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
-                      event.preventDefault();
-                      openFolder(folder);
-                    }
-                  }}
-                >
-                  <span className="filemanager-icon folder" aria-hidden />
-                  <span className="filemanager-name">{folder.name}</span>
-                  <span className="filemanager-size">Папка</span>
-                  <span className="filemanager-date">{formatDate(folder.updatedAt)}</span>
-                  <span />
-                </div>
-              ))
-            : null}
-
-          {activeFiles.map((file) => (
-            <div
-              key={file.path}
-              role="button"
-              tabIndex={0}
-              className={`filemanager-row ${selectedPath === file.path ? "selected" : ""}`}
-              onClick={() => setSelectedPath(file.path)}
-              onDoubleClick={() => handleDoubleClick({ ...file, type: "file" })}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  handleDoubleClick({ ...file, type: "file" });
-                }
-              }}
-            >
-              <span className="filemanager-icon video" aria-hidden />
-              <span className="filemanager-name">{file.name}</span>
-              <span className="filemanager-size">{formatBytes(file.size)}</span>
-              <span className="filemanager-date">{formatDate(file.updatedAt)}</span>
-              <button
-                type="button"
-                className={`filemanager-favorite ${favorites.has(file.path) ? "active" : ""}`}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  toggleFavorite(file);
-                }}
-                aria-label={
-                  favorites.has(file.path) ? "Удалить из избранного" : "Добавить в избранное"
-                }
-              />
-            </div>
-          ))}
-
-          {!loading &&
-          (view === VIEW_FAVORITES ? favoritesList.length === 0 : entries.length === 0) ? (
-            <div className="muted">Папка пуста.</div>
-          ) : null}
-        </div>
 
         {uploads.length > 0 ? (
           <div className="filemanager-upload">
@@ -465,7 +370,16 @@ export default function FileManagerApp({
             </div>
           </div>
         ) : null}
-      </section>
-    </div>
+      </div>
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        accept="video/mp4"
+        className="filemanager-hidden"
+        onChange={(event) => handleUpload(event.target.files)}
+      />
+    </XpChrome>
   );
 }

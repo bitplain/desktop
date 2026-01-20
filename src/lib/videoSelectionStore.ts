@@ -1,18 +1,32 @@
 import { useSyncExternalStore } from "react";
 
-type VideoSelection = { path: string; name: string } | null;
+type VideoItem = { path: string; name: string };
 
 type Listener = () => void;
 
-let current: VideoSelection = null;
+let list: VideoItem[] = [];
+let index = -1;
 const listeners = new Set<Listener>();
 
 export function getCurrentVideo() {
-  return current;
+  if (index < 0 || index >= list.length) return null;
+  return list[index];
 }
 
-export function setCurrentVideo(next: VideoSelection) {
-  current = next;
+export function setVideoSelection(nextList: VideoItem[], currentPath: string) {
+  list = nextList;
+  index = nextList.findIndex((item) => item.path === currentPath);
+  if (index < 0 && nextList.length > 0) {
+    index = 0;
+  }
+  listeners.forEach((listener) => listener());
+}
+
+export function moveVideoSelection(delta: number) {
+  if (list.length === 0 || index < 0) return;
+  const next = Math.min(list.length - 1, Math.max(0, index + delta));
+  if (next === index) return;
+  index = next;
   listeners.forEach((listener) => listener());
 }
 
