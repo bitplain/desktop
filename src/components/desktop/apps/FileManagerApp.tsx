@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { setVideoSelection } from "@/lib/videoSelectionStore";
+import { addUpload, updateUpload } from "@/lib/uploadStore";
 import { XpChrome } from "@/components/desktop/apps/shared/XpChrome";
 import { TaskPane, type FileManagerView } from "@/components/desktop/apps/filemanager/TaskPane";
 import {
@@ -28,22 +29,16 @@ type FileEntry = {
 
 type Entry = (FolderEntry | FileEntry) & { type: "folder" | "file" };
 
-type UploadItem = {
-  id: string;
-  name: string;
-  progress: number;
-  status: "queued" | "uploading" | "done" | "error";
-  error?: string;
-};
-
 function buildPath(base: string, name: string) {
   return [base, name].filter(Boolean).join("/");
 }
 
 export default function FileManagerApp({
   onOpenVideo,
+  onOpenUploads,
 }: {
   onOpenVideo: () => void;
+  onOpenUploads: () => void;
 }) {
   const [view, setView] = useState<FileManagerView>(VIEW_VIDEO);
   const [currentPath, setCurrentPath] = useState("video");
@@ -53,7 +48,6 @@ export default function FileManagerApp({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedPath, setSelectedPath] = useState<string | null>(null);
-  const [uploads, setUploads] = useState<UploadItem[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const entries: Entry[] = useMemo(() => {
@@ -250,17 +244,18 @@ export default function FileManagerApp({
 
   const handleUpload = (filesToUpload: FileList | null) => {
     if (!filesToUpload || filesToUpload.length === 0) return;
+    onOpenUploads();
     const parentPath = view === VIEW_ROOT ? "" : listPath;
 
     Array.from(filesToUpload).forEach((file) => {
       const id = `${Date.now()}-${file.name}-${Math.random().toString(36).slice(2, 8)}`;
-      const item: UploadItem = {
+      const item = {
         id,
         name: file.name,
         progress: 0,
         status: "queued",
       };
-      setUploads((prev) => [item, ...prev]);
+      addUpload(item);
 
       const formData = new FormData();
       formData.append("files", file);
@@ -271,38 +266,18 @@ export default function FileManagerApp({
       xhr.upload.onprogress = (event) => {
         if (!event.lengthComputable) return;
         const progress = Math.round((event.loaded / event.total) * 100);
-        setUploads((prev) =>
-          prev.map((upload) =>
-            upload.id === id ? { ...upload, progress, status: "uploading" } : upload
-          )
-        );
+        updateUpload(id, { progress, status: "uploading" });
       };
       xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) {
-          setUploads((prev) =>
-            prev.map((upload) =>
-              upload.id === id ? { ...upload, progress: 100, status: "done" } : upload
-            )
-          );
+          updateUpload(id, { progress: 100, status: "done" });
           loadEntries();
           return;
         }
-        setUploads((prev) =>
-          prev.map((upload) =>
-            upload.id === id
-              ? { ...upload, status: "error", error: "Ошибка загрузки" }
-              : upload
-          )
-        );
+        updateUpload(id, { status: "error", error: "Ошибка загрузки" });
       };
       xhr.onerror = () => {
-        setUploads((prev) =>
-          prev.map((upload) =>
-            upload.id === id
-              ? { ...upload, status: "error", error: "Ошибка загрузки" }
-              : upload
-          )
-        );
+        updateUpload(id, { status: "error", error: "Ошибка загрузки" });
       };
       xhr.send(formData);
     });
@@ -349,27 +324,6 @@ export default function FileManagerApp({
           <div className="muted">Папка пуста.</div>
         ) : null}
 
-        {uploads.length > 0 ? (
-          <div className="filemanager-upload">
-            <div className="panel-title">Загрузки</div>
-            <div className="filemanager-upload-list">
-              {uploads.map((upload) => (
-                <div key={upload.id} className={`filemanager-upload-item ${upload.status}`}>
-                  <div className="filemanager-upload-name">{upload.name}</div>
-                  <div className="filemanager-progress">
-                    <div
-                      className="filemanager-progress-bar"
-                      style={{ width: `${upload.progress}%` }}
-                    />
-                  </div>
-                  <div className="filemanager-upload-status">
-                    {upload.status === "error" ? upload.error : `${upload.progress}%`}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ) : null}
       </div>
 
       <input
