@@ -1,4 +1,4 @@
-type KeyEvent = { key: string };
+type KeyEvent = { key: string; preventDefault?: () => void };
 
 type KeyTarget = {
   addEventListener: (type: string, listener: (event: KeyEvent) => void) => void;
@@ -8,6 +8,7 @@ type KeyTarget = {
 type KeyHandlers = {
   onNext: () => void;
   onPrevious: () => void;
+  onToggle?: () => void;
 };
 
 export function attachVideoKeyNavigation(target: KeyTarget, handlers: KeyHandlers) {
@@ -17,6 +18,10 @@ export function attachVideoKeyNavigation(target: KeyTarget, handlers: KeyHandler
     }
     if (event.key === "ArrowLeft") {
       handlers.onPrevious();
+    }
+    if (event.key === " " || event.key === "Space" || event.key === "Spacebar") {
+      event.preventDefault?.();
+      handlers.onToggle?.();
     }
   };
 

@@ -48,4 +48,23 @@ describe("video key navigation", () => {
     target.dispatch({ key: "ArrowRight" });
     expect(next).toBe(1);
   });
+
+  it("toggles playback on space", () => {
+    const target = new FakeTarget();
+    let toggles = 0;
+
+    const cleanup = attachVideoKeyNavigation(target, {
+      onNext: () => undefined,
+      onPrevious: () => undefined,
+      onToggle: () => {
+        toggles += 1;
+      },
+    });
+
+    target.dispatch({ key: " " });
+
+    expect(toggles).toBe(1);
+
+    cleanup();
+  });
 });
