@@ -1,3 +1,5 @@
+import { XpWindow } from "@/components/desktop/apps/shared/XpWindow";
+
 export default function SystemApp({
   title,
   message,
@@ -6,9 +8,11 @@ export default function SystemApp({
   message: string;
 }) {
   return (
-    <div className="stack">
-      <div className="panel-title">{title}</div>
-      <p className="muted">{message}</p>
-    </div>
+    <XpWindow title={title}>
+      <div className="stack">
+        <div className="panel-title">{title}</div>
+        <p className="muted">{message}</p>
+      </div>
+    </XpWindow>
   );
 }

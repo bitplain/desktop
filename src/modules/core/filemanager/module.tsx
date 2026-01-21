@@ -1,11 +1,10 @@
 import type { ModuleManifest } from "@/modules/types";
 import FileManagerApp from "@/components/desktop/apps/FileManagerApp";
 
-const FileManagerWindow: ModuleManifest["Window"] = ({ openWindow, closeWindow }) => (
+const FileManagerWindow: ModuleManifest["Window"] = ({ openWindow }) => (
   <FileManagerApp
     onOpenVideo={() => openWindow?.("video")}
     onOpenUploads={() => openWindow?.("uploads")}
-    onClose={() => closeWindow?.("filemanager")}
   />
 );
 

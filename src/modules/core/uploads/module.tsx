@@ -12,6 +12,10 @@ const manifest: ModuleManifest = {
   icon: "/icons/xp/folder.png",
   desktopIcon: false,
   startMenu: false,
+  window: {
+    hideChrome: true,
+    dragHandleSelector: ".xp-window .titlebar",
+  },
   Window: UploadsWindow,
 };
 

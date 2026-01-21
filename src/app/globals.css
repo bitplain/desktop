@@ -1272,7 +1272,8 @@ textarea {
   background: #ffffff;
 }
 
-.xp-explorer {
+.xp-explorer,
+.xp-window {
   --xp-beige: #ece9d8;
   --xp-border: #aca899;
   --xp-border-dark: #7f7f7f;
@@ -1296,7 +1297,8 @@ textarea {
   color: var(--text);
 }
 
-.xp-explorer .titlebar {
+.xp-explorer .titlebar,
+.xp-window .titlebar {
   height: 30px;
   display: flex;
   align-items: center;
@@ -1307,21 +1309,24 @@ textarea {
   user-select: none;
 }
 
-.xp-explorer .title-left {
+.xp-explorer .title-left,
+.xp-window .title-left {
   display: flex;
   align-items: center;
   gap: 6px;
   min-width: 0;
 }
 
-.xp-explorer .app-icon {
+.xp-explorer .app-icon,
+.xp-window .app-icon {
   width: 16px;
   height: 16px;
   border: 1px solid rgba(255, 255, 255, 0.6);
   background: linear-gradient(#ffe37a, #e9a400);
 }
 
-.xp-explorer .title {
+.xp-explorer .title,
+.xp-window .title {
   font-size: 12px;
   font-weight: 700;
   white-space: nowrap;
@@ -1329,12 +1334,14 @@ textarea {
   text-overflow: ellipsis;
 }
 
-.xp-explorer .win-buttons {
+.xp-explorer .win-buttons,
+.xp-window .win-buttons {
   display: flex;
   gap: 2px;
 }
 
-.xp-explorer .win-btn {
+.xp-explorer .win-btn,
+.xp-window .win-btn {
   width: 22px;
   height: 18px;
   border: 1px solid rgba(0, 0, 0, 0.35);
@@ -1346,9 +1353,18 @@ textarea {
   line-height: 1;
 }
 
-.xp-explorer .win-btn.close {
+.xp-explorer .win-btn.close,
+.xp-window .win-btn.close {
   background: linear-gradient(#ffdfdf, #ff9a9a);
   border-color: rgba(0, 0, 0, 0.35);
+}
+
+.xp-window-body {
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  background: #ffffff;
+  overflow: auto;
 }
 
 .xp-explorer .menubar {

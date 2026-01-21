@@ -10,6 +10,10 @@ const manifest: ModuleManifest = {
   icon: "/icons/xp/docs.png",
   desktopIcon: true,
   startMenu: true,
+  window: {
+    hideChrome: true,
+    dragHandleSelector: ".xp-window .titlebar",
+  },
   Window: NotepadWindow,
 };
 

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useRef, type MouseEvent, type PointerEvent } from "react";
+import { WindowControlsProvider } from "./WindowControlsContext";
+import { shouldStartDragForTarget } from "./windowDragHandle";
 import {
   clampWindowBounds,
   WINDOW_MARGIN,
@@ -115,16 +117,8 @@ export default function Window({
 
   const dragSelector = dragHandleSelector ?? ".window-header";
 
-  const shouldStartDrag = (event: DragEvent) => {
-    const target = event.target as HTMLElement;
-    if (target.closest(".window-controls") || target.closest(".window-resize")) {
-      return false;
-    }
-    if (!dragSelector) {
-      return false;
-    }
-    return Boolean(target.closest(dragSelector));
-  };
+  const shouldStartDrag = (event: DragEvent) =>
+    shouldStartDragForTarget(event.target as HTMLElement, dragSelector);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     onFocus(id);
@@ -278,6 +272,14 @@ export default function Window({
     event.currentTarget.releasePointerCapture(event.pointerId);
   };
 
+  const controls = {
+    minimize: () => onMinimize(id),
+    maximize: () => onMaximize(id),
+    close: () => (canClose ? onClose(id) : onMinimize(id)),
+    isMaximized,
+    isMinimized,
+  };
+
   return (
     <section
       className={`window ${isMinimized ? "is-minimized" : ""} ${
@@ -320,24 +322,26 @@ export default function Window({
               className="window-control minimize"
               type="button"
               aria-label="Minimize"
-              onClick={() => onMinimize(id)}
+              onClick={controls.minimize}
             />
             <button
               className="window-control maximize"
               type="button"
               aria-label="Maximize"
-              onClick={() => onMaximize(id)}
+              onClick={controls.maximize}
             />
             <button
               className="window-control close"
               type="button"
               aria-label="Close"
-              onClick={() => (canClose ? onClose(id) : onMinimize(id))}
+              onClick={controls.close}
             />
           </div>
         </div>
       )}
-      <div className="window-content">{children}</div>
+      <div className="window-content">
+        <WindowControlsProvider value={controls}>{children}</WindowControlsProvider>
+      </div>
       {(["n", "s", "e", "w", "ne", "nw", "se", "sw"] as ResizeDirection[]).map(
         (direction) => (
           <div

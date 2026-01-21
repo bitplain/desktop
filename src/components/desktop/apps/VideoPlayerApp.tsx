@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { moveVideoSelection, useCurrentVideo } from "@/lib/videoSelectionStore";
 import { attachVideoKeyNavigation } from "./videoKeyNavigation";
+import { XpWindow } from "@/components/desktop/apps/shared/XpWindow";
 
 export default function VideoPlayerApp() {
   const selection = useCurrentVideo();
@@ -37,12 +38,14 @@ export default function VideoPlayerApp() {
   }, [selection?.path]);
 
   return (
-    <div className="video-player">
-      {selection ? (
-        <video key={selection.path} ref={videoRef} controls src={src} />
-      ) : (
-        <div className="muted">Выберите видео в файловом менеджере.</div>
-      )}
-    </div>
+    <XpWindow title="Video Player">
+      <div className="video-player">
+        {selection ? (
+          <video key={selection.path} ref={videoRef} controls src={src} />
+        ) : (
+          <div className="muted">Выберите видео в файловом менеджере.</div>
+        )}
+      </div>
+    </XpWindow>
   );
 }

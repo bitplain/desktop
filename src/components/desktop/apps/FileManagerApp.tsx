@@ -8,6 +8,7 @@ import {
   IconGrid,
   type FileManagerEntry,
 } from "@/components/desktop/apps/filemanager/IconGrid";
+import { XpTitlebar } from "@/components/desktop/apps/shared/XpTitlebar";
 
 const VIEW_VIDEO: FileManagerView = "video";
 const VIEW_FAVORITES: FileManagerView = "favorites";
@@ -35,11 +36,9 @@ function buildPath(base: string, name: string) {
 export default function FileManagerApp({
   onOpenVideo,
   onOpenUploads,
-  onClose,
 }: {
   onOpenVideo: () => void;
   onOpenUploads: () => void;
-  onClose?: () => void;
 }) {
   const [view, setView] = useState<FileManagerView>(VIEW_VIDEO);
   const [currentPath, setCurrentPath] = useState("video");
@@ -294,28 +293,7 @@ export default function FileManagerApp({
 
   return (
     <div className="xp-explorer" role="application" aria-label="Windows XP Explorer">
-      <div className="titlebar">
-        <div className="title-left">
-          <div className="app-icon" aria-hidden="true" />
-          <div className="title">{titleLabel}</div>
-        </div>
-        <div className="win-buttons">
-          <button className="win-btn" type="button" aria-label="Свернуть">
-            _
-          </button>
-          <button className="win-btn" type="button" aria-label="Развернуть">
-            □
-          </button>
-          <button
-            className="win-btn close"
-            type="button"
-            aria-label="Закрыть"
-            onClick={onClose}
-          >
-            X
-          </button>
-        </div>
-      </div>
+      <XpTitlebar title={titleLabel} />
 
       <div className="menubar" aria-label="Menu bar">
         <div>Файл</div>

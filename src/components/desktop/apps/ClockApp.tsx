@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { XpWindow } from "@/components/desktop/apps/shared/XpWindow";
 
 export default function ClockApp() {
   const [now, setNow] = useState(new Date());
@@ -11,25 +12,27 @@ export default function ClockApp() {
   }, []);
 
   return (
-    <div className="stack">
-      <div className="panel-title">System Clock</div>
-      <div className="clock-face">
-        <div className="clock-time">
-          {now.toLocaleTimeString("ru-RU", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-          })}
-        </div>
-        <div className="muted">
-          {now.toLocaleDateString("ru-RU", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })}
+    <XpWindow title="System Clock">
+      <div className="stack">
+        <div className="panel-title">System Clock</div>
+        <div className="clock-face">
+          <div className="clock-time">
+            {now.toLocaleTimeString("ru-RU", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            })}
+          </div>
+          <div className="muted">
+            {now.toLocaleDateString("ru-RU", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            })}
+          </div>
         </div>
       </div>
-    </div>
+    </XpWindow>
   );
 }

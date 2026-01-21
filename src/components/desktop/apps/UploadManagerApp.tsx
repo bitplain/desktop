@@ -7,6 +7,7 @@ import {
   type UploadItem,
   useUploads,
 } from "@/lib/uploadStore";
+import { XpWindow } from "@/components/desktop/apps/shared/XpWindow";
 
 type UploadManagerAppProps = {
   onClose?: () => void;
@@ -53,5 +54,9 @@ export default function UploadManagerApp({ onClose }: UploadManagerAppProps) {
 
   const sortedUploads = useMemo(() => uploads, [uploads]);
 
-  return <UploadManagerLayout uploads={sortedUploads} />;
+  return (
+    <XpWindow title="Загрузки">
+      <UploadManagerLayout uploads={sortedUploads} />
+    </XpWindow>
+  );
 }
