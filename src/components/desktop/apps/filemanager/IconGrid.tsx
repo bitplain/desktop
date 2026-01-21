@@ -36,13 +36,11 @@ export function IconGrid({
   onOpenVideo,
 }: IconGridProps) {
   return (
-    <div className="filemanager-icon-grid">
+    <div className="grid">
       <div
         role="button"
         tabIndex={0}
-        className={`filemanager-icon-tile favorites ${
-          view === "favorites" ? "selected" : ""
-        }`}
+        className={`item ${view === "favorites" ? "selected" : ""}`}
         onDoubleClick={onOpenFavorites}
         onKeyDown={(event) => {
           if (event.key === "Enter" || event.key === " ") {
@@ -51,15 +49,15 @@ export function IconGrid({
           }
         }}
       >
-        <span className="filemanager-icon-glyph favorite" aria-hidden />
-        <span className="filemanager-icon-label">Избранное</span>
+        <span className="icon favorite" aria-hidden />
+        <span className="label">Избранное</span>
       </div>
 
       {view === "root" ? (
         <div
           role="button"
           tabIndex={0}
-          className="filemanager-icon-tile"
+          className="item"
           onDoubleClick={onOpenVideo}
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") {
@@ -68,8 +66,8 @@ export function IconGrid({
             }
           }}
         >
-          <span className="filemanager-icon-glyph folder" aria-hidden />
-          <span className="filemanager-icon-label">Видео</span>
+          <span className="icon folder" aria-hidden />
+          <span className="label">Видео</span>
         </div>
       ) : null}
 
@@ -81,7 +79,7 @@ export function IconGrid({
             key={entry.path}
             role="button"
             tabIndex={0}
-            className={`filemanager-icon-tile ${isSelected ? "selected" : ""}`}
+            className={`item ${isSelected ? "selected" : ""}`}
             onClick={() => onSelect(entry.path)}
             onDoubleClick={() => onOpen(entry)}
             onKeyDown={(event) => {
@@ -92,16 +90,14 @@ export function IconGrid({
             }}
           >
             <span
-              className={`filemanager-icon-glyph ${
-                entry.type === "folder" ? "folder" : "video"
-              }`}
+              className={`icon ${entry.type === "folder" ? "folder" : "video"}`}
               aria-hidden
             />
-            <span className="filemanager-icon-label">{entry.name}</span>
+            <span className="label">{entry.name}</span>
             {entry.type === "file" ? (
               <button
                 type="button"
-                className={`filemanager-icon-favorite ${isFavorite ? "active" : ""}`}
+                className={`favorite-star ${isFavorite ? "active" : ""}`}
                 onClick={(event) => {
                   event.stopPropagation();
                   onToggleFavorite(entry);

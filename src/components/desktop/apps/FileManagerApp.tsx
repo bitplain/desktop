@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { setVideoSelection } from "@/lib/videoSelectionStore";
 import { addUpload, updateUpload, type UploadItem } from "@/lib/uploadStore";
-import { XpChrome } from "@/components/desktop/apps/shared/XpChrome";
 import { TaskPane, type FileManagerView } from "@/components/desktop/apps/filemanager/TaskPane";
 import {
   IconGrid,
@@ -36,9 +35,11 @@ function buildPath(base: string, name: string) {
 export default function FileManagerApp({
   onOpenVideo,
   onOpenUploads,
+  onClose,
 }: {
   onOpenVideo: () => void;
   onOpenUploads: () => void;
+  onClose?: () => void;
 }) {
   const [view, setView] = useState<FileManagerView>(VIEW_VIDEO);
   const [currentPath, setCurrentPath] = useState("video");
@@ -94,6 +95,14 @@ export default function FileManagerApp({
     const match = gridEntries.find((entry) => entry.path === selectedPath);
     return match?.name ?? null;
   }, [gridEntries, selectedPath]);
+
+  const statusCount = view === VIEW_FAVORITES ? favoritesList.length : entries.length;
+
+  const addressLabel =
+    view === VIEW_FAVORITES ? "Избранное" : listPath || "Корень";
+
+  const titleLabel =
+    view === VIEW_FAVORITES ? "Избранное" : listPath ? listPath : "File Manager";
 
   const loadFavorites = async () => {
     const res = await fetch("/api/filemanager/favorites");
@@ -284,46 +293,113 @@ export default function FileManagerApp({
   };
 
   return (
-    <XpChrome
-      left={
-        <TaskPane
-          view={view}
-          loading={loading}
-          error={error}
-          selectedLabel={selectedLabel}
-          onViewChange={handleViewChange}
-          onCreateFolder={handleCreateFolder}
-          onUpload={() => fileInputRef.current?.click()}
-          onDelete={handleDelete}
-        />
-      }
-    >
-      <div className="filemanager-view">
-        <div className="filemanager-address">
-          <span className="filemanager-address-label">Адрес:</span>
-          <span className="filemanager-address-value">
-            {view === VIEW_FAVORITES ? "Избранное" : listPath || "Корень"}
-          </span>
+    <div className="xp-explorer" role="application" aria-label="Windows XP Explorer">
+      <div className="titlebar">
+        <div className="title-left">
+          <div className="app-icon" aria-hidden="true" />
+          <div className="title">{titleLabel}</div>
         </div>
-        <IconGrid
-          view={view}
-          entries={gridEntries}
-          favorites={favorites}
-          selectedPath={selectedPath}
-          onSelect={setSelectedPath}
-          onOpen={handleOpenEntry}
-          onToggleFavorite={(entry) => {
-            const file = activeFiles.find((item) => item.path === entry.path);
-            if (file) toggleFavorite(file);
-          }}
-          onOpenFavorites={() => handleViewChange(VIEW_FAVORITES)}
-          onOpenVideo={() => handleViewChange(VIEW_VIDEO)}
-        />
+        <div className="win-buttons">
+          <button className="win-btn" type="button" aria-label="Свернуть">
+            _
+          </button>
+          <button className="win-btn" type="button" aria-label="Развернуть">
+            □
+          </button>
+          <button
+            className="win-btn close"
+            type="button"
+            aria-label="Закрыть"
+            onClick={onClose}
+          >
+            X
+          </button>
+        </div>
+      </div>
 
-        {!loading && isEmpty ? (
-          <div className="muted">Папка пуста.</div>
-        ) : null}
+      <div className="menubar" aria-label="Menu bar">
+        <div>Файл</div>
+        <div>Правка</div>
+        <div>Вид</div>
+        <div>Избранное</div>
+        <div>Сервис</div>
+        <div>Справка</div>
+      </div>
 
+      <div className="toolbar" aria-label="Toolbar">
+        <div className="tool-btn">
+          <div className="tool-icon" aria-hidden="true" />
+          <div>Назад</div>
+        </div>
+        <div className="tool-btn">
+          <div className="tool-icon" aria-hidden="true" />
+          <div>Вперёд</div>
+        </div>
+        <div className="tool-btn">
+          <div className="tool-icon" aria-hidden="true" />
+          <div>Поиск</div>
+        </div>
+        <div className="tool-btn">
+          <div className="tool-icon" aria-hidden="true" />
+          <div>Папки</div>
+        </div>
+        <div className="toolbar-spacer" />
+        <div className="mini-icons" aria-hidden="true">
+          <div className="mini" />
+          <div className="mini" />
+          <div className="mini" />
+        </div>
+      </div>
+
+      <div className="addressbar" aria-label="Address bar">
+        <div className="addr-label">Адрес:</div>
+        <div className="addr-field">
+          <div className="disk-icon" aria-hidden="true" />
+          <div className="addr-text">{addressLabel}</div>
+        </div>
+        <button className="go-btn" type="button">
+          Переход
+        </button>
+      </div>
+
+      <div className="content">
+        <aside className="taskpane" aria-label="Task pane">
+          <TaskPane
+            view={view}
+            loading={loading}
+            error={error}
+            selectedLabel={selectedLabel}
+            onViewChange={handleViewChange}
+            onCreateFolder={handleCreateFolder}
+            onUpload={() => fileInputRef.current?.click()}
+            onDelete={handleDelete}
+          />
+        </aside>
+        <main className="fileview" aria-label="File view">
+          <IconGrid
+            view={view}
+            entries={gridEntries}
+            favorites={favorites}
+            selectedPath={selectedPath}
+            onSelect={setSelectedPath}
+            onOpen={handleOpenEntry}
+            onToggleFavorite={(entry) => {
+              const file = activeFiles.find((item) => item.path === entry.path);
+              if (file) toggleFavorite(file);
+            }}
+            onOpenFavorites={() => handleViewChange(VIEW_FAVORITES)}
+            onOpenVideo={() => handleViewChange(VIEW_VIDEO)}
+          />
+
+          {!loading && isEmpty ? (
+            <div className="muted">Папка пуста.</div>
+          ) : null}
+        </main>
+      </div>
+
+      <div className="statusbar" aria-label="Status bar">
+        <div>Объектов: {statusCount}</div>
+        <div>{selectedLabel ?? "—"}</div>
       </div>
 
       <input
@@ -334,6 +410,6 @@ export default function FileManagerApp({
         className="filemanager-hidden"
         onChange={(event) => handleUpload(event.target.files)}
       />
-    </XpChrome>
+    </div>
   );
 }

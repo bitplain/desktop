@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type MouseEvent, type PointerEvent } from "react";
 import {
   clampWindowBounds,
   WINDOW_MARGIN,
@@ -11,6 +11,8 @@ import {
 type Position = { x: number; y: number };
 
 type Size = { width: number; height: number };
+
+type DragEvent = PointerEvent<HTMLDivElement> | MouseEvent<HTMLDivElement>;
 
 type DragState = {
   offsetX: number;
@@ -35,6 +37,8 @@ type WindowProps = {
   position: Position;
   size: Size;
   canClose?: boolean;
+  hideChrome?: boolean;
+  dragHandleSelector?: string;
   onClose: (id: string) => void;
   onMinimize: (id: string) => void;
   onMaximize: (id: string) => void;
@@ -57,6 +61,8 @@ export default function Window({
   position,
   size,
   canClose = true,
+  hideChrome = false,
+  dragHandleSelector,
   onClose,
   onMinimize,
   onMaximize,
@@ -107,12 +113,25 @@ export default function Window({
     size.width,
   ]);
 
+  const dragSelector = dragHandleSelector ?? ".window-header";
+
+  const shouldStartDrag = (event: DragEvent) => {
+    const target = event.target as HTMLElement;
+    if (target.closest(".window-controls") || target.closest(".window-resize")) {
+      return false;
+    }
+    if (!dragSelector) {
+      return false;
+    }
+    return Boolean(target.closest(dragSelector));
+  };
+
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if ((event.target as HTMLElement).closest(".window-controls")) {
+    onFocus(id);
+    if (!shouldStartDrag(event)) {
       return;
     }
     if (isMaximized) {
-      onFocus(id);
       dragState.current = {
         offsetX: 0,
         offsetY: 0,
@@ -123,7 +142,6 @@ export default function Window({
       event.currentTarget.setPointerCapture(event.pointerId);
       return;
     }
-    onFocus(id);
     dragState.current = {
       offsetX: event.clientX - position.x,
       offsetY: event.clientY - position.y,
@@ -174,6 +192,9 @@ export default function Window({
   };
 
   const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragState.current) {
+      return;
+    }
     dragState.current = null;
     event.currentTarget.releasePointerCapture(event.pointerId);
   };
@@ -261,57 +282,61 @@ export default function Window({
     <section
       className={`window ${isMinimized ? "is-minimized" : ""} ${
         isMaximized ? "is-maximized" : ""
-      }`}
+      } ${hideChrome ? "window--chromeless" : ""}`}
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
         zIndex,
         width: size.width,
         height: size.height,
       }}
-      onPointerDown={() => onFocus(id)}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onDoubleClick={(event: MouseEvent<HTMLDivElement>) => {
+        if (!shouldStartDrag(event)) {
+          return;
+        }
+        onMaximize(id);
+      }}
       aria-hidden={isMinimized}
     >
-      <div
-        className="window-header"
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onDoubleClick={() => onMaximize(id)}
-      >
-        <div className="window-titlebar">
-          {icon ? (
-            <span
-              className="window-icon"
-              style={{ backgroundImage: `url(${icon})` }}
-              aria-hidden
+      {hideChrome ? null : (
+        <div className="window-header">
+          <div className="window-titlebar">
+            {icon ? (
+              <span
+                className="window-icon"
+                style={{ backgroundImage: `url(${icon})` }}
+                aria-hidden
+              />
+            ) : null}
+            <div>
+              <div className="window-title">{title}</div>
+              {subtitle ? <div className="window-subtitle">{subtitle}</div> : null}
+            </div>
+          </div>
+          <div className="window-controls">
+            <button
+              className="window-control minimize"
+              type="button"
+              aria-label="Minimize"
+              onClick={() => onMinimize(id)}
             />
-          ) : null}
-          <div>
-            <div className="window-title">{title}</div>
-            {subtitle ? <div className="window-subtitle">{subtitle}</div> : null}
+            <button
+              className="window-control maximize"
+              type="button"
+              aria-label="Maximize"
+              onClick={() => onMaximize(id)}
+            />
+            <button
+              className="window-control close"
+              type="button"
+              aria-label="Close"
+              onClick={() => (canClose ? onClose(id) : onMinimize(id))}
+            />
           </div>
         </div>
-        <div className="window-controls">
-          <button
-            className="window-control minimize"
-            type="button"
-            aria-label="Minimize"
-            onClick={() => onMinimize(id)}
-          />
-          <button
-            className="window-control maximize"
-            type="button"
-            aria-label="Maximize"
-            onClick={() => onMaximize(id)}
-          />
-          <button
-            className="window-control close"
-            type="button"
-            aria-label="Close"
-            onClick={() => (canClose ? onClose(id) : onMinimize(id))}
-          />
-        </div>
-      </div>
+      )}
       <div className="window-content">{children}</div>
       {(["n", "s", "e", "w", "ne", "nw", "se", "sw"] as ResizeDirection[]).map(
         (direction) => (

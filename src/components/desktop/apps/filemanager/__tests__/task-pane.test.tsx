@@ -18,7 +18,7 @@ describe("file manager panes", () => {
       />
     );
     expect(html).toContain("Избранное");
-    expect(html).toContain("Создать папку");
+    expect(html).toContain("Создать новую папку");
   });
 
   it("renders favorites tile", () => {

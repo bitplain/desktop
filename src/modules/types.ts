@@ -8,6 +8,10 @@ export type ModuleManifest = {
   desktopIcon?: boolean;
   startMenu?: boolean;
   defaultOpen?: boolean;
+  window?: {
+    hideChrome?: boolean;
+    dragHandleSelector?: string;
+  };
   Window: ComponentType<{
     userEmail?: string | null;
     openWindow?: (id: string) => void;

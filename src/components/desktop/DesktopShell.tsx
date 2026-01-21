@@ -26,6 +26,7 @@ type WindowConfig = {
   Window: ModuleManifest["Window"];
   defaultOpen?: boolean;
   canClose?: boolean;
+  window?: ModuleManifest["window"];
 };
 
 type WindowState = {
@@ -98,6 +99,7 @@ export default function DesktopShell({
       Window: module.Window,
       defaultOpen: module.defaultOpen ?? false,
       canClose: true,
+      window: module.window,
     }));
   }, [modules, userEmail]);
 
@@ -506,6 +508,8 @@ export default function DesktopShell({
               position={state.position}
               size={state.size}
               canClose={config.canClose}
+              hideChrome={config.window?.hideChrome}
+              dragHandleSelector={config.window?.dragHandleSelector}
               onClose={closeWindow}
               onMinimize={toggleMinimize}
               onMaximize={toggleMaximize}

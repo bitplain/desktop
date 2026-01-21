@@ -27,11 +27,12 @@ function TaskLink({
   return (
     <button
       type="button"
-      className={`xp-task-link ${active ? "active" : ""}`}
+      className={`task-link ${active ? "active" : ""}`}
       onClick={onClick}
       disabled={disabled}
     >
-      {children}
+      <span className="bullet" aria-hidden="true" />
+      <span>{children}</span>
     </button>
   );
 }
@@ -48,20 +49,20 @@ export function TaskPane({
 }: TaskPaneProps) {
   const hasSelection = Boolean(selectedLabel);
   return (
-    <div className="xp-taskpane">
-      <div className="xp-task-group">
-        <div className="xp-task-title">Системные задачи</div>
-        <div className="xp-task-list">
+    <>
+      <div className="task-group">
+        <div className="task-header">Системные задачи</div>
+        <div className="task-body">
           <TaskLink>Скрыть содержимое этой папки</TaskLink>
           <TaskLink>Просмотреть информацию</TaskLink>
           <TaskLink>Панель управления</TaskLink>
         </div>
       </div>
 
-      <div className="xp-task-group">
-        <div className="xp-task-title">Задачи для файлов и папок</div>
-        <div className="xp-task-list">
-          <TaskLink onClick={onCreateFolder}>Создать папку</TaskLink>
+      <div className="task-group">
+        <div className="task-header">Задачи для файлов и папок</div>
+        <div className="task-body">
+          <TaskLink onClick={onCreateFolder}>Создать новую папку</TaskLink>
           <TaskLink onClick={onUpload}>Добавить файл</TaskLink>
           <TaskLink onClick={onDelete} disabled={!hasSelection}>
             Удалить
@@ -69,9 +70,9 @@ export function TaskPane({
         </div>
       </div>
 
-      <div className="xp-task-group">
-        <div className="xp-task-title">Другие места</div>
-        <div className="xp-task-list">
+      <div className="task-group">
+        <div className="task-header">Другие места</div>
+        <div className="task-body">
           <TaskLink active={view === "video"} onClick={() => onViewChange("video")}>
             Видео
           </TaskLink>
@@ -87,14 +88,18 @@ export function TaskPane({
         </div>
       </div>
 
-      <div className="xp-task-group details">
-        <div className="xp-task-title">Подробно</div>
-        <div className="xp-task-details">
-          <div>{loading ? "Загрузка..." : "Готово"}</div>
-          {error ? <div className="xp-task-error">{error}</div> : null}
-          <div>{selectedLabel ? `Выбрано: ${selectedLabel}` : "Ничего не выбрано"}</div>
+      <div className="task-group">
+        <div className="task-header">Подробно</div>
+        <div className="task-body">
+          <div className="details">
+            <div>{loading ? "Загрузка..." : "Готово"}</div>
+            {error ? <div className="details-error">{error}</div> : null}
+            <div>
+              {selectedLabel ? `Выбрано: ${selectedLabel}` : "Ничего не выбрано"}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
