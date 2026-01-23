@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   clampWindowBounds,
   WINDOW_MARGIN,
@@ -23,6 +23,8 @@ type DragState = {
 
 type ResizeDirection = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
 const TASKBAR_HEIGHT = 44;
+const FALLBACK_POSITION: Position = { x: 0, y: 0 };
+const FALLBACK_SIZE: Size = { width: 0, height: 0 };
 
 type WindowProps = {
   id: string;
@@ -68,8 +70,11 @@ export default function Window({
   const isMaximized = windowState?.isMaximized ?? false;
   const restore = windowState?.restore;
   const zIndex = windowState?.zIndex ?? 0;
-  const position = windowState?.position ?? { x: 0, y: 0 };
-  const size = windowState?.size ?? { width: 0, height: 0 };
+  const position = useMemo(
+    () => windowState?.position ?? FALLBACK_POSITION,
+    [windowState?.position]
+  );
+  const size = useMemo(() => windowState?.size ?? FALLBACK_SIZE, [windowState?.size]);
 
   useEffect(() => {
     if (!windowState) {
@@ -95,17 +100,7 @@ export default function Window({
     if (next.position.x !== position.x || next.position.y !== position.y) {
       onPositionChange(id, next.position);
     }
-  }, [
-    id,
-    isMaximized,
-    onPositionChange,
-    onSizeChange,
-    position.x,
-    position.y,
-    size.height,
-    size.width,
-    windowState,
-  ]);
+  }, [id, isMaximized, onPositionChange, onSizeChange, position, size, windowState]);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if ((event.target as HTMLElement).closest(".window-controls")) {
