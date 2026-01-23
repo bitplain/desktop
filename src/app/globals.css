@@ -523,6 +523,11 @@ textarea {
   z-index: 2;
 }
 
+.eco-desktop-icons {
+  gap: 18px;
+  padding: 24px;
+}
+
 .desktop-icon {
   width: 88px;
   display: grid;
@@ -941,6 +946,11 @@ textarea {
   min-width: 0;
   max-width: 100%;
   overflow-wrap: anywhere;
+}
+
+.eco-notice {
+  background: rgba(214, 180, 140, 0.12);
+  border: 1px solid var(--border);
 }
 
 .button-row {
