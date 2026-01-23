@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
 import { extname } from "node:path";
-import { authOptions } from "@/lib/auth";
+import { getAuthOptions } from "@/lib/auth";
 import { getDataDir } from "@/lib/filemanager/api";
 import { normalizeRelativePath, resolveUserPath } from "@/lib/filemanager/paths";
 import { parseRange } from "@/lib/filemanager/stream";
@@ -11,7 +11,7 @@ import { parseRange } from "@/lib/filemanager/stream";
 const ALLOWED_EXTENSIONS = new Set([".mp4"]);
 
 export async function GET(request: Request) {
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
