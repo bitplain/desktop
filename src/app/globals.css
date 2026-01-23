@@ -1825,7 +1825,12 @@ textarea {
 }
 
 .filemanager-hidden {
-  display: none;
+  position: fixed;
+  top: -9999px;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
 }
 
 .filemanager-upload {
