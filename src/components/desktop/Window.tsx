@@ -32,7 +32,7 @@ type DragState = {
 };
 
 type ResizeDirection = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
-const TASKBAR_HEIGHT = 44;
+const TASKBAR_HEIGHT = 34;
 const FALLBACK_POSITION: Position = { x: 0, y: 0 };
 const FALLBACK_SIZE: Size = { width: 0, height: 0 };
 
