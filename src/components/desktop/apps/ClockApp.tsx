@@ -31,10 +31,12 @@ export default function ClockApp() {
   return (
     <XpWindow title="System Clock">
       <div className="stack">
-        <div className="panel-title">System Clock</div>
-        <div className="clock-face">
-          <div className="clock-time">{timeLabel}</div>
-          <div className="muted">{dateLabel}</div>
+        <div className="eco-card">
+          <div className="eco-card-title">System Clock</div>
+          <div className="clock-face eco-clock">
+            <div className="clock-time eco-stat">{timeLabel}</div>
+            <div className="muted">{dateLabel}</div>
+          </div>
         </div>
       </div>
     </XpWindow>

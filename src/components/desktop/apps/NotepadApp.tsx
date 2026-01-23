@@ -20,14 +20,16 @@ export default function NotepadApp() {
   return (
     <XpWindow title="Notepad">
       <div className="stack">
-        <div className="panel-title">Notepad</div>
-        <textarea
-          className="xp-textarea"
-          rows={10}
-          value={value}
-          onChange={(event) => setValue(event.target.value)}
-          placeholder="Ваши заметки..."
-        />
+        <div className="eco-card">
+          <div className="eco-card-title">Notepad</div>
+          <textarea
+            className="eco-textarea"
+            rows={10}
+            value={value}
+            onChange={(event) => setValue(event.target.value)}
+            placeholder="Ваши заметки..."
+          />
+        </div>
       </div>
     </XpWindow>
   );

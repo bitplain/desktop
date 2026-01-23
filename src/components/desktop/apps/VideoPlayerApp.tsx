@@ -39,7 +39,7 @@ export default function VideoPlayerApp() {
 
   return (
     <XpWindow title="Video Player">
-      <div className="video-player">
+      <div className="video-player eco-card">
         {selection ? (
           <video key={selection.path} ref={videoRef} controls src={src} />
         ) : (

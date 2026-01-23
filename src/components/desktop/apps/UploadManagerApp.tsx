@@ -15,9 +15,9 @@ type UploadManagerAppProps = {
 
 export function UploadManagerLayout({ uploads }: { uploads: UploadItem[] }) {
   return (
-    <div className="upload-manager">
-      <div className="panel-title">Загрузки</div>
-      <div className="upload-manager-list">
+    <div className="upload-manager eco-card">
+      <div className="eco-card-title">Загрузки</div>
+      <div className="upload-manager-list eco-upload-list">
         {uploads.map((upload) => (
           <div key={upload.id} className={`upload-manager-item ${upload.status}`}>
             <div className="upload-manager-name">{upload.name}</div>

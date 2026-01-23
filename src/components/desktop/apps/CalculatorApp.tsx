@@ -118,13 +118,13 @@ export default function CalculatorApp() {
 
   return (
     <XpWindow title="Calculator">
-      <div className="calculator">
-        <div className="calculator-display">{state.display}</div>
+      <div className="calculator eco-calculator">
+        <div className="calculator-display eco-card">{state.display}</div>
         <div className="calculator-grid">
           {buttons.map((button) => (
             <button
               key={button.label}
-              className={`xp-button calculator-button ${button.wide ? "wide" : ""}`}
+              className={`eco-button calculator-button ${button.wide ? "wide" : ""}`}
               type="button"
               onClick={button.action}
             >
