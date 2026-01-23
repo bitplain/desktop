@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import ClientErrorBoundary from "@/components/ClientErrorBoundary";
+import ClientErrorReporter from "@/components/ClientErrorReporter";
 import SettingsProvider from "@/components/desktop/SettingsProvider";
 import "./globals.css";
 
@@ -15,7 +17,10 @@ export default function RootLayout({
   return (
     <html lang="ru">
       <body className="app-body">
-        <SettingsProvider>{children}</SettingsProvider>
+        <ClientErrorReporter />
+        <ClientErrorBoundary>
+          <SettingsProvider>{children}</SettingsProvider>
+        </ClientErrorBoundary>
       </body>
     </html>
   );

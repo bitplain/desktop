@@ -621,3 +621,4 @@ export const createWindowStore = () =>
 
 export const selectOpenWindowIds = (state: WindowStoreState) =>
   state.order.filter((id) => state.windowsById[id]?.isOpen);
+

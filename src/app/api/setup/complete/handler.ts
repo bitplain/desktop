@@ -12,6 +12,20 @@ export async function handleSetupComplete(
   deps: SetupHandlerDeps = { completeSetup, createDefaultSetupDeps }
 ) {
   const body = await request.json().catch(() => ({}));
+  const maskedBody = {
+    ...body,
+    password: body?.password ? "[redacted]" : undefined,
+  };
+  console.log("[setup-complete] request", {
+    method: request.method,
+    url: request.url,
+    headers: {
+      "user-agent": request.headers.get("user-agent"),
+      referer: request.headers.get("referer"),
+      origin: request.headers.get("origin"),
+    },
+    body: maskedBody,
+  });
   const rawDatabaseUrl = String(body?.databaseUrl ?? "");
   const builtDatabaseUrl = buildDatabaseUrl({
     host: String(body?.dbHost ?? ""),

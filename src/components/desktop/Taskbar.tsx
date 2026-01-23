@@ -32,17 +32,20 @@ export default function Taskbar({
   onOpenAccount?: () => void;
 }) {
   const { theme, soundEnabled, toggleTheme, toggleSound, playSound } = useSettings();
-  const [now, setNow] = useState(new Date());
+  const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
+    setNow(new Date());
     const timer = setInterval(() => setNow(new Date()), 60000);
     return () => clearInterval(timer);
   }, []);
 
-  const timeLabel = now.toLocaleTimeString("ru-RU", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const timeLabel = now
+    ? now.toLocaleTimeString("ru-RU", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "--:--";
 
   const ordered = useMemo(
     () => [...windows].sort((a, b) => a.title.localeCompare(b.title)),

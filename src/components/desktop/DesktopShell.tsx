@@ -95,7 +95,7 @@ export default function DesktopShell({
     }))
   );
 
-  const openIds = useWindowStore(selectOpenWindowIds);
+  const openIds = useWindowStore(useShallow(selectOpenWindowIds));
 
   useEffect(() => {
     initWindows(storeConfigs);
