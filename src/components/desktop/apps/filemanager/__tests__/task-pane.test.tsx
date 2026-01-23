@@ -7,6 +7,7 @@ describe("file manager panes", () => {
   it("renders task pane shortcuts", () => {
     const html = renderToString(
       <TaskPane
+        className="eco-task-pane"
         view="video"
         loading={false}
         error={null}
@@ -19,11 +20,14 @@ describe("file manager panes", () => {
     );
     expect(html).toContain("Избранное");
     expect(html).toContain("Создать новую папку");
+    expect(html).toContain("eco-task-pane");
+    expect(html).toContain('data-eco="task-pane"');
   });
 
   it("renders favorites tile", () => {
     const html = renderToString(
       <IconGrid
+        className="eco-file-grid"
         view="video"
         entries={[]}
         favorites={new Set()}
@@ -36,5 +40,7 @@ describe("file manager panes", () => {
       />
     );
     expect(html).toContain("Избранное");
+    expect(html).toContain("eco-file-grid");
+    expect(html).toContain('data-eco="file-grid"');
   });
 });

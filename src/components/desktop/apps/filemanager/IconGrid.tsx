@@ -1,3 +1,4 @@
+import { EcoFileGrid } from "@/components/ui/eco";
 import type { FileManagerView } from "./TaskPane";
 
 export type FileManagerEntry =
@@ -13,6 +14,7 @@ export type FileManagerEntry =
     };
 
 type IconGridProps = {
+  className?: string;
   view: FileManagerView;
   entries: FileManagerEntry[];
   favorites: Set<string>;
@@ -25,6 +27,7 @@ type IconGridProps = {
 };
 
 export function IconGrid({
+  className,
   view,
   entries,
   favorites,
@@ -35,8 +38,9 @@ export function IconGrid({
   onOpenFavorites,
   onOpenVideo,
 }: IconGridProps) {
+  const rootClassName = ["grid", className].filter(Boolean).join(" ");
   return (
-    <div className="grid">
+    <EcoFileGrid className={rootClassName}>
       <div
         role="button"
         tabIndex={0}
@@ -110,6 +114,6 @@ export function IconGrid({
           </div>
         );
       })}
-    </div>
+    </EcoFileGrid>
   );
 }

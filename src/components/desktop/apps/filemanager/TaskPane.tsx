@@ -1,8 +1,10 @@
 import { ReactNode } from "react";
+import { EcoTaskPane } from "@/components/ui/eco";
 
 export type FileManagerView = "video" | "favorites" | "root";
 
 type TaskPaneProps = {
+  className?: string;
   view: FileManagerView;
   loading: boolean;
   error: string | null;
@@ -38,6 +40,7 @@ function TaskLink({
 }
 
 export function TaskPane({
+  className,
   view,
   loading,
   error,
@@ -48,8 +51,9 @@ export function TaskPane({
   onDelete,
 }: TaskPaneProps) {
   const hasSelection = Boolean(selectedLabel);
+  const rootClassName = ["task-pane", className].filter(Boolean).join(" ");
   return (
-    <>
+    <EcoTaskPane className={rootClassName}>
       <div className="task-group">
         <div className="task-header">Системные задачи</div>
         <div className="task-body">
@@ -100,6 +104,6 @@ export function TaskPane({
           </div>
         </div>
       </div>
-    </>
+    </EcoTaskPane>
   );
 }

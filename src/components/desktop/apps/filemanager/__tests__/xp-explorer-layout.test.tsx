@@ -10,5 +10,9 @@ describe("xp explorer layout", () => {
     expect(html).toContain("Файл");
     expect(html).toContain("Адрес:");
     expect(html).toContain("Объектов");
+    expect(html).toContain("eco-file-grid");
+    expect(html).toContain("eco-task-pane");
+    expect(html).toContain('data-eco="file-grid"');
+    expect(html).toContain('data-eco="task-pane"');
   });
 });

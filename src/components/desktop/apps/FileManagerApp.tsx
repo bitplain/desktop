@@ -340,7 +340,7 @@ export default function FileManagerApp({
         </button>
       </div>
 
-      <div className="content">
+      <div className="content eco-filemanager">
         <aside className="taskpane" aria-label="Task pane">
           <TaskPane
             view={view}
