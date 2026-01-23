@@ -12,6 +12,10 @@ const manifest: ModuleManifest = {
   icon: "/icons/xp/user.svg",
   desktopIcon: true,
   startMenu: true,
+  window: {
+    hideChrome: true,
+    dragHandleSelector: ".xp-window .titlebar",
+  },
   Window: AccountWindow,
 };
 

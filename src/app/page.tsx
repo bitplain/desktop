@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import DesktopClient from "@/components/desktop/DesktopClient";
-import { authOptions } from "@/lib/auth";
+import { getAuthOptions } from "@/lib/auth";
 import { getSetupRedirect } from "@/lib/setupRoutes";
 import { getSetupStatus } from "@/lib/setupStatus";
 
@@ -22,7 +22,7 @@ export default async function HomePage() {
     );
   }
 
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
   if (!session?.user) {
     redirect("/login");
   }

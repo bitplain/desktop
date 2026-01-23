@@ -6,6 +6,19 @@ import { validateEmail, validatePassword } from "@/lib/validation";
 export async function POST(request: Request) {
   const prisma = getPrisma();
   const body = await request.json();
+  console.log("[setup-admin] request", {
+    method: request.method,
+    url: request.url,
+    headers: {
+      "user-agent": request.headers.get("user-agent"),
+      referer: request.headers.get("referer"),
+      origin: request.headers.get("origin"),
+    },
+    body: {
+      email: body?.email,
+      password: body?.password ? "[redacted]" : undefined,
+    },
+  });
   const emailCheck = validateEmail(String(body?.email ?? ""));
   const passwordCheck = validatePassword(String(body?.password ?? ""));
   if (!emailCheck.ok || !passwordCheck.ok) {

@@ -7,7 +7,7 @@
     "prebuild": "node scripts/generate-modules-registry.mjs",
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "node scripts/start-with-runtime-config.mjs",
     "lint": "eslint",
     "test": "vitest"
   },
@@ -19,7 +19,8 @@
     "next-auth": "^4.24.13",
     "pg": "^8.17.1",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@types/node": "^20",

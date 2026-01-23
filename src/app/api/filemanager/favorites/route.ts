@@ -1,0 +1,54 @@
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { getAuthOptions } from "@/lib/auth";
+import {
+  addFavoriteHandler,
+  listFavoritesHandler,
+  removeFavoriteHandler,
+} from "@/lib/filemanager/api";
+
+export async function GET() {
+  const session = await getServerSession(getAuthOptions());
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const favorites = await listFavoritesHandler({ userId: session.user.id });
+  return NextResponse.json({ favorites });
+}
+
+export async function POST(request: Request) {
+  const session = await getServerSession(getAuthOptions());
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await request.json();
+  const path = String(body?.path ?? "");
+
+  try {
+    const data = await addFavoriteHandler({ userId: session.user.id, path });
+    return NextResponse.json(data);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Favorite failed";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  const session = await getServerSession(getAuthOptions());
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await request.json();
+  const path = String(body?.path ?? "");
+
+  try {
+    const data = await removeFavoriteHandler({ userId: session.user.id, path });
+    return NextResponse.json(data);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Favorite failed";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
+}

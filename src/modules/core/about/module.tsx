@@ -11,6 +11,10 @@ const manifest: ModuleManifest = {
   desktopIcon: true,
   startMenu: true,
   defaultOpen: true,
+  window: {
+    hideChrome: true,
+    dragHandleSelector: ".xp-window .titlebar",
+  },
   Window: AboutWindow,
 };
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useSettings } from "@/components/desktop/SettingsProvider";
+import { XpWindow } from "@/components/desktop/apps/shared/XpWindow";
 import { postJson } from "@/lib/http";
 
 export default function AccountApp({ email }: { email?: string | null }) {
@@ -57,51 +58,53 @@ export default function AccountApp({ email }: { email?: string | null }) {
   };
 
   return (
-    <div className="stack">
-      <div className="panel">
-        <div className="panel-title">Текущий пользователь</div>
-        <p className="muted">
-          {email ? `Вы вошли как: ${email}` : "Почта пользователя недоступна."}
-        </p>
-      </div>
+    <XpWindow title="Account">
+      <div className="stack">
+        <div className="panel">
+          <div className="panel-title">Текущий пользователь</div>
+          <p className="muted">
+            {email ? `Вы вошли как: ${email}` : "Почта пользователя недоступна."}
+          </p>
+        </div>
 
-      <div className="panel">
-        <div className="panel-title">Смена пароля</div>
-        <form className="stack" onSubmit={onSubmit}>
-          <input
-            className="xp-input"
-            type="password"
-            placeholder="Текущий пароль"
-            value={currentPassword}
-            onChange={(event) => setCurrentPassword(event.target.value)}
-            required
-          />
-          <input
-            className="xp-input"
-            type="password"
-            placeholder="Новый пароль (10+ символов)"
-            value={nextPassword}
-            onChange={(event) => setNextPassword(event.target.value)}
-            required
-          />
-          <div className="muted">
-            Пароль: 10+ символов, буквы в обоих регистрах, цифра и символ.
-          </div>
-          <input
-            className="xp-input"
-            type="password"
-            placeholder="Повторите новый пароль"
-            value={confirmPassword}
-            onChange={(event) => setConfirmPassword(event.target.value)}
-            required
-          />
-          {error ? <div className="notice">{error}</div> : null}
-          {message ? <div className="notice">{message}</div> : null}
-          <button className="xp-button" type="submit" disabled={loading}>
-            {loading ? "Сохраняю..." : "Сменить пароль"}
-          </button>
-        </form>
+        <div className="panel">
+          <div className="panel-title">Смена пароля</div>
+          <form className="stack" onSubmit={onSubmit}>
+            <input
+              className="xp-input"
+              type="password"
+              placeholder="Текущий пароль"
+              value={currentPassword}
+              onChange={(event) => setCurrentPassword(event.target.value)}
+              required
+            />
+            <input
+              className="xp-input"
+              type="password"
+              placeholder="Новый пароль (10+ символов)"
+              value={nextPassword}
+              onChange={(event) => setNextPassword(event.target.value)}
+              required
+            />
+            <div className="muted">
+              Пароль: 10+ символов, буквы в обоих регистрах, цифра и символ.
+            </div>
+            <input
+              className="xp-input"
+              type="password"
+              placeholder="Повторите новый пароль"
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
+              required
+            />
+            {error ? <div className="notice">{error}</div> : null}
+            {message ? <div className="notice">{message}</div> : null}
+            <button className="xp-button" type="submit" disabled={loading}>
+              {loading ? "Сохраняю..." : "Сменить пароль"}
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+    </XpWindow>
   );
 }

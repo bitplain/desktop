@@ -17,7 +17,11 @@ export async function middleware(request: NextRequest) {
   ) {
     return NextResponse.next();
   }
-  const token = await getToken({ req: request });
+  const secret = process.env.NEXTAUTH_SECRET?.trim();
+  if (!secret) {
+    return NextResponse.next();
+  }
+  const token = await getToken({ req: request, secret });
   const isAuthRoute =
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||

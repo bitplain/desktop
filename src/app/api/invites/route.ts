@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/db";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthOptions } from "@/lib/auth";
 import { hashInviteCode } from "@/lib/inviteCodes";
 
 export async function POST() {
   const prisma = getPrisma();
-  const session = await getServerSession(authOptions);
+  const session = await getServerSession(getAuthOptions());
   if (session?.user?.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

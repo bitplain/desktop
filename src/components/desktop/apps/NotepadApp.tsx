@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { XpWindow } from "@/components/desktop/apps/shared/XpWindow";
 
 const STORAGE_KEY = "desktop.notepad";
 
@@ -17,15 +18,17 @@ export default function NotepadApp() {
   }, [value]);
 
   return (
-    <div className="stack">
-      <div className="panel-title">Notepad</div>
-      <textarea
-        className="xp-textarea"
-        rows={10}
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-        placeholder="Ваши заметки..."
-      />
-    </div>
+    <XpWindow title="Notepad">
+      <div className="stack">
+        <div className="panel-title">Notepad</div>
+        <textarea
+          className="xp-textarea"
+          rows={10}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          placeholder="Ваши заметки..."
+        />
+      </div>
+    </XpWindow>
   );
 }

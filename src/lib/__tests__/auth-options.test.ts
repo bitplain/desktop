@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 const loadAuthOptions = async () => {
   vi.resetModules();
   const mod = await import("../auth");
-  return mod.authOptions;
+  return mod.getAuthOptions();
 };
 
 afterEach(() => {

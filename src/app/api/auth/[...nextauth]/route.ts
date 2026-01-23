@@ -1,6 +1,13 @@
+import type { NextRequest } from "next/server";
 import NextAuth from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthOptions } from "@/lib/auth";
 
-const handler = NextAuth(authOptions);
+type RouteContext = { params: Promise<{ nextauth: string[] }> };
 
-export { handler as GET, handler as POST };
+export async function GET(request: NextRequest, context: RouteContext) {
+  return NextAuth(getAuthOptions())(request, context);
+}
+
+export async function POST(request: NextRequest, context: RouteContext) {
+  return NextAuth(getAuthOptions())(request, context);
+}

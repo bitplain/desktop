@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { XpWindow } from "@/components/desktop/apps/shared/XpWindow";
 
 type Operator = "+" | "-" | "*" | "/" | null;
 
@@ -116,20 +117,22 @@ export default function CalculatorApp() {
   ];
 
   return (
-    <div className="calculator">
-      <div className="calculator-display">{state.display}</div>
-      <div className="calculator-grid">
-        {buttons.map((button) => (
-          <button
-            key={button.label}
-            className={`xp-button calculator-button ${button.wide ? "wide" : ""}`}
-            type="button"
-            onClick={button.action}
-          >
-            {button.label}
-          </button>
-        ))}
+    <XpWindow title="Calculator">
+      <div className="calculator">
+        <div className="calculator-display">{state.display}</div>
+        <div className="calculator-grid">
+          {buttons.map((button) => (
+            <button
+              key={button.label}
+              className={`xp-button calculator-button ${button.wide ? "wide" : ""}`}
+              type="button"
+              onClick={button.action}
+            >
+              {button.label}
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
+    </XpWindow>
   );
 }

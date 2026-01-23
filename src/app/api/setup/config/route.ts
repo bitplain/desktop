@@ -5,6 +5,20 @@ import { validateSecrets, validateDatabaseUrl } from "@/lib/setupValidation";
 
 export async function POST(request: Request) {
   const body = await request.json();
+  console.log("[setup-config] request", {
+    method: request.method,
+    url: request.url,
+    headers: {
+      "user-agent": request.headers.get("user-agent"),
+      referer: request.headers.get("referer"),
+      origin: request.headers.get("origin"),
+    },
+    body: {
+      databaseUrl: body?.databaseUrl ? "[redacted]" : undefined,
+      nextAuthSecret: body?.nextAuthSecret ? "[redacted]" : undefined,
+      keysEncryptionSecret: body?.keysEncryptionSecret ? "[redacted]" : undefined,
+    },
+  });
   const nextAuth = String(body?.nextAuthSecret || "");
   const keys = String(body?.keysEncryptionSecret || "");
   const databaseUrl = String(body?.databaseUrl || "");
