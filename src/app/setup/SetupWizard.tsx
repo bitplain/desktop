@@ -59,18 +59,18 @@ export function SetupWizardLayout({
   onLogin,
 }: LayoutProps) {
   return (
-    <div className="login-screen">
-      <div className="login-panel setup-panel">
-        <div className="login-hero">
-          <div className="login-brand">
+    <div className="auth-shell">
+      <div className="auth-card setup-card">
+        <div className="auth-hero">
+          <div className="auth-brand">
             <span
-              className="login-brand-icon"
+              className="auth-brand-icon"
               style={{ backgroundImage: "url(/icons/xp/window.png)" }}
               aria-hidden
             />
             <div>
-              <div className="login-brand-title">Desktop</div>
-              <div className="login-brand-subtitle">Первый запуск системы</div>
+              <div className="auth-brand-title">Desktop</div>
+              <div className="auth-brand-subtitle">Первый запуск системы</div>
             </div>
           </div>
           <div className="setup-steps">
@@ -78,16 +78,16 @@ export function SetupWizardLayout({
             <div className="setup-step">2. Администратор</div>
           </div>
         </div>
-        <div className="login-form">
+        <div className="auth-form">
           {!success ? (
-            <form className="stack" onSubmit={onSubmit}>
-              <div className="login-form-header">Setup wizard</div>
+            <form className="auth-form-body" onSubmit={onSubmit}>
+              <div className="auth-form-header">Setup wizard</div>
               {step === "db" ? (
                 <div className="setup-db">
                   <label className="setup-field">
                     <span>Host</span>
                     <input
-                      className="xp-input"
+                      className="eco-input"
                       value={dbHost}
                       onChange={(event) => onChangeDbHost(event.target.value)}
                       required
@@ -96,7 +96,7 @@ export function SetupWizardLayout({
                   <label className="setup-field">
                     <span>Port</span>
                     <input
-                      className="xp-input"
+                      className="eco-input"
                       value={dbPort}
                       onChange={(event) => onChangeDbPort(event.target.value)}
                       required
@@ -105,7 +105,7 @@ export function SetupWizardLayout({
                   <label className="setup-field">
                     <span>User</span>
                     <input
-                      className="xp-input"
+                      className="eco-input"
                       value={dbUser}
                       onChange={(event) => onChangeDbUser(event.target.value)}
                       required
@@ -114,7 +114,7 @@ export function SetupWizardLayout({
                   <label className="setup-field">
                     <span>Password</span>
                     <input
-                      className="xp-input"
+                      className="eco-input"
                       type="password"
                       value={dbPassword}
                       onChange={(event) => onChangeDbPassword(event.target.value)}
@@ -130,7 +130,7 @@ export function SetupWizardLayout({
                   <label className="setup-field">
                     <span>Email администратора</span>
                     <input
-                      className="xp-input"
+                      className="eco-input"
                       type="email"
                       value={email}
                       onChange={(event) => onChangeEmail(event.target.value)}
@@ -140,7 +140,7 @@ export function SetupWizardLayout({
                   <label className="setup-field">
                     <span>Пароль администратора</span>
                     <input
-                      className="xp-input"
+                      className="eco-input"
                       type="password"
                       value={password}
                       onChange={(event) => onChangePassword(event.target.value)}
@@ -152,16 +152,16 @@ export function SetupWizardLayout({
               {error ? <div className="notice">{error}</div> : null}
               <div className="setup-actions">
                 {step === "admin" && status === "needsSetup" ? (
-                  <button className="xp-button secondary" type="button" onClick={onBack}>
+                  <button className="eco-button secondary" type="button" onClick={onBack}>
                     Назад
                   </button>
                 ) : null}
                 {step === "db" ? (
-                  <button className="xp-button" type="button" onClick={onNext}>
+                  <button className="eco-button" type="button" onClick={onNext}>
                     Далее
                   </button>
                 ) : (
-                  <button className="xp-button" type="submit" disabled={loading}>
+                  <button className="eco-button" type="submit" disabled={loading}>
                     {loading ? "Настраиваем..." : "Запустить настройку"}
                   </button>
                 )}
@@ -169,13 +169,13 @@ export function SetupWizardLayout({
             </form>
           ) : (
             <div className="setup-success">
-              <div className="login-form-header">Готово</div>
+              <div className="auth-form-header">Готово</div>
               <div className="setup-success-list">
                 <div>Конфигурация сохранена</div>
                 <div>База данных подготовлена</div>
                 <div>Администратор создан</div>
               </div>
-              <button className="xp-button" onClick={onLogin}>
+              <button className="eco-button" onClick={onLogin}>
                 Войти
               </button>
             </div>

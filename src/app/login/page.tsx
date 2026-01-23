@@ -67,33 +67,33 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="login-screen">
-      <div className="login-panel">
-        <div className="login-hero">
-          <div className="login-brand">
+    <div className="auth-shell">
+      <div className="auth-card">
+        <aside className="auth-hero">
+          <div className="auth-brand">
             <span
-              className="login-brand-icon"
+              className="auth-brand-icon"
               style={{ backgroundImage: "url(/icons/xp/window.png)" }}
               aria-hidden
             />
             <div>
-              <div className="login-brand-title">Desktop</div>
-              <div className="login-brand-subtitle">XP-workspace для модульных приложений</div>
+              <div className="auth-brand-title">Desktop</div>
+              <div className="auth-brand-subtitle">XP-workspace для модульных приложений</div>
             </div>
           </div>
-          <div className="login-greeting">
-            <div className="login-avatar" aria-hidden />
-            <div className="login-greeting-title">Добро пожаловать</div>
-            <div className="login-greeting-subtitle">
+          <div className="auth-greeting">
+            <div className="auth-avatar" aria-hidden />
+            <div className="auth-greeting-title">Добро пожаловать</div>
+            <div className="auth-greeting-subtitle">
               Войдите, чтобы открыть рабочий стол.
             </div>
           </div>
-        </div>
-        <div className="login-form">
-          <div className="login-form-header">Авторизация</div>
-          <form className="stack" onSubmit={onSubmit}>
+        </aside>
+        <section className="auth-form">
+          <div className="auth-form-header">Авторизация</div>
+          <form className="auth-form-body" onSubmit={onSubmit}>
             <input
-              className="xp-input"
+              className="eco-input"
               type="email"
               placeholder="Email"
               value={email}
@@ -101,7 +101,7 @@ export default function LoginPage() {
               required
             />
             <input
-              className="xp-input"
+              className="eco-input"
               type="password"
               placeholder="Пароль"
               value={password}
@@ -110,14 +110,14 @@ export default function LoginPage() {
             />
             {error ? <div className="notice">{error}</div> : null}
             {!online ? <div className="notice">Нет соединения.</div> : null}
-            <button className="xp-button" type="submit" disabled={loading || !online}>
+            <button className="eco-button" type="submit" disabled={loading || !online}>
               {loading ? "Входим..." : "Войти"}
             </button>
-            <p className="muted">
+            <p className="auth-hint">
               Нет аккаунта? <Link href="/register">Создать</Link>
             </p>
           </form>
-        </div>
+        </section>
       </div>
     </div>
   );
