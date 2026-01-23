@@ -34,6 +34,12 @@ const baseProps = {
 };
 
 describe("window chrome", () => {
+  it("renders eco calm chrome classes", () => {
+    const html = renderToString(<Window {...baseProps} />);
+    expect(html).toContain("eco-window");
+    expect(html).toContain("eco-window__header");
+  });
+
   it("omits chrome when hideChrome is true", () => {
     const html = renderToString(<Window {...baseProps} hideChrome />);
     expect(html).toContain("window--chromeless");

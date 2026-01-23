@@ -439,6 +439,41 @@ textarea {
   overflow: hidden;
 }
 
+.eco-window {
+  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  color: var(--text);
+}
+
+.eco-window.is-maximized {
+  border-radius: 0;
+}
+
+.eco-window__header {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.18));
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.eco-window__titlebar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.eco-window__controls {
+  display: flex;
+  gap: 6px;
+}
+
 .window-header {
   flex: 0 0 auto;
   display: flex;
