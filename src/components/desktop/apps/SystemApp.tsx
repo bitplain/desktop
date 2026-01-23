@@ -10,8 +10,10 @@ export default function SystemApp({
   return (
     <XpWindow title={title}>
       <div className="stack">
-        <div className="panel-title">{title}</div>
-        <p className="muted">{message}</p>
+        <div className="eco-panel">
+          <div className="panel-title">{title}</div>
+          <p className="muted">{message}</p>
+        </div>
       </div>
     </XpWindow>
   );

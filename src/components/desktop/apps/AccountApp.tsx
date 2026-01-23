@@ -60,18 +60,18 @@ export default function AccountApp({ email }: { email?: string | null }) {
   return (
     <XpWindow title="Account">
       <div className="stack">
-        <div className="panel">
+        <div className="eco-panel">
           <div className="panel-title">Текущий пользователь</div>
           <p className="muted">
             {email ? `Вы вошли как: ${email}` : "Почта пользователя недоступна."}
           </p>
         </div>
 
-        <div className="panel">
+        <div className="eco-panel">
           <div className="panel-title">Смена пароля</div>
-          <form className="stack" onSubmit={onSubmit}>
+          <form className="eco-form" onSubmit={onSubmit}>
             <input
-              className="xp-input"
+              className="eco-input"
               type="password"
               placeholder="Текущий пароль"
               value={currentPassword}
@@ -79,7 +79,7 @@ export default function AccountApp({ email }: { email?: string | null }) {
               required
             />
             <input
-              className="xp-input"
+              className="eco-input"
               type="password"
               placeholder="Новый пароль (10+ символов)"
               value={nextPassword}
@@ -90,7 +90,7 @@ export default function AccountApp({ email }: { email?: string | null }) {
               Пароль: 10+ символов, буквы в обоих регистрах, цифра и символ.
             </div>
             <input
-              className="xp-input"
+              className="eco-input"
               type="password"
               placeholder="Повторите новый пароль"
               value={confirmPassword}
@@ -99,7 +99,7 @@ export default function AccountApp({ email }: { email?: string | null }) {
             />
             {error ? <div className="notice">{error}</div> : null}
             {message ? <div className="notice">{message}</div> : null}
-            <button className="xp-button" type="submit" disabled={loading}>
+            <button className="eco-button" type="submit" disabled={loading}>
               {loading ? "Сохраняю..." : "Сменить пароль"}
             </button>
           </form>
