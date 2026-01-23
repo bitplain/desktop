@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { EcoButton, EcoCard, EcoForm, EcoInput, EcoNotice } from "@/components/ui/eco";
 import { postJson } from "@/lib/http";
 import type { SetupStatus } from "@/lib/setupStatus";
 
@@ -60,7 +61,7 @@ export function SetupWizardLayout({
 }: LayoutProps) {
   return (
     <div className="auth-shell">
-      <div className="auth-card setup-card">
+      <EcoCard className="auth-card setup-card">
         <div className="auth-hero">
           <div className="auth-brand">
             <span
@@ -80,14 +81,13 @@ export function SetupWizardLayout({
         </div>
         <div className="auth-form">
           {!success ? (
-            <form className="auth-form-body" onSubmit={onSubmit}>
+            <EcoForm className="auth-form-body" onSubmit={onSubmit}>
               <div className="auth-form-header">Setup wizard</div>
               {step === "db" ? (
                 <div className="setup-db">
                   <label className="setup-field">
                     <span>Host</span>
-                    <input
-                      className="eco-input"
+                    <EcoInput
                       value={dbHost}
                       onChange={(event) => onChangeDbHost(event.target.value)}
                       required
@@ -95,8 +95,7 @@ export function SetupWizardLayout({
                   </label>
                   <label className="setup-field">
                     <span>Port</span>
-                    <input
-                      className="eco-input"
+                    <EcoInput
                       value={dbPort}
                       onChange={(event) => onChangeDbPort(event.target.value)}
                       required
@@ -104,8 +103,7 @@ export function SetupWizardLayout({
                   </label>
                   <label className="setup-field">
                     <span>User</span>
-                    <input
-                      className="eco-input"
+                    <EcoInput
                       value={dbUser}
                       onChange={(event) => onChangeDbUser(event.target.value)}
                       required
@@ -113,8 +111,7 @@ export function SetupWizardLayout({
                   </label>
                   <label className="setup-field">
                     <span>Password</span>
-                    <input
-                      className="eco-input"
+                    <EcoInput
                       type="password"
                       value={dbPassword}
                       onChange={(event) => onChangeDbPassword(event.target.value)}
@@ -125,12 +122,13 @@ export function SetupWizardLayout({
               ) : (
                 <>
                   {status === "needsAdmin" ? (
-                    <div className="setup-note">База уже настроена. Создайте администратора.</div>
+                    <EcoNotice className="setup-note">
+                      База уже настроена. Создайте администратора.
+                    </EcoNotice>
                   ) : null}
                   <label className="setup-field">
                     <span>Email администратора</span>
-                    <input
-                      className="eco-input"
+                    <EcoInput
                       type="email"
                       value={email}
                       onChange={(event) => onChangeEmail(event.target.value)}
@@ -139,8 +137,7 @@ export function SetupWizardLayout({
                   </label>
                   <label className="setup-field">
                     <span>Пароль администратора</span>
-                    <input
-                      className="eco-input"
+                    <EcoInput
                       type="password"
                       value={password}
                       onChange={(event) => onChangePassword(event.target.value)}
@@ -149,24 +146,24 @@ export function SetupWizardLayout({
                   </label>
                 </>
               )}
-              {error ? <div className="notice">{error}</div> : null}
+              {error ? <EcoNotice>{error}</EcoNotice> : null}
               <div className="setup-actions">
                 {step === "admin" && status === "needsSetup" ? (
-                  <button className="eco-button secondary" type="button" onClick={onBack}>
+                  <EcoButton variant="secondary" type="button" onClick={onBack}>
                     Назад
-                  </button>
+                  </EcoButton>
                 ) : null}
                 {step === "db" ? (
-                  <button className="eco-button" type="button" onClick={onNext}>
+                  <EcoButton type="button" onClick={onNext}>
                     Далее
-                  </button>
+                  </EcoButton>
                 ) : (
-                  <button className="eco-button" type="submit" disabled={loading}>
+                  <EcoButton type="submit" disabled={loading}>
                     {loading ? "Настраиваем..." : "Запустить настройку"}
-                  </button>
+                  </EcoButton>
                 )}
               </div>
-            </form>
+            </EcoForm>
           ) : (
             <div className="setup-success">
               <div className="auth-form-header">Готово</div>
@@ -175,13 +172,13 @@ export function SetupWizardLayout({
                 <div>База данных подготовлена</div>
                 <div>Администратор создан</div>
               </div>
-              <button className="eco-button" onClick={onLogin}>
+              <EcoButton onClick={onLogin}>
                 Войти
-              </button>
+              </EcoButton>
             </div>
           )}
         </div>
-      </div>
+      </EcoCard>
     </div>
   );
 }

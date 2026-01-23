@@ -33,11 +33,17 @@ describe("auth screens", () => {
     const html = renderToString(<LoginPage />);
     expect(html).toContain("auth-shell");
     expect(html).toContain("auth-card");
+    expect(html).toContain('data-eco="card"');
+    expect(html).toContain('data-eco="input"');
+    expect(html).toContain('data-eco="button"');
   });
 
   it("renders eco calm register shell", () => {
     const html = renderToString(<RegisterPage />);
     expect(html).toContain("auth-shell");
     expect(html).toContain("auth-card");
+    expect(html).toContain('data-eco="card"');
+    expect(html).toContain('data-eco="input"');
+    expect(html).toContain('data-eco="button"');
   });
 });

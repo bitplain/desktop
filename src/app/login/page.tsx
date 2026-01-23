@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useSettings } from "@/components/desktop/SettingsProvider";
+import { EcoButton, EcoCard, EcoForm, EcoInput, EcoNotice } from "@/components/ui/eco";
 import { handleLoginSuccessFlow } from "@/lib/authFlow";
 import { getSetupRedirect } from "@/lib/setupRoutes";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
@@ -68,7 +69,7 @@ export default function LoginPage() {
 
   return (
     <div className="auth-shell">
-      <div className="auth-card">
+      <EcoCard className="auth-card">
         <aside className="auth-hero">
           <div className="auth-brand">
             <span
@@ -91,34 +92,32 @@ export default function LoginPage() {
         </aside>
         <section className="auth-form">
           <div className="auth-form-header">Авторизация</div>
-          <form className="auth-form-body" onSubmit={onSubmit}>
-            <input
-              className="eco-input"
+          <EcoForm className="auth-form-body" onSubmit={onSubmit}>
+            <EcoInput
               type="email"
               placeholder="Email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               required
             />
-            <input
-              className="eco-input"
+            <EcoInput
               type="password"
               placeholder="Пароль"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               required
             />
-            {error ? <div className="notice">{error}</div> : null}
-            {!online ? <div className="notice">Нет соединения.</div> : null}
-            <button className="eco-button" type="submit" disabled={loading || !online}>
+            {error ? <EcoNotice>{error}</EcoNotice> : null}
+            {!online ? <EcoNotice>Нет соединения.</EcoNotice> : null}
+            <EcoButton type="submit" disabled={loading || !online}>
               {loading ? "Входим..." : "Войти"}
-            </button>
+            </EcoButton>
             <p className="auth-hint">
               Нет аккаунта? <Link href="/register">Создать</Link>
             </p>
-          </form>
+          </EcoForm>
         </section>
-      </div>
+      </EcoCard>
     </div>
   );
 }

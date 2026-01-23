@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSettings } from "@/components/desktop/SettingsProvider";
+import { EcoButton, EcoCard, EcoForm, EcoInput, EcoNotice } from "@/components/ui/eco";
 import { postJson } from "@/lib/http";
 import { getSetupRedirect } from "@/lib/setupRoutes";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
@@ -68,7 +69,7 @@ export default function RegisterPage() {
 
   return (
     <div className="auth-shell">
-      <div className="auth-card">
+      <EcoCard className="auth-card">
         <aside className="auth-hero">
           <div className="auth-brand">
             <span
@@ -91,17 +92,15 @@ export default function RegisterPage() {
         </aside>
         <section className="auth-form">
           <div className="auth-form-header">Регистрация</div>
-          <form className="auth-form-body" onSubmit={onSubmit}>
-            <input
-              className="eco-input"
+          <EcoForm className="auth-form-body" onSubmit={onSubmit}>
+            <EcoInput
               type="email"
               placeholder="Email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               required
             />
-            <input
-              className="eco-input"
+            <EcoInput
               type="password"
               placeholder="Пароль (мин. 10 символов)"
               value={password}
@@ -109,8 +108,7 @@ export default function RegisterPage() {
               minLength={10}
               required
             />
-            <input
-              className="eco-input"
+            <EcoInput
               type="text"
               placeholder="Invite code"
               value={inviteCode}
@@ -120,18 +118,18 @@ export default function RegisterPage() {
             <div className="auth-hint">
               Пароль: 10+ символов, буквы в обоих регистрах, цифра и символ.
             </div>
-            {error ? <div className="notice">{error}</div> : null}
-            {message ? <div className="notice">{message}</div> : null}
-            {!online ? <div className="notice">Нет соединения.</div> : null}
-            <button className="eco-button" type="submit" disabled={loading || !online}>
+            {error ? <EcoNotice>{error}</EcoNotice> : null}
+            {message ? <EcoNotice>{message}</EcoNotice> : null}
+            {!online ? <EcoNotice>Нет соединения.</EcoNotice> : null}
+            <EcoButton type="submit" disabled={loading || !online}>
               {loading ? "Создаю..." : "Создать"}
-            </button>
+            </EcoButton>
             <p className="auth-hint">
               Уже есть аккаунт? <Link href="/login">Войти</Link>
             </p>
-          </form>
+          </EcoForm>
         </section>
-      </div>
+      </EcoCard>
     </div>
   );
 }

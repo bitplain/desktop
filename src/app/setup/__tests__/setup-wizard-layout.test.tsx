@@ -31,6 +31,8 @@ describe("setup wizard layout", () => {
     const html = renderToString(<SetupWizardLayout {...baseProps} step="db" />);
     expect(html).toContain("setup-steps");
     expect(html).toContain("auth-form");
+    expect(html).toContain('data-eco="card"');
+    expect(html).toContain('data-eco="form"');
     expect(html).toContain("Host");
     expect(html).toContain("Port");
     expect(html).toContain("User");
