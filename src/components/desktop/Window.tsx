@@ -7,6 +7,7 @@ import {
   WINDOW_MIN_HEIGHT,
   WINDOW_MIN_WIDTH,
 } from "@/lib/windowBounds";
+import { useWindowStore } from "@/stores/windowStore";
 
 type Position = { x: number; y: number };
 
@@ -28,12 +29,6 @@ type WindowProps = {
   title: string;
   subtitle?: string;
   icon?: string;
-  isMinimized: boolean;
-  isMaximized: boolean;
-  restore?: { position: Position; size: Size };
-  zIndex: number;
-  position: Position;
-  size: Size;
   canClose?: boolean;
   onClose: (id: string) => void;
   onMinimize: (id: string) => void;
@@ -50,12 +45,6 @@ export default function Window({
   title,
   subtitle,
   icon,
-  isMinimized,
-  isMaximized,
-  restore,
-  zIndex,
-  position,
-  size,
   canClose = true,
   onClose,
   onMinimize,
@@ -66,6 +55,7 @@ export default function Window({
   onSizeChange,
   children,
 }: WindowProps) {
+  const windowState = useWindowStore((state) => state.windowsById[id]);
   const dragState = useRef<DragState | null>(null);
   const resizeState = useRef<{
     startX: number;
@@ -74,8 +64,17 @@ export default function Window({
     position: Position;
     direction: ResizeDirection;
   } | null>(null);
+  const isMinimized = windowState?.isMinimized ?? true;
+  const isMaximized = windowState?.isMaximized ?? false;
+  const restore = windowState?.restore;
+  const zIndex = windowState?.zIndex ?? 0;
+  const position = windowState?.position ?? { x: 0, y: 0 };
+  const size = windowState?.size ?? { width: 0, height: 0 };
 
   useEffect(() => {
+    if (!windowState) {
+      return;
+    }
     if (typeof window === "undefined") {
       return;
     }
@@ -105,6 +104,7 @@ export default function Window({
     position.y,
     size.height,
     size.width,
+    windowState,
   ]);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -256,6 +256,10 @@ export default function Window({
     resizeState.current = null;
     event.currentTarget.releasePointerCapture(event.pointerId);
   };
+
+  if (!windowState) {
+    return null;
+  }
 
   return (
     <section

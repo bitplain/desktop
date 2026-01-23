@@ -260,12 +260,6 @@ export default function DesktopShell({
               title={config.title}
               subtitle={config.subtitle}
               icon={config.icon}
-              isMinimized={state.isMinimized}
-              isMaximized={state.isMaximized}
-              restore={state.restore}
-              zIndex={state.zIndex}
-              position={state.position}
-              size={state.size}
               canClose={config.canClose}
               onClose={handleCloseWindow}
               onMinimize={handleToggleMinimize}
