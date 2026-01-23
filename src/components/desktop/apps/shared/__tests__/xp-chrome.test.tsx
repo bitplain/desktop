@@ -12,5 +12,6 @@ describe("xp chrome", () => {
     expect(html).toContain("Left Pane");
     expect(html).toContain("Right Pane");
     expect(html).toContain("eco-chrome");
+    expect(html).toContain('data-eco="chrome"');
   });
 });

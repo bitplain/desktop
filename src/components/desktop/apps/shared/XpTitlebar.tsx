@@ -1,5 +1,6 @@
 "use client";
 
+import { EcoAppTitlebar } from "@/components/ui/eco";
 import { useWindowControls } from "@/components/desktop/WindowControlsContext";
 
 export function XpTitlebar({ title }: { title: string }) {
@@ -9,7 +10,7 @@ export function XpTitlebar({ title }: { title: string }) {
   const close = controls?.close ?? (() => undefined);
 
   return (
-    <div className="titlebar eco-app-titlebar">
+    <EcoAppTitlebar className="titlebar">
       <div className="title-left eco-app-titlebar__left">
         <div className="app-icon" aria-hidden="true" />
         <div className="title">{title}</div>
@@ -30,6 +31,6 @@ export function XpTitlebar({ title }: { title: string }) {
           X
         </button>
       </div>
-    </div>
+    </EcoAppTitlebar>
   );
 }

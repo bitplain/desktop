@@ -289,6 +289,7 @@ export default function Window({
       className={`window eco-window ${isMinimized ? "is-minimized" : ""} ${
         isMaximized ? "is-maximized" : ""
       } ${hideChrome ? "window--chromeless" : ""}`}
+      data-eco="window"
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
         zIndex,
