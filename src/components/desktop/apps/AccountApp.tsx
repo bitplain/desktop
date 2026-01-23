@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useSettings } from "@/components/desktop/SettingsProvider";
 import { XpWindow } from "@/components/desktop/apps/shared/XpWindow";
+import { EcoButton, EcoForm, EcoInput, EcoNotice, EcoPanel } from "@/components/ui/eco";
 import { postJson } from "@/lib/http";
 
 export default function AccountApp({ email }: { email?: string | null }) {
@@ -60,26 +61,24 @@ export default function AccountApp({ email }: { email?: string | null }) {
   return (
     <XpWindow title="Account">
       <div className="stack">
-        <div className="eco-panel">
+        <EcoPanel>
           <div className="panel-title">Текущий пользователь</div>
           <p className="muted">
             {email ? `Вы вошли как: ${email}` : "Почта пользователя недоступна."}
           </p>
-        </div>
+        </EcoPanel>
 
-        <div className="eco-panel">
+        <EcoPanel>
           <div className="panel-title">Смена пароля</div>
-          <form className="eco-form" onSubmit={onSubmit}>
-            <input
-              className="eco-input"
+          <EcoForm onSubmit={onSubmit}>
+            <EcoInput
               type="password"
               placeholder="Текущий пароль"
               value={currentPassword}
               onChange={(event) => setCurrentPassword(event.target.value)}
               required
             />
-            <input
-              className="eco-input"
+            <EcoInput
               type="password"
               placeholder="Новый пароль (10+ символов)"
               value={nextPassword}
@@ -89,21 +88,20 @@ export default function AccountApp({ email }: { email?: string | null }) {
             <div className="muted">
               Пароль: 10+ символов, буквы в обоих регистрах, цифра и символ.
             </div>
-            <input
-              className="eco-input"
+            <EcoInput
               type="password"
               placeholder="Повторите новый пароль"
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
               required
             />
-            {error ? <div className="notice">{error}</div> : null}
-            {message ? <div className="notice">{message}</div> : null}
-            <button className="eco-button" type="submit" disabled={loading}>
+            {error ? <EcoNotice>{error}</EcoNotice> : null}
+            {message ? <EcoNotice>{message}</EcoNotice> : null}
+            <EcoButton type="submit" disabled={loading}>
               {loading ? "Сохраняю..." : "Сменить пароль"}
-            </button>
-          </form>
-        </div>
+            </EcoButton>
+          </EcoForm>
+        </EcoPanel>
       </div>
     </XpWindow>
   );

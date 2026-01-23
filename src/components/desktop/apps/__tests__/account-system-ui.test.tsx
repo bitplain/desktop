@@ -14,10 +14,15 @@ describe("account and system apps", () => {
     const accountHtml = renderToString(<AccountApp email="user@test.dev" />);
     expect(accountHtml).toContain("eco-form");
     expect(accountHtml).toContain("eco-panel");
+    expect(accountHtml).toContain('data-eco="panel"');
+    expect(accountHtml).toContain('data-eco="form"');
+    expect(accountHtml).toContain('data-eco="input"');
+    expect(accountHtml).toContain('data-eco="button"');
   });
 
   it("renders eco panel for system app", () => {
     const systemHtml = renderToString(<SystemApp title="System" message="All good" />);
     expect(systemHtml).toContain("eco-panel");
+    expect(systemHtml).toContain('data-eco="panel"');
   });
 });
