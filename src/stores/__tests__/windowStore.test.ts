@@ -38,4 +38,52 @@ describe("window store", () => {
     expect(activeId).toBe("beta");
     expect(order[order.length - 1]).toBe("beta");
   });
+
+  it("minimizes and restores a window", () => {
+    const store = createWindowStore();
+    store.getState().setViewport({ width: 1400, height: 900 });
+    store.getState().initWindows(configs);
+
+    store.getState().openWindow("beta");
+    store.getState().toggleMinimize("beta");
+
+    expect(store.getState().windowsById.beta.isMinimized).toBe(true);
+
+    store.getState().toggleMinimize("beta");
+
+    expect(store.getState().windowsById.beta.isMinimized).toBe(false);
+    expect(store.getState().activeId).toBe("beta");
+  });
+
+  it("maximizes and restores a window", () => {
+    const store = createWindowStore();
+    store.getState().setViewport({ width: 1200, height: 800 });
+    store.getState().initWindows(configs);
+
+    store.getState().toggleMaximize("alpha");
+    const maximized = store.getState().windowsById.alpha;
+
+    expect(maximized.isMaximized).toBe(true);
+    expect(maximized.size).toEqual({ width: 1200, height: 800 });
+    expect(maximized.restore?.size).toEqual({ width: 760, height: 520 });
+
+    store.getState().toggleMaximize("alpha");
+    const restored = store.getState().windowsById.alpha;
+
+    expect(restored.isMaximized).toBe(false);
+    expect(restored.size).toEqual({ width: 760, height: 520 });
+  });
+
+  it("clamps windows on viewport updates", () => {
+    const store = createWindowStore();
+    store.getState().setViewport({ width: 1400, height: 900 });
+    store.getState().initWindows(configs);
+
+    store.getState().resizeWindow("alpha", { width: 2000, height: 1600 });
+    store.getState().setViewport({ width: 600, height: 400 });
+
+    const { size } = store.getState().windowsById.alpha;
+    expect(size.width).toBeLessThanOrEqual(600);
+    expect(size.height).toBeLessThanOrEqual(400);
+  });
 });
