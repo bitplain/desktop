@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { clampWindowBounds } from "@/lib/windowBounds";
+import { cascadeLayout, tileLayout } from "@/lib/windowLayouts";
 import { createWindowStore } from "../windowStore";
 
 const configs = [
@@ -85,5 +87,56 @@ describe("window store", () => {
     const { size } = store.getState().windowsById.alpha;
     expect(size.width).toBeLessThanOrEqual(600);
     expect(size.height).toBeLessThanOrEqual(400);
+  });
+
+  it("applies cascade layout to open windows", () => {
+    const store = createWindowStore();
+    store.getState().setViewport({ width: 1400, height: 900 });
+    store.getState().initWindows(configs);
+    store.getState().openWindow("beta");
+
+    store.getState().cascadeWindows();
+
+    const openIds = store.getState().order.filter(
+      (id) => store.getState().windowsById[id]?.isOpen
+    );
+    const expected = cascadeLayout(openIds);
+    const alpha = store.getState().windowsById.alpha;
+
+    expect(alpha.position).toEqual(expected.find((item) => item.id === "alpha")?.position);
+    expect(alpha.isMaximized).toBe(false);
+  });
+
+  it("applies tile layout and resets layout", () => {
+    const store = createWindowStore();
+    store.getState().setViewport({ width: 1000, height: 700 });
+    store.getState().initWindows(configs);
+    store.getState().openWindow("beta");
+
+    store.getState().tileWindows();
+    const openIds = store.getState().order.filter(
+      (id) => store.getState().windowsById[id]?.isOpen
+    );
+    const expectedTiles = tileLayout(openIds, 1000, 700 - 76);
+    const beta = store.getState().windowsById.beta;
+
+    const expectedBeta = expectedTiles.find((item) => item.id === "beta");
+    if (!expectedBeta) {
+      throw new Error("Missing tile layout for beta");
+    }
+    const clampedBeta = clampWindowBounds({
+      size: expectedBeta.size ?? beta.size,
+      position: expectedBeta.position,
+      viewWidth: 1000,
+      viewHeight: 700,
+    });
+
+    expect(beta.size).toEqual(clampedBeta.size);
+
+    store.getState().moveWindow("beta", { x: 500, y: 500 });
+    store.getState().resetLayout(configs);
+
+    const resetBeta = store.getState().windowsById.beta;
+    expect(resetBeta.position).toEqual({ x: 160, y: 112 });
   });
 });
