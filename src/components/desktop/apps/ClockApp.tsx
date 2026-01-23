@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { XpWindow } from "@/components/desktop/apps/shared/XpWindow";
 
 export default function ClockApp() {
   const [now, setNow] = useState<Date | null>(null);
@@ -28,12 +29,14 @@ export default function ClockApp() {
     : "";
 
   return (
-    <div className="stack">
-      <div className="panel-title">System Clock</div>
-      <div className="clock-face">
-        <div className="clock-time">{timeLabel}</div>
-        <div className="muted">{dateLabel}</div>
+    <XpWindow title="System Clock">
+      <div className="stack">
+        <div className="panel-title">System Clock</div>
+        <div className="clock-face">
+          <div className="clock-time">{timeLabel}</div>
+          <div className="muted">{dateLabel}</div>
+        </div>
       </div>
-    </div>
+    </XpWindow>
   );
 }

@@ -1,3 +1,4 @@
+import { ensureDatabaseReady } from "./databaseReady";
 import { loadRuntimeConfig, RuntimeConfig } from "./runtimeConfig";
 
 export type SetupStatus = "needsSetup" | "needsAdmin" | "ready" | "dbUnavailable";
@@ -10,6 +11,7 @@ export async function getSetupStatus(options?: { mockConfig?: RuntimeConfig | nu
     return "needsSetup" as const;
   }
   try {
+    await ensureDatabaseReady(config.databaseUrl);
     const { getPrisma } = await import("./db");
     const prisma = getPrisma();
     const count = await prisma.user.count();

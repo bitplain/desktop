@@ -17,9 +17,10 @@ type WindowConfig = {
   title: string;
   subtitle?: string;
   icon?: string;
-  content: React.ReactNode;
+  Window: ModuleManifest["Window"];
   defaultOpen?: boolean;
   canClose?: boolean;
+  window?: ModuleManifest["window"];
 };
 
 const TASKBAR_HEIGHT = 44;
@@ -44,9 +45,10 @@ export default function DesktopShell({
       title: module.title,
       subtitle: module.subtitle,
       icon: module.icon,
-      content: <module.Window userEmail={userEmail} />,
+      Window: module.Window,
       defaultOpen: module.defaultOpen ?? false,
       canClose: true,
+      window: module.window,
     }));
   }, [modules, userEmail]);
 
@@ -279,6 +281,8 @@ export default function DesktopShell({
               subtitle={config.subtitle}
               icon={config.icon}
               canClose={config.canClose}
+              hideChrome={config.window?.hideChrome}
+              dragHandleSelector={config.window?.dragHandleSelector}
               onClose={handleCloseWindow}
               onMinimize={handleToggleMinimize}
               onMaximize={handleToggleMaximize}
@@ -287,7 +291,11 @@ export default function DesktopShell({
               onPositionChange={moveWindow}
               onSizeChange={resizeWindow}
             >
-              {config.content}
+              <config.Window
+                userEmail={userEmail}
+                openWindow={openWindow}
+                closeWindow={closeWindow}
+              />
             </Window>
           );
         })}

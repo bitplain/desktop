@@ -14,6 +14,7 @@ model User {
   role         Role     @default(USER)
   createdAt    DateTime @default(now())
   invites      Invite[] @relation("InvitesCreated")
+  videoFavorites VideoFavorite[]
 }
 
 model Invite {
@@ -25,6 +26,18 @@ model Invite {
   createdBy String
   usedBy    String?
   creator   User     @relation("InvitesCreated", fields: [createdBy], references: [id])
+}
+
+model VideoFavorite {
+  id           String   @id @default(cuid())
+  userId       String
+  relativePath String
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, relativePath])
+  @@index([userId])
 }
 
 enum Role {

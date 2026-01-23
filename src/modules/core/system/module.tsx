@@ -15,6 +15,10 @@ const manifest: ModuleManifest = {
   icon: "/icons/xp/monitor.png",
   desktopIcon: true,
   startMenu: true,
+  window: {
+    hideChrome: true,
+    dragHandleSelector: ".xp-window .titlebar",
+  },
   Window: SystemWindow,
 };
 

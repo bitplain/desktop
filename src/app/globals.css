@@ -391,6 +391,18 @@ textarea {
   border-radius: 0;
 }
 
+.window--chromeless {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.window--chromeless .window-content {
+  padding: 0;
+  overflow: hidden;
+}
+
 .window-header {
   flex: 0 0 auto;
   display: flex;
@@ -1234,4 +1246,684 @@ textarea {
     height: auto;
     padding: 8px 12px;
   }
+}
+
+.xp-chrome {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  min-height: 380px;
+  border: 1px solid #8ea6d6;
+  background: #ffffff;
+  box-shadow: inset 0 0 0 1px #ffffff;
+}
+
+.xp-chrome-taskpane {
+  background: linear-gradient(180deg, #f3f7ff 0%, #dbe6fb 100%);
+  border-right: 1px solid #a2b6da;
+  padding: 10px;
+  display: grid;
+  gap: 12px;
+}
+
+.xp-chrome-content {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  background: #ffffff;
+}
+
+.xp-explorer,
+.xp-window {
+  --xp-beige: #ece9d8;
+  --xp-border: #aca899;
+  --xp-border-dark: #7f7f7f;
+  --xp-white: #ffffff;
+  --title-grad-left: #0a3b8e;
+  --title-grad-right: #6fa7ff;
+  --task-grad-top: #7ba3e0;
+  --task-grad-bot: #c6d9f1;
+  --task-card: #f4f7ff;
+  --task-card-border: #9db6e5;
+  --link-blue: #003399;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: var(--xp-white);
+  border: 1px solid var(--xp-border-dark);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  overflow: hidden;
+  font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+  color: var(--text);
+}
+
+.xp-explorer .titlebar,
+.xp-window .titlebar {
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  color: #ffffff;
+  background: linear-gradient(90deg, var(--title-grad-left), var(--title-grad-right));
+  user-select: none;
+}
+
+.xp-explorer .title-left,
+.xp-window .title-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.xp-explorer .app-icon,
+.xp-window .app-icon {
+  width: 16px;
+  height: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: linear-gradient(#ffe37a, #e9a400);
+}
+
+.xp-explorer .title,
+.xp-window .title {
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.xp-explorer .win-buttons,
+.xp-window .win-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.xp-explorer .win-btn,
+.xp-window .win-btn {
+  width: 22px;
+  height: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.35);
+  background: linear-gradient(#f7f7f7, #d9d9d9);
+  display: grid;
+  place-items: center;
+  color: #000000;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.xp-explorer .win-btn.close,
+.xp-window .win-btn.close {
+  background: linear-gradient(#ffdfdf, #ff9a9a);
+  border-color: rgba(0, 0, 0, 0.35);
+}
+
+.xp-window-body {
+  flex: 1;
+  min-height: 0;
+  padding: 16px;
+  background: #ffffff;
+  overflow: auto;
+}
+
+.xp-explorer .menubar {
+  height: 22px;
+  background: var(--xp-beige);
+  border-top: 1px solid #ffffff;
+  border-bottom: 1px solid var(--xp-border);
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  font-size: 12px;
+  gap: 14px;
+  user-select: none;
+}
+
+.xp-explorer .toolbar {
+  height: 40px;
+  background: var(--xp-beige);
+  border-bottom: 1px solid var(--xp-border);
+  display: flex;
+  align-items: center;
+  padding: 4px 6px;
+  gap: 8px;
+}
+
+.xp-explorer .tool-btn {
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--xp-border);
+  background: linear-gradient(#ffffff, #ddd8c8);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  user-select: none;
+}
+
+.xp-explorer .tool-icon {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #777777;
+  background: linear-gradient(#dff2ff, #7cc2ff);
+}
+
+.xp-explorer .toolbar-spacer {
+  flex: 1;
+}
+
+.xp-explorer .mini-icons {
+  display: flex;
+  gap: 6px;
+  padding-right: 4px;
+}
+
+.xp-explorer .mini {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--xp-border);
+  background: linear-gradient(#ffffff, #ddd8c8);
+}
+
+.xp-explorer .addressbar {
+  height: 26px;
+  background: var(--xp-beige);
+  border-bottom: 1px solid var(--xp-border);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.xp-explorer .addr-label {
+  margin-right: 2px;
+}
+
+.xp-explorer .addr-field {
+  flex: 1;
+  height: 20px;
+  border: 1px solid var(--xp-border);
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  gap: 6px;
+}
+
+.xp-explorer .disk-icon {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #777777;
+  background: linear-gradient(#d9d9d9, #b0b0b0);
+}
+
+.xp-explorer .addr-text {
+  font-family: Tahoma, Arial, sans-serif;
+}
+
+.xp-explorer .go-btn {
+  height: 20px;
+  padding: 0 10px;
+  border: 1px solid var(--xp-border);
+  background: linear-gradient(#ffffff, #ddd8c8);
+  font-size: 12px;
+}
+
+.xp-explorer .content {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
+.xp-explorer .taskpane {
+  width: 230px;
+  background: linear-gradient(var(--task-grad-top), var(--task-grad-bot));
+  border-right: 1px solid var(--xp-border);
+  padding: 8px;
+  overflow: auto;
+}
+
+.xp-explorer .task-group {
+  background: var(--task-card);
+  border: 1px solid var(--task-card-border);
+  border-radius: 8px;
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.xp-explorer .task-header {
+  height: 22px;
+  padding: 3px 8px;
+  background: linear-gradient(#dce8ff, #b9d0ff);
+  font-weight: 700;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  user-select: none;
+}
+
+.xp-explorer .task-body {
+  padding: 8px 10px 10px;
+  font-size: 12px;
+  display: grid;
+  gap: 6px;
+}
+
+.xp-explorer .task-link {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--link-blue);
+  text-decoration: none;
+  background: transparent;
+  border: none;
+  padding: 0;
+  text-align: left;
+}
+
+.xp-explorer .task-link:hover,
+.xp-explorer .task-link.active {
+  text-decoration: underline;
+}
+
+.xp-explorer .task-link:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.xp-explorer .task-link .bullet {
+  width: 16px;
+  height: 16px;
+  border: 1px solid #6a87c8;
+  background: linear-gradient(#ffffff, #cfe0ff);
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.xp-explorer .details {
+  font-size: 12px;
+  color: #333333;
+  display: grid;
+  gap: 4px;
+}
+
+.xp-explorer .details-error {
+  color: #8c2a2a;
+  font-weight: 700;
+}
+
+.xp-explorer .fileview {
+  flex: 1;
+  background: #ffffff;
+  padding: 14px 14px 8px;
+  overflow: auto;
+}
+
+.xp-explorer .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 90px);
+  gap: 18px 20px;
+  align-content: start;
+}
+
+.xp-explorer .item {
+  width: 90px;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  padding-top: 2px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  user-select: none;
+  position: relative;
+  cursor: var(--cursor-pointer);
+}
+
+.xp-explorer .item:hover {
+  border-color: #b5c7ee;
+  background: #f3f7ff;
+}
+
+.xp-explorer .item.selected {
+  border-color: #3a6ec6;
+  background: #cfe0ff;
+}
+
+.xp-explorer .icon {
+  width: 48px;
+  height: 48px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.xp-explorer .icon.folder {
+  background-image: url("/icons/xp/folder.png");
+}
+
+.xp-explorer .icon.video {
+  background-image: url("/icons/xp/cd.png");
+}
+
+.xp-explorer .icon.favorite {
+  background-image: url("/icons/xp/favorite.svg");
+}
+
+.xp-explorer .label {
+  width: 88px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.xp-explorer .favorite-star {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: url("/icons/xp/favorite.svg") center/contain no-repeat;
+  opacity: 0.35;
+}
+
+.xp-explorer .favorite-star.active {
+  opacity: 1;
+}
+
+.xp-explorer .statusbar {
+  height: 22px;
+  background: var(--xp-beige);
+  border-top: 1px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+.xp-explorer .muted {
+  margin-top: 12px;
+  color: #4a5a78;
+}
+
+@media (max-width: 768px) {
+  .xp-explorer .content {
+    flex-direction: column;
+  }
+
+  .xp-explorer .taskpane {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--xp-border);
+  }
+}
+
+.xp-taskpane {
+  display: grid;
+  gap: 12px;
+}
+
+.xp-task-group {
+  border: 1px solid #9fb4da;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #f8fbff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.xp-task-title {
+  background: linear-gradient(180deg, #6f9be8 0%, #356fcb 100%);
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 6px 8px;
+}
+
+.xp-task-list {
+  display: grid;
+  gap: 4px;
+  padding: 8px;
+}
+
+.xp-task-link {
+  text-align: left;
+  font-size: 0.84rem;
+  color: #1b3c75;
+  padding: 4px 6px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+}
+
+.xp-task-link.active,
+.xp-task-link:hover {
+  border-color: #8ba9dd;
+  background: #eef4ff;
+}
+
+.xp-task-link:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.xp-task-details {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  font-size: 0.8rem;
+  color: #24416f;
+}
+
+.xp-task-error {
+  color: #8c2a2a;
+  font-weight: 700;
+}
+
+.filemanager-view {
+  display: grid;
+  gap: 12px;
+}
+
+.filemanager-address {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid #a7bde3;
+  background: #f2f6ff;
+  border-radius: 4px;
+  font-size: 0.82rem;
+}
+
+.filemanager-address-label {
+  font-weight: 700;
+  color: #1c3e76;
+}
+
+.filemanager-address-value {
+  color: #2f4f89;
+}
+
+.filemanager-icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 18px 20px;
+  align-items: start;
+  min-height: 220px;
+}
+
+.filemanager-icon-tile {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 10px 6px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  position: relative;
+  cursor: var(--cursor-pointer);
+}
+
+.filemanager-icon-tile:hover {
+  border-color: #90ace0;
+  background: #edf3ff;
+}
+
+.filemanager-icon-tile.selected {
+  border-color: #3a6ec6;
+  background: #cfe0ff;
+}
+
+.filemanager-icon-glyph {
+  width: 56px;
+  height: 56px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.filemanager-icon-glyph.folder {
+  background-image: url("/icons/xp/folder.png");
+}
+
+.filemanager-icon-glyph.video {
+  background-image: url("/icons/xp/cd.png");
+}
+
+.filemanager-icon-glyph.favorite {
+  background-image: url("/icons/xp/favorite.svg");
+}
+
+.filemanager-icon-label {
+  text-align: center;
+  font-size: 0.82rem;
+  color: #162b4f;
+  word-break: break-word;
+}
+
+.filemanager-icon-favorite {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: url("/icons/xp/favorite.svg") center/contain no-repeat;
+  opacity: 0.35;
+}
+
+.filemanager-icon-favorite.active {
+  opacity: 1;
+}
+
+.filemanager-hidden {
+  display: none;
+}
+
+.filemanager-upload {
+  border: 1px solid #a7bde3;
+  border-radius: 6px;
+  padding: 10px 12px;
+  background: #f7faff;
+}
+
+.filemanager-upload-list {
+  display: grid;
+  gap: 8px;
+}
+
+.filemanager-upload-item {
+  display: grid;
+  gap: 6px;
+}
+
+.filemanager-progress {
+  height: 10px;
+  border: 1px solid #a7bde3;
+  border-radius: 6px;
+  background: #edf2fb;
+  overflow: hidden;
+}
+
+.filemanager-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4bd047 0%, #2c9c2a 100%);
+}
+
+.filemanager-upload-status {
+  font-size: 0.78rem;
+  color: #2c4675;
+}
+
+.upload-manager {
+  display: grid;
+  gap: 12px;
+  padding: 6px;
+}
+
+.upload-manager-list {
+  display: grid;
+  gap: 12px;
+}
+
+.upload-manager-item {
+  display: grid;
+  gap: 6px;
+}
+
+.upload-manager-name {
+  font-weight: 700;
+  color: #1c3763;
+}
+
+.upload-manager-progress {
+  height: 12px;
+  border: 1px solid #9db4db;
+  border-radius: 6px;
+  background: #eff4ff;
+  overflow: hidden;
+}
+
+.upload-manager-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #4bd047 0%, #2c9c2a 100%);
+}
+
+.upload-manager-status {
+  font-size: 0.8rem;
+  color: #2c4675;
+}
+
+@media (max-width: 768px) {
+  .xp-chrome {
+    grid-template-columns: 1fr;
+  }
+}
+
+.video-player {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.video-player video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #000;
 }
