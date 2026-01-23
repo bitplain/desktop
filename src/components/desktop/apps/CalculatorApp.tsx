@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { XpWindow } from "@/components/desktop/apps/shared/XpWindow";
+import { EcoButton, EcoCard } from "@/components/ui/eco";
 
 type Operator = "+" | "-" | "*" | "/" | null;
 
@@ -119,17 +120,17 @@ export default function CalculatorApp() {
   return (
     <XpWindow title="Calculator">
       <div className="calculator eco-calculator">
-        <div className="calculator-display eco-card">{state.display}</div>
+        <EcoCard className="calculator-display">{state.display}</EcoCard>
         <div className="calculator-grid">
           {buttons.map((button) => (
-            <button
+            <EcoButton
               key={button.label}
-              className={`eco-button calculator-button ${button.wide ? "wide" : ""}`}
+              className={`calculator-button ${button.wide ? "wide" : ""}`}
               type="button"
               onClick={button.action}
             >
               {button.label}
-            </button>
+            </EcoButton>
           ))}
         </div>
       </div>

@@ -8,6 +8,7 @@ import {
   useUploads,
 } from "@/lib/uploadStore";
 import { XpWindow } from "@/components/desktop/apps/shared/XpWindow";
+import { EcoCard, EcoCardTitle, EcoUploadList } from "@/components/ui/eco";
 
 type UploadManagerAppProps = {
   onClose?: () => void;
@@ -15,9 +16,9 @@ type UploadManagerAppProps = {
 
 export function UploadManagerLayout({ uploads }: { uploads: UploadItem[] }) {
   return (
-    <div className="upload-manager eco-card">
-      <div className="eco-card-title">Загрузки</div>
-      <div className="upload-manager-list eco-upload-list">
+    <EcoCard className="upload-manager">
+      <EcoCardTitle>Загрузки</EcoCardTitle>
+      <EcoUploadList className="upload-manager-list">
         {uploads.map((upload) => (
           <div key={upload.id} className={`upload-manager-item ${upload.status}`}>
             <div className="upload-manager-name">{upload.name}</div>
@@ -32,8 +33,8 @@ export function UploadManagerLayout({ uploads }: { uploads: UploadItem[] }) {
             </div>
           </div>
         ))}
-      </div>
-    </div>
+      </EcoUploadList>
+    </EcoCard>
   );
 }
 

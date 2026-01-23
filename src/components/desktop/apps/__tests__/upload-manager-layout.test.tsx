@@ -12,5 +12,6 @@ describe("upload manager layout", () => {
     expect(html).toContain("Загрузки");
     expect(html).toContain("a.mp4");
     expect(html).toContain("eco-upload-list");
+    expect(html).toContain('data-eco="upload-list"');
   });
 });

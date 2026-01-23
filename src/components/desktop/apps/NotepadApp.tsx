@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { XpWindow } from "@/components/desktop/apps/shared/XpWindow";
+import { EcoCard, EcoCardTitle, EcoTextarea } from "@/components/ui/eco";
 
 const STORAGE_KEY = "desktop.notepad";
 
@@ -20,16 +21,15 @@ export default function NotepadApp() {
   return (
     <XpWindow title="Notepad">
       <div className="stack">
-        <div className="eco-card">
-          <div className="eco-card-title">Notepad</div>
-          <textarea
-            className="eco-textarea"
+        <EcoCard>
+          <EcoCardTitle>Notepad</EcoCardTitle>
+          <EcoTextarea
             rows={10}
             value={value}
             onChange={(event) => setValue(event.target.value)}
             placeholder="Ваши заметки..."
           />
-        </div>
+        </EcoCard>
       </div>
     </XpWindow>
   );
