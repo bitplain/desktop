@@ -21,6 +21,8 @@ describe("xp window", () => {
       </WindowControlsProvider>
     );
     expect(html).toContain("Test Window");
+    expect(html).toContain("eco-app-window");
+    expect(html).toContain("eco-app-titlebar");
     expect(html).toContain("Свернуть");
     expect(html).toContain("Развернуть");
     expect(html).toContain("Закрыть");

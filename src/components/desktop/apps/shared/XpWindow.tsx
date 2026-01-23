@@ -5,9 +5,9 @@ import { XpTitlebar } from "./XpTitlebar";
 
 export function XpWindow({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <div className="xp-window">
+    <div className="xp-window eco-app-window">
       <XpTitlebar title={title} />
-      <div className="xp-window-body">{children}</div>
+      <div className="xp-window-body eco-app-body">{children}</div>
     </div>
   );
 }

@@ -9,12 +9,12 @@ export function XpTitlebar({ title }: { title: string }) {
   const close = controls?.close ?? (() => undefined);
 
   return (
-    <div className="titlebar">
-      <div className="title-left">
+    <div className="titlebar eco-app-titlebar">
+      <div className="title-left eco-app-titlebar__left">
         <div className="app-icon" aria-hidden="true" />
         <div className="title">{title}</div>
       </div>
-      <div className="win-buttons">
+      <div className="win-buttons eco-app-titlebar__controls">
         <button className="win-btn" type="button" aria-label="Свернуть" onClick={minimize}>
           _
         </button>

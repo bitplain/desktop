@@ -1397,6 +1397,23 @@ textarea {
   background: #ffffff;
 }
 
+.eco-chrome {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.eco-chrome__aside {
+  background: var(--surface-2);
+  border-right: 1px solid var(--border);
+}
+
+.eco-chrome__content {
+  background: var(--surface);
+}
+
 .xp-explorer,
 .xp-window {
   --xp-beige: #ece9d8;
@@ -1422,6 +1439,19 @@ textarea {
   color: var(--text);
 }
 
+.eco-app-window {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  font-family: var(--font-body);
+}
+
+.eco-app-body {
+  padding: 14px;
+  background: var(--surface);
+}
+
 .xp-explorer .titlebar,
 .xp-window .titlebar {
   height: 30px;
@@ -1432,6 +1462,24 @@ textarea {
   color: #ffffff;
   background: linear-gradient(90deg, var(--title-grad-left), var(--title-grad-right));
   user-select: none;
+}
+
+.eco-app-titlebar {
+  height: 34px;
+  padding: 0 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.2));
+  color: var(--text);
+}
+
+.eco-app-titlebar__left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eco-app-titlebar__controls {
+  display: flex;
+  gap: 6px;
 }
 
 .xp-explorer .title-left,
