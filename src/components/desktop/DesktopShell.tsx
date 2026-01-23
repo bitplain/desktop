@@ -5,7 +5,7 @@ import { useShallow } from "zustand/react/shallow";
 import { useSettings } from "./SettingsProvider";
 import DesktopIcons, { DesktopIcon } from "./DesktopIcons";
 import StartMenu, { StartMenuItem } from "./StartMenu";
-import Taskbar from "./Taskbar";
+import Taskbar, { type TaskbarWindow } from "./Taskbar";
 import Window from "./Window";
 import OfflineBanner from "@/components/OfflineBanner";
 import { debounce } from "@/lib/debounce";
@@ -193,6 +193,24 @@ export default function DesktopShell({
     [openIds, windowConfigMap]
   );
 
+  const taskbarWindows = useMemo(() => {
+    const windows: TaskbarWindow[] = [];
+    openIds.forEach((id) => {
+      const config = windowConfigMap.get(id);
+      const state = windowsById[id];
+      if (!config || !state) {
+        return;
+      }
+      windows.push({
+        id,
+        title: config.title,
+        isMinimized: state.isMinimized,
+        icon: config.icon,
+      });
+    });
+    return windows;
+  }, [openIds, windowConfigMap, windowsById]);
+
   const orderedModules = useMemo(() => {
     const order = ["notepad", "calculator", "clock", "system", "account", "about"];
     const map = new Map(modules.map((module) => [module.id, module]));
@@ -342,23 +360,7 @@ export default function DesktopShell({
         userEmail={userEmail}
       />
       <Taskbar
-        windows={openIds
-          .map((id) => {
-            const config = windowConfigMap.get(id);
-            const state = windowsById[id];
-            if (!config || !state) {
-              return null;
-            }
-            return {
-              id,
-              title: config.title,
-              isMinimized: state.isMinimized,
-              icon: config.icon,
-            };
-          })
-          .filter((item): item is { id: string; title: string; isMinimized: boolean; icon?: string } =>
-            Boolean(item)
-          )}
+        windows={taskbarWindows}
         activeId={activeId}
         startOpen={startOpen}
         onToggleStart={() => setStartOpen((prev) => !prev)}
