@@ -7,5 +7,9 @@ export default function OfflineBanner() {
   if (online) {
     return null;
   }
-  return <div className="notice">Нет соединения. Действия недоступны.</div>;
+  return (
+    <div className="notice eco-notice">
+      Нет соединения. Действия недоступны.
+    </div>
+  );
 }

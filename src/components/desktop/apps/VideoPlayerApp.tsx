@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { moveVideoSelection, useCurrentVideo } from "@/lib/videoSelectionStore";
 import { attachVideoKeyNavigation } from "./videoKeyNavigation";
 import { XpWindow } from "@/components/desktop/apps/shared/XpWindow";
+import { EcoCard } from "@/components/ui/eco";
 
 export default function VideoPlayerApp() {
   const selection = useCurrentVideo();
@@ -39,13 +40,13 @@ export default function VideoPlayerApp() {
 
   return (
     <XpWindow title="Video Player">
-      <div className="video-player">
+      <EcoCard className="video-player">
         {selection ? (
           <video key={selection.path} ref={videoRef} controls src={src} />
         ) : (
           <div className="muted">Выберите видео в файловом менеджере.</div>
         )}
-      </div>
+      </EcoCard>
     </XpWindow>
   );
 }

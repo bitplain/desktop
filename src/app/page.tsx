@@ -6,6 +6,7 @@ import DesktopClient from "@/components/desktop/DesktopClient";
 import { getAuthOptions } from "@/lib/auth";
 import { getSetupRedirect } from "@/lib/setupRoutes";
 import { getSetupStatus } from "@/lib/setupStatus";
+import DatabaseUnavailableCard from "@/components/DatabaseUnavailableCard";
 
 export default async function HomePage() {
   const status = await getSetupStatus();
@@ -15,9 +16,8 @@ export default async function HomePage() {
   }
   if (status === "dbUnavailable") {
     return (
-      <main>
-        <h1>Database unavailable</h1>
-        <p>Start Postgres and refresh the page.</p>
+      <main className="auth-shell">
+        <DatabaseUnavailableCard />
       </main>
     );
   }

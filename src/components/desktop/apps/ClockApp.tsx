@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { XpWindow } from "@/components/desktop/apps/shared/XpWindow";
+import { EcoCard, EcoCardTitle, EcoStat } from "@/components/ui/eco";
 
 export default function ClockApp() {
   const [now, setNow] = useState<Date | null>(null);
@@ -31,11 +32,13 @@ export default function ClockApp() {
   return (
     <XpWindow title="System Clock">
       <div className="stack">
-        <div className="panel-title">System Clock</div>
-        <div className="clock-face">
-          <div className="clock-time">{timeLabel}</div>
-          <div className="muted">{dateLabel}</div>
-        </div>
+        <EcoCard>
+          <EcoCardTitle>System Clock</EcoCardTitle>
+          <div className="clock-face eco-clock">
+            <EcoStat className="clock-time">{timeLabel}</EcoStat>
+            <div className="muted">{dateLabel}</div>
+          </div>
+        </EcoCard>
       </div>
     </XpWindow>
   );
