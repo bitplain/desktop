@@ -326,18 +326,21 @@ export default function Window({
             <button
               className="window-control minimize"
               type="button"
+              data-eco="window-control"
               aria-label="Minimize"
               onClick={controls.minimize}
             />
             <button
               className="window-control maximize"
               type="button"
+              data-eco="window-control"
               aria-label="Maximize"
               onClick={controls.maximize}
             />
             <button
               className="window-control close"
               type="button"
+              data-eco="window-control"
               aria-label="Close"
               onClick={controls.close}
             />

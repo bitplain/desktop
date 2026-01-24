@@ -16,18 +16,28 @@ export function XpTitlebar({ title }: { title: string }) {
         <div className="title">{title}</div>
       </div>
       <div className="win-buttons eco-app-titlebar__controls">
-        <button className="win-btn" type="button" aria-label="Свернуть" onClick={minimize}>
+        <button
+          className="win-btn eco-titlebar-button"
+          type="button"
+          aria-label="Свернуть"
+          onClick={minimize}
+        >
           _
         </button>
         <button
-          className="win-btn"
+          className="win-btn eco-titlebar-button"
           type="button"
           aria-label="Развернуть"
           onClick={maximize}
         >
           □
         </button>
-        <button className="win-btn close" type="button" aria-label="Закрыть" onClick={close}>
+        <button
+          className="win-btn close eco-titlebar-button"
+          type="button"
+          aria-label="Закрыть"
+          onClick={close}
+        >
           X
         </button>
       </div>

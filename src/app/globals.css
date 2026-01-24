@@ -610,11 +610,11 @@ textarea {
   display: flex;
   flex-direction: column;
   container-type: inline-size;
-  background: var(--window-bg);
-  border: 2px solid var(--window-border);
-  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
   min-width: 520px;
-  box-shadow: 0 25px 50px rgba(9, 15, 30, 0.35);
+  box-shadow: var(--shadow);
   overflow: hidden;
   pointer-events: auto;
 }
@@ -681,9 +681,10 @@ textarea {
   align-items: center;
   justify-content: space-between;
   padding: 10px 16px;
-  background: var(--window-header);
-  color: var(--window-title);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.22));
+  color: var(--text);
   cursor: move;
+  border-bottom: 1px solid var(--border);
 }
 
 .window-titlebar {
@@ -721,17 +722,18 @@ textarea {
 .window-control {
   width: 18px;
   height: 18px;
-  border-radius: 3px;
-  border: 1px solid rgba(10, 28, 66, 0.6);
-  background: linear-gradient(180deg, #fefefe, #cdd9f5);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(0, 0, 0, 0.16)),
+    var(--surface-2);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
   display: grid;
   place-items: center;
   position: relative;
 }
 
 .window-control.close {
-  background: linear-gradient(180deg, #ffb3b3, #e15d5d);
+  background: linear-gradient(180deg, rgba(214, 180, 140, 0.5), rgba(214, 180, 140, 0.9));
 }
 
 .window-control.minimize::before {
@@ -739,14 +741,14 @@ textarea {
   width: 10px;
   height: 2px;
   border-radius: 1px;
-  background: #1d2d4d;
+  background: var(--text);
 }
 
 .window-control.maximize::before {
   content: "";
   width: 10px;
   height: 8px;
-  border: 2px solid #1d2d4d;
+  border: 2px solid var(--text);
   box-sizing: border-box;
 }
 
@@ -756,7 +758,7 @@ textarea {
   position: absolute;
   width: 10px;
   height: 2px;
-  background: #5e0b0b;
+  background: rgba(0, 0, 0, 0.65);
   top: 50%;
   left: 50%;
   border-radius: 1px;
@@ -1703,14 +1705,14 @@ textarea {
   display: grid;
   grid-template-columns: 250px 1fr;
   min-height: 380px;
-  border: 1px solid #8ea6d6;
-  background: #ffffff;
-  box-shadow: inset 0 0 0 1px #ffffff;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  box-shadow: var(--shadow);
 }
 
 .xp-chrome-taskpane {
-  background: linear-gradient(180deg, #f3f7ff 0%, #dbe6fb 100%);
-  border-right: 1px solid #a2b6da;
+  background: var(--surface-2);
+  border-right: 1px solid var(--border);
   padding: 10px;
   display: grid;
   gap: 12px;
@@ -1720,7 +1722,7 @@ textarea {
   display: grid;
   gap: 12px;
   padding: 12px;
-  background: #ffffff;
+  background: var(--surface);
 }
 
 .eco-chrome {
@@ -1742,26 +1744,15 @@ textarea {
 
 .xp-explorer,
 .xp-window {
-  --xp-beige: #ece9d8;
-  --xp-border: #aca899;
-  --xp-border-dark: #7f7f7f;
-  --xp-white: #ffffff;
-  --title-grad-left: #0a3b8e;
-  --title-grad-right: #6fa7ff;
-  --task-grad-top: #7ba3e0;
-  --task-grad-bot: #c6d9f1;
-  --task-card: #f4f7ff;
-  --task-card-border: #9db6e5;
-  --link-blue: #003399;
   display: flex;
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background: var(--xp-white);
-  border: 1px solid var(--xp-border-dark);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
   overflow: hidden;
-  font-family: Tahoma, "Segoe UI", Arial, sans-serif;
+  font-family: var(--font-body);
   color: var(--text);
 }
 
@@ -1785,9 +1776,10 @@ textarea {
   align-items: center;
   justify-content: space-between;
   padding: 0 6px;
-  color: #ffffff;
-  background: linear-gradient(90deg, var(--title-grad-left), var(--title-grad-right));
+  color: var(--text);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.2));
   user-select: none;
+  border-bottom: 1px solid var(--border);
 }
 
 .eco-app-titlebar {
@@ -1808,6 +1800,11 @@ textarea {
   gap: 6px;
 }
 
+.eco-titlebar-button:focus-visible {
+  outline: 2px solid rgba(214, 180, 140, 0.5);
+  outline-offset: 2px;
+}
+
 .xp-explorer .title-left,
 .xp-window .title-left {
   display: flex;
@@ -1820,8 +1817,9 @@ textarea {
 .xp-window .app-icon {
   width: 16px;
   height: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  background: linear-gradient(#ffe37a, #e9a400);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(0, 0, 0, 0.2));
 }
 
 .xp-explorer .title,
@@ -1843,26 +1841,26 @@ textarea {
 .xp-window .win-btn {
   width: 22px;
   height: 18px;
-  border: 1px solid rgba(0, 0, 0, 0.35);
-  background: linear-gradient(#f7f7f7, #d9d9d9);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(0, 0, 0, 0.18));
   display: grid;
   place-items: center;
-  color: #000000;
+  color: var(--text);
   font-size: 12px;
   line-height: 1;
 }
 
 .xp-explorer .win-btn.close,
 .xp-window .win-btn.close {
-  background: linear-gradient(#ffdfdf, #ff9a9a);
-  border-color: rgba(0, 0, 0, 0.35);
+  background: linear-gradient(180deg, rgba(214, 180, 140, 0.5), rgba(214, 180, 140, 0.9));
+  border-color: var(--border);
 }
 
 .xp-window-body {
   flex: 1;
   min-height: 0;
   padding: 16px;
-  background: #ffffff;
+  background: var(--surface);
   overflow: auto;
 }
 

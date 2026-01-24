@@ -39,6 +39,7 @@ describe("window chrome", () => {
     expect(html).toContain("eco-window");
     expect(html).toContain("eco-window__header");
     expect(html).toContain('data-eco="window"');
+    expect(html).toContain('data-eco="window-control"');
   });
 
   it("omits chrome when hideChrome is true", () => {
