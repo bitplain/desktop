@@ -13,3 +13,7 @@ export { EcoFileGrid } from "./EcoFileGrid";
 export { EcoAppWindow } from "./EcoAppWindow";
 export { EcoAppTitlebar } from "./EcoAppTitlebar";
 export { EcoChrome } from "./EcoChrome";
+export { EcoMenu } from "./EcoMenu";
+export { EcoMenuItem } from "./EcoMenuItem";
+export { EcoToolbar } from "./EcoToolbar";
+export { EcoToolbarButton } from "./EcoToolbarButton";

@@ -16,6 +16,10 @@ import {
   EcoAppWindow,
   EcoAppTitlebar,
   EcoChrome,
+  EcoMenu,
+  EcoMenuItem,
+  EcoToolbar,
+  EcoToolbarButton,
 } from "../index";
 
 describe("eco primitives", () => {
@@ -58,5 +62,23 @@ describe("eco primitives", () => {
     expect(html).toContain('data-eco="app-window"');
     expect(html).toContain('data-eco="app-titlebar"');
     expect(html).toContain('data-eco="chrome"');
+  });
+
+  it("renders eco menu and toolbar primitives", () => {
+    const menuHtml = renderToString(
+      <EcoMenu>
+        <EcoMenuItem>Item</EcoMenuItem>
+      </EcoMenu>
+    );
+    expect(menuHtml).toContain('data-eco="menu"');
+    expect(menuHtml).toContain('data-eco="menu-item"');
+
+    const toolbarHtml = renderToString(
+      <EcoToolbar>
+        <EcoToolbarButton>Action</EcoToolbarButton>
+      </EcoToolbar>
+    );
+    expect(toolbarHtml).toContain('data-eco="toolbar"');
+    expect(toolbarHtml).toContain('data-eco="toolbar-button"');
   });
 });
