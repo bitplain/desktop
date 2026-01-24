@@ -27,6 +27,7 @@ export default function DesktopIcons({
     <div
       className="desktop-icons eco-desktop-icons"
       onClick={() => setSelectedId(null)}
+      data-eco="desktop-icons"
     >
       {icons.map((icon) => (
         <button

@@ -11,6 +11,7 @@ import OfflineBanner from "@/components/OfflineBanner";
 import { debounce } from "@/lib/debounce";
 import { selectOpenWindowIds, useWindowStore } from "@/stores/windowStore";
 import type { ModuleManifest } from "@/modules/types";
+import { EcoMenu, EcoMenuItem } from "@/components/ui/eco";
 
 type WindowConfig = {
   id: string;
@@ -384,14 +385,13 @@ export default function DesktopShell({
         })}
       </div>
       {contextMenu.open ? (
-        <div
+        <EcoMenu
           className="desktop-menu"
           style={{ top: contextMenu.y, left: contextMenu.x }}
           onClick={(event) => event.stopPropagation()}
         >
-          <button
+          <EcoMenuItem
             className="desktop-menu-item"
-            type="button"
             onClick={() => {
               playSound("click");
               cascadeWindows();
@@ -399,10 +399,9 @@ export default function DesktopShell({
             }}
           >
             Cascade Windows
-          </button>
-          <button
+          </EcoMenuItem>
+          <EcoMenuItem
             className="desktop-menu-item"
-            type="button"
             onClick={() => {
               playSound("click");
               tileWindows();
@@ -410,23 +409,21 @@ export default function DesktopShell({
             }}
           >
             Tile Windows
-          </button>
-          <button
+          </EcoMenuItem>
+          <EcoMenuItem
             className="desktop-menu-item"
-            type="button"
             onClick={() => {
               handleResetLayout();
               setContextMenu((prev) => ({ ...prev, open: false }));
             }}
           >
             Сбросить раскладку
-          </button>
+          </EcoMenuItem>
           <div className="desktop-menu-divider" />
           {contextModules.map((module) => (
-            <button
+            <EcoMenuItem
               key={module.id}
               className="desktop-menu-item"
-              type="button"
               onClick={() => {
                 playSound("click");
                 handleOpenWindow(module.id);
@@ -434,9 +431,9 @@ export default function DesktopShell({
               }}
             >
               {module.title}
-            </button>
+            </EcoMenuItem>
           ))}
-        </div>
+        </EcoMenu>
       ) : null}
       <StartMenu
         key={startOpen ? "open" : "closed"}
