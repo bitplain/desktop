@@ -29,7 +29,7 @@ function TaskLink({
   return (
     <button
       type="button"
-      className={`task-link ${active ? "active" : ""}`}
+      className={`task-link eco-task-link ${active ? "active" : ""}`}
       onClick={onClick}
       disabled={disabled}
     >

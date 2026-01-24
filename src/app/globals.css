@@ -1866,9 +1866,8 @@ textarea {
 
 .xp-explorer .menubar {
   height: 22px;
-  background: var(--xp-beige);
-  border-top: 1px solid #ffffff;
-  border-bottom: 1px solid var(--xp-border);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   padding: 0 8px;
@@ -1879,8 +1878,8 @@ textarea {
 
 .xp-explorer .toolbar {
   height: 40px;
-  background: var(--xp-beige);
-  border-bottom: 1px solid var(--xp-border);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   padding: 4px 6px;
@@ -1890,8 +1889,8 @@ textarea {
 .xp-explorer .tool-btn {
   height: 30px;
   padding: 0 10px;
-  border: 1px solid var(--xp-border);
-  background: linear-gradient(#ffffff, #ddd8c8);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.18));
   display: flex;
   align-items: center;
   gap: 8px;
@@ -1902,8 +1901,9 @@ textarea {
 .xp-explorer .tool-icon {
   width: 24px;
   height: 24px;
-  border: 1px solid #777777;
-  background: linear-gradient(#dff2ff, #7cc2ff);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(214, 180, 140, 0.35), rgba(143, 175, 154, 0.3));
 }
 
 .xp-explorer .toolbar-spacer {
@@ -1919,14 +1919,15 @@ textarea {
 .xp-explorer .mini {
   width: 22px;
   height: 22px;
-  border: 1px solid var(--xp-border);
-  background: linear-gradient(#ffffff, #ddd8c8);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(0, 0, 0, 0.16));
 }
 
 .xp-explorer .addressbar {
   height: 26px;
-  background: var(--xp-beige);
-  border-bottom: 1px solid var(--xp-border);
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -1941,8 +1942,8 @@ textarea {
 .xp-explorer .addr-field {
   flex: 1;
   height: 20px;
-  border: 1px solid var(--xp-border);
-  background: #ffffff;
+  border: 1px solid var(--border);
+  background: var(--surface);
   display: flex;
   align-items: center;
   padding: 0 6px;
@@ -1952,19 +1953,20 @@ textarea {
 .xp-explorer .disk-icon {
   width: 16px;
   height: 16px;
-  border: 1px solid #777777;
-  background: linear-gradient(#d9d9d9, #b0b0b0);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.2));
 }
 
 .xp-explorer .addr-text {
-  font-family: Tahoma, Arial, sans-serif;
+  font-family: var(--font-body);
 }
 
 .xp-explorer .go-btn {
   height: 20px;
   padding: 0 10px;
-  border: 1px solid var(--xp-border);
-  background: linear-gradient(#ffffff, #ddd8c8);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.15));
   font-size: 12px;
 }
 
@@ -1976,15 +1978,15 @@ textarea {
 
 .xp-explorer .taskpane {
   width: 230px;
-  background: linear-gradient(var(--task-grad-top), var(--task-grad-bot));
-  border-right: 1px solid var(--xp-border);
+  background: var(--surface-2);
+  border-right: 1px solid var(--border);
   padding: 8px;
   overflow: auto;
 }
 
 .xp-explorer .task-group {
-  background: var(--task-card);
-  border: 1px solid var(--task-card-border);
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 8px;
   margin-bottom: 10px;
   overflow: hidden;
@@ -1993,7 +1995,7 @@ textarea {
 .xp-explorer .task-header {
   height: 22px;
   padding: 3px 8px;
-  background: linear-gradient(#dce8ff, #b9d0ff);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(0, 0, 0, 0.12));
   font-weight: 700;
   font-size: 12px;
   display: flex;
@@ -2012,7 +2014,7 @@ textarea {
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  color: var(--link-blue);
+  color: var(--text);
   text-decoration: none;
   background: transparent;
   border: none;
@@ -2022,7 +2024,8 @@ textarea {
 
 .xp-explorer .task-link:hover,
 .xp-explorer .task-link.active {
-  text-decoration: underline;
+  text-decoration: none;
+  color: var(--text);
 }
 
 .xp-explorer .task-link:disabled {
@@ -2033,27 +2036,27 @@ textarea {
 .xp-explorer .task-link .bullet {
   width: 16px;
   height: 16px;
-  border: 1px solid #6a87c8;
-  background: linear-gradient(#ffffff, #cfe0ff);
+  border: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.15), rgba(0, 0, 0, 0.08));
   flex: 0 0 auto;
   margin-top: 1px;
 }
 
 .xp-explorer .details {
   font-size: 12px;
-  color: #333333;
+  color: var(--text-muted);
   display: grid;
   gap: 4px;
 }
 
 .xp-explorer .details-error {
-  color: #8c2a2a;
+  color: #d08b8b;
   font-weight: 700;
 }
 
 .xp-explorer .fileview {
   flex: 1;
-  background: #ffffff;
+  background: var(--surface);
   padding: 14px 14px 8px;
   overflow: auto;
 }
@@ -2075,20 +2078,20 @@ textarea {
   gap: 6px;
   padding-top: 2px;
   border: 1px solid transparent;
-  border-radius: 3px;
+  border-radius: 10px;
   user-select: none;
   position: relative;
   cursor: var(--cursor-pointer);
 }
 
 .xp-explorer .item:hover {
-  border-color: #b5c7ee;
-  background: #f3f7ff;
+  border-color: var(--border);
+  background: var(--surface-2);
 }
 
 .xp-explorer .item.selected {
-  border-color: #3a6ec6;
-  background: #cfe0ff;
+  border-color: var(--accent-2);
+  background: var(--surface-2);
 }
 
 .xp-explorer .icon {
@@ -2120,6 +2123,7 @@ textarea {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  color: var(--text);
 }
 
 .xp-explorer .favorite-star {
@@ -2131,6 +2135,7 @@ textarea {
   border: none;
   background: url("/icons/xp/favorite.svg") center/contain no-repeat;
   opacity: 0.35;
+  filter: grayscale(0.4);
 }
 
 .xp-explorer .favorite-star.active {
@@ -2238,8 +2243,8 @@ textarea {
 
 .xp-explorer .statusbar {
   height: 22px;
-  background: var(--xp-beige);
-  border-top: 1px solid #ffffff;
+  background: var(--surface-2);
+  border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2249,7 +2254,7 @@ textarea {
 
 .xp-explorer .muted {
   margin-top: 12px;
-  color: #4a5a78;
+  color: var(--text-dim);
 }
 
 @media (max-width: 768px) {

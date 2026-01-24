@@ -44,7 +44,7 @@ export function IconGrid({
       <div
         role="button"
         tabIndex={0}
-        className={`item ${view === "favorites" ? "selected" : ""}`}
+        className={`item eco-file-item ${view === "favorites" ? "selected" : ""}`}
         onDoubleClick={onOpenFavorites}
         onKeyDown={(event) => {
           if (event.key === "Enter" || event.key === " ") {
@@ -61,7 +61,7 @@ export function IconGrid({
         <div
           role="button"
           tabIndex={0}
-          className="item"
+          className="item eco-file-item"
           onDoubleClick={onOpenVideo}
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") {
@@ -83,7 +83,7 @@ export function IconGrid({
             key={entry.path}
             role="button"
             tabIndex={0}
-            className={`item ${isSelected ? "selected" : ""}`}
+            className={`item eco-file-item ${isSelected ? "selected" : ""}`}
             onClick={() => onSelect(entry.path)}
             onDoubleClick={() => onOpen(entry)}
             onKeyDown={(event) => {

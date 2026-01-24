@@ -10,6 +10,10 @@ describe("xp explorer layout", () => {
     expect(html).toContain("Файл");
     expect(html).toContain("Адрес:");
     expect(html).toContain("Объектов");
+    expect(html).toContain("eco-menubar");
+    expect(html).toContain("eco-toolbar");
+    expect(html).toContain("eco-addressbar");
+    expect(html).toContain("eco-statusbar");
     expect(html).toContain("eco-file-grid");
     expect(html).toContain("eco-task-pane");
     expect(html).toContain('data-eco="file-grid"');
