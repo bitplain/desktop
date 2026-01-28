@@ -11,6 +11,7 @@ const baseProps = {
   dbPort: "",
   dbUser: "",
   dbPassword: "",
+  dbName: "",
   loading: false,
   error: null as string | null,
   success: false,
@@ -20,6 +21,7 @@ const baseProps = {
   onChangeDbPort: () => undefined,
   onChangeDbUser: () => undefined,
   onChangeDbPassword: () => undefined,
+  onChangeDbName: () => undefined,
   onSubmit: () => undefined,
   onNext: () => undefined,
   onBack: () => undefined,
@@ -37,12 +39,17 @@ describe("setup wizard layout", () => {
     expect(html).toContain("Port");
     expect(html).toContain("User");
     expect(html).toContain("Password");
-    expect(html).not.toContain("Database");
+    expect(html).toContain("Database");
   });
 
   it("omits database name and secrets step", () => {
     const html = renderToString(<SetupWizardLayout {...baseProps} step="db" />);
     expect(html).not.toContain("Конфигурация и секреты");
+  });
+
+  it("renders database name field on db step", () => {
+    const html = renderToString(<SetupWizardLayout {...baseProps} step="db" />);
+    expect(html).toContain("Database");
   });
 
   it("shows next button on db step and submit on admin step", () => {
