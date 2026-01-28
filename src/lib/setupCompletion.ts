@@ -15,6 +15,7 @@ export type SetupCompletionInput = {
   databaseUrl?: string;
   email: string;
   password: string;
+  allowDatabaseUrlOverride?: boolean;
 };
 
 export type SetupCompletionResult =
@@ -62,6 +63,16 @@ export async function completeSetup(
       databaseUrl: input.databaseUrl ?? "",
       nextAuthSecret: deps.generateSecret(),
       keysEncryptionSecret: deps.generateSecret(),
+    };
+    await deps.writeConfig(config);
+  } else if (input.allowDatabaseUrlOverride && input.databaseUrl) {
+    const dbCheck = deps.validateDatabaseUrl(input.databaseUrl);
+    if (!dbCheck.ok) {
+      return { status: "invalid", error: dbCheck.error ?? "Invalid database url" };
+    }
+    config = {
+      ...config,
+      databaseUrl: input.databaseUrl,
     };
     await deps.writeConfig(config);
   }

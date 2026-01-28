@@ -56,6 +56,62 @@ describe("setup completion", () => {
     expect(deps.ensureDatabaseExists).toHaveBeenCalledOnce();
   });
 
+  it("overrides database url when allowed", async () => {
+    const deps = baseDeps();
+    const writeConfig = vi.fn().mockResolvedValue(undefined);
+    const applyConfig = vi.fn();
+    deps.loadConfig = () => ({
+      databaseUrl: "postgres://existing",
+      nextAuthSecret: "secret-aaaaaaaaaaaaaaa",
+      keysEncryptionSecret: "secret-bbbbbbbbbbbbbbb",
+    });
+    deps.writeConfig = writeConfig;
+    deps.applyConfig = applyConfig;
+
+    const result = await completeSetup(
+      {
+        databaseUrl: "postgres://new",
+        email: "admin@test.dev",
+        password: "Password1!",
+        allowDatabaseUrlOverride: true,
+      },
+      deps
+    );
+
+    expect(result.status).toBe("ok");
+    expect(writeConfig).toHaveBeenCalledWith({
+      databaseUrl: "postgres://new",
+      nextAuthSecret: "secret-aaaaaaaaaaaaaaa",
+      keysEncryptionSecret: "secret-bbbbbbbbbbbbbbb",
+    });
+    expect(applyConfig).toHaveBeenCalledWith({
+      databaseUrl: "postgres://new",
+      nextAuthSecret: "secret-aaaaaaaaaaaaaaa",
+      keysEncryptionSecret: "secret-bbbbbbbbbbbbbbb",
+    });
+  });
+
+  it("rejects override when database url is invalid", async () => {
+    const deps = baseDeps();
+    deps.loadConfig = () => ({
+      databaseUrl: "postgres://existing",
+      nextAuthSecret: "secret-aaaaaaaaaaaaaaa",
+      keysEncryptionSecret: "secret-bbbbbbbbbbbbbbb",
+    });
+
+    const result = await completeSetup(
+      {
+        databaseUrl: "mysql://bad",
+        email: "admin@test.dev",
+        password: "Password1!",
+        allowDatabaseUrlOverride: true,
+      },
+      deps
+    );
+
+    expect(result.status).toBe("invalid");
+  });
+
   it("returns alreadySetup when users exist", async () => {
     const deps = baseDeps();
     deps.getUserCount = vi.fn().mockResolvedValue(2);
