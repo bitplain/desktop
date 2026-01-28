@@ -27,6 +27,7 @@ type LayoutProps = {
   dbUser: string;
   dbPassword: string;
   dbName: string;
+  dbSsl: boolean;
   loading: boolean;
   error: string | null;
   success: boolean;
@@ -37,6 +38,7 @@ type LayoutProps = {
   onChangeDbUser: (value: string) => void;
   onChangeDbPassword: (value: string) => void;
   onChangeDbName: (value: string) => void;
+  onChangeDbSsl: (value: boolean) => void;
   onSubmit: (event: React.FormEvent) => void;
   onNext: () => void;
   onBack: () => void;
@@ -53,6 +55,7 @@ export function SetupWizardLayout({
   dbUser,
   dbPassword,
   dbName,
+  dbSsl,
   loading,
   error,
   success,
@@ -63,6 +66,7 @@ export function SetupWizardLayout({
   onChangeDbUser,
   onChangeDbPassword,
   onChangeDbName,
+  onChangeDbSsl,
   onSubmit,
   onNext,
   onBack,
@@ -145,6 +149,14 @@ export function SetupWizardLayout({
                       required
                     />
                   </label>
+                  <label className="setup-field setup-field-inline">
+                    <span>SSL (самоподписанный)</span>
+                    <input
+                      type="checkbox"
+                      checked={dbSsl}
+                      onChange={(event) => onChangeDbSsl(event.target.checked)}
+                    />
+                  </label>
                 </div>
               ) : (
                 <>
@@ -219,6 +231,7 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
   const [dbUser, setDbUser] = useState("");
   const [dbPassword, setDbPassword] = useState("");
   const [dbName, setDbName] = useState("");
+  const [dbSsl, setDbSsl] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -232,10 +245,11 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
       dbUser,
       dbPassword,
       dbName,
+      dbSsl,
       email,
       password,
     }),
-    [dbHost, dbPort, dbUser, dbPassword, dbName, email, password]
+    [dbHost, dbPort, dbUser, dbPassword, dbName, dbSsl, email, password]
   );
 
   const onNext = () => {
@@ -284,6 +298,7 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
       dbUser={dbUser}
       dbPassword={dbPassword}
       dbName={dbName}
+      dbSsl={dbSsl}
       loading={loading}
       error={error}
       success={success}
@@ -294,6 +309,7 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
       onChangeDbUser={setDbUser}
       onChangeDbPassword={setDbPassword}
       onChangeDbName={setDbName}
+      onChangeDbSsl={setDbSsl}
       onSubmit={onSubmit}
       onNext={onNext}
       onBack={onBack}

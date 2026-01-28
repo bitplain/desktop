@@ -14,7 +14,13 @@ export function getPrisma() {
   }
 
   const databaseUrl = getDatabaseUrl();
-  const pool = globalForPrisma.pgPool ?? new Pool({ connectionString: databaseUrl });
+  const useSsl = process.env.DATABASE_SSL === "true";
+  const pool =
+    globalForPrisma.pgPool ??
+    new Pool({
+      connectionString: databaseUrl,
+      ssl: useSsl ? { rejectUnauthorized: false } : undefined,
+    });
   const adapter = new PrismaPg(pool);
   const client = new PrismaClient({
     adapter,

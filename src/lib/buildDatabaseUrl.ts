@@ -4,6 +4,7 @@ type DbParts = {
   user: string;
   password: string;
   database: string;
+  ssl: boolean;
 };
 
 type Result = { ok: true; value: string } | { ok: false; error: string };
@@ -19,8 +20,10 @@ export function buildDatabaseUrl(input: DbParts): Result {
   }
   const encodedUser = encodeURIComponent(user);
   const encodedPassword = encodeURIComponent(password);
+  const baseUrl = `postgresql://${encodedUser}:${encodedPassword}@${host}:${port}/${database}`;
+  const sslSuffix = input.ssl ? "?sslmode=require&sslaccept=accept_invalid_certs" : "";
   return {
     ok: true,
-    value: `postgresql://${encodedUser}:${encodedPassword}@${host}:${port}/${database}`,
+    value: `${baseUrl}${sslSuffix}`,
   };
 }

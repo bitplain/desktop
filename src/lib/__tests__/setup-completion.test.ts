@@ -29,11 +29,18 @@ describe("setup completion", () => {
   it("writes config and creates admin when fresh", async () => {
     const deps = baseDeps();
     const result = await completeSetup(
-      { databaseUrl: "postgres://db", email: "admin@test.dev", password: "Password1!" },
+      {
+        databaseUrl: "postgres://db",
+        databaseSsl: true,
+        email: "admin@test.dev",
+        password: "Password1!",
+      },
       deps
     );
     expect(result.status).toBe("ok");
-    expect(deps.writeConfig).toHaveBeenCalledOnce();
+    expect(deps.writeConfig).toHaveBeenCalledWith(
+      expect.objectContaining({ databaseSsl: true })
+    );
     expect(deps.applyConfig).toHaveBeenCalledOnce();
     expect(deps.runMigrations).toHaveBeenCalledOnce();
     expect(deps.createAdmin).toHaveBeenCalledOnce();
@@ -42,7 +49,12 @@ describe("setup completion", () => {
   it("does not attempt to create databases automatically", async () => {
     const deps = baseDeps();
     const result = await completeSetup(
-      { databaseUrl: "postgres://db", email: "admin@test.dev", password: "Password1!" },
+      {
+        databaseUrl: "postgres://db",
+        databaseSsl: true,
+        email: "admin@test.dev",
+        password: "Password1!",
+      },
       deps
     );
     expect(result.status).toBe("ok");
@@ -53,11 +65,17 @@ describe("setup completion", () => {
     const deps = baseDeps();
     deps.loadConfig = () => ({
       databaseUrl: "postgres://existing",
+      databaseSsl: false,
       nextAuthSecret: "secret-aaaaaaaaaaaaaaa",
       keysEncryptionSecret: "secret-bbbbbbbbbbbbbbb",
     });
     const result = await completeSetup(
-      { databaseUrl: "postgres://ignored", email: "admin@test.dev", password: "Password1!" },
+      {
+        databaseUrl: "postgres://ignored",
+        databaseSsl: true,
+        email: "admin@test.dev",
+        password: "Password1!",
+      },
       deps
     );
     expect(result.status).toBe("ok");
@@ -70,6 +88,7 @@ describe("setup completion", () => {
     const applyConfig = vi.fn();
     deps.loadConfig = () => ({
       databaseUrl: "postgres://existing",
+      databaseSsl: false,
       nextAuthSecret: "secret-aaaaaaaaaaaaaaa",
       keysEncryptionSecret: "secret-bbbbbbbbbbbbbbb",
     });
@@ -79,6 +98,7 @@ describe("setup completion", () => {
     const result = await completeSetup(
       {
         databaseUrl: "postgres://new",
+        databaseSsl: true,
         email: "admin@test.dev",
         password: "Password1!",
         allowDatabaseUrlOverride: true,
@@ -89,11 +109,13 @@ describe("setup completion", () => {
     expect(result.status).toBe("ok");
     expect(writeConfig).toHaveBeenCalledWith({
       databaseUrl: "postgres://new",
+      databaseSsl: true,
       nextAuthSecret: "secret-aaaaaaaaaaaaaaa",
       keysEncryptionSecret: "secret-bbbbbbbbbbbbbbb",
     });
     expect(applyConfig).toHaveBeenCalledWith({
       databaseUrl: "postgres://new",
+      databaseSsl: true,
       nextAuthSecret: "secret-aaaaaaaaaaaaaaa",
       keysEncryptionSecret: "secret-bbbbbbbbbbbbbbb",
     });
@@ -103,6 +125,7 @@ describe("setup completion", () => {
     const deps = baseDeps();
     deps.loadConfig = () => ({
       databaseUrl: "postgres://existing",
+      databaseSsl: false,
       nextAuthSecret: "secret-aaaaaaaaaaaaaaa",
       keysEncryptionSecret: "secret-bbbbbbbbbbbbbbb",
     });
@@ -110,6 +133,7 @@ describe("setup completion", () => {
     const result = await completeSetup(
       {
         databaseUrl: "mysql://bad",
+        databaseSsl: true,
         email: "admin@test.dev",
         password: "Password1!",
         allowDatabaseUrlOverride: true,
@@ -124,7 +148,12 @@ describe("setup completion", () => {
     const deps = baseDeps();
     deps.getUserCount = vi.fn().mockResolvedValue(2);
     const result = await completeSetup(
-      { databaseUrl: "postgres://db", email: "admin@test.dev", password: "Password1!" },
+      {
+        databaseUrl: "postgres://db",
+        databaseSsl: true,
+        email: "admin@test.dev",
+        password: "Password1!",
+      },
       deps
     );
     expect(result.status).toBe("alreadySetup");

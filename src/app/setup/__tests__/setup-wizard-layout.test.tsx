@@ -12,6 +12,7 @@ const baseProps = {
   dbUser: "",
   dbPassword: "",
   dbName: "",
+  dbSsl: false,
   loading: false,
   error: null as string | null,
   success: false,
@@ -22,6 +23,7 @@ const baseProps = {
   onChangeDbUser: () => undefined,
   onChangeDbPassword: () => undefined,
   onChangeDbName: () => undefined,
+  onChangeDbSsl: () => undefined,
   onSubmit: () => undefined,
   onNext: () => undefined,
   onBack: () => undefined,
@@ -36,6 +38,7 @@ describe("setup wizard layout", () => {
     expect(html).toContain("User");
     expect(html).toContain("Password");
     expect(html).toContain("Database");
+    expect(html).toContain("SSL");
   });
 
   it("omits database name and secrets step", () => {
