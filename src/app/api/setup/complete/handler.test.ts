@@ -47,6 +47,7 @@ describe("setup complete handler", () => {
         dbPort: "5432",
         dbUser: "desktop",
         dbPassword: "desktop",
+        dbName: "customdb",
         email: "admin@test.dev",
         password: "Password1!",
       }),
@@ -60,7 +61,7 @@ describe("setup complete handler", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(received?.databaseUrl).toBe("postgresql://desktop:desktop@db:5432/desktop");
+    expect(received?.databaseUrl).toBe("postgresql://desktop:desktop@db:5432/customdb");
   });
 
   it("allows database override when db is unavailable", async () => {
