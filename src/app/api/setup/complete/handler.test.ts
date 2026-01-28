@@ -9,6 +9,7 @@ const makeRequest = (body: unknown) =>
 
 const baseDeps = {
   createDefaultSetupDeps: () => ({}),
+  getSetupStatus: async () => "needsSetup" as const,
 };
 
 describe("setup complete handler", () => {
@@ -60,5 +61,20 @@ describe("setup complete handler", () => {
 
     expect(response.status).toBe(200);
     expect(received?.databaseUrl).toBe("postgresql://desktop:desktop@db:5432/desktop");
+  });
+
+  it("allows database override when db is unavailable", async () => {
+    let received: { allowDatabaseUrlOverride?: boolean } | null = null;
+    const response = await handleSetupComplete(makeRequest({}), {
+      completeSetup: async (input) => {
+        received = input;
+        return { status: "ok" };
+      },
+      createDefaultSetupDeps: () => ({}),
+      getSetupStatus: async () => "dbUnavailable",
+    });
+
+    expect(response.status).toBe(200);
+    expect(received?.allowDatabaseUrlOverride).toBe(true);
   });
 });

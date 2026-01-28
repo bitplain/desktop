@@ -9,4 +9,8 @@ describe("setup redirects", () => {
   it("routes needsAdmin to /setup", () => {
     expect(getSetupRedirect("needsAdmin")).toBe("/setup");
   });
+
+  it("routes dbUnavailable to /setup", () => {
+    expect(getSetupRedirect("dbUnavailable")).toBe("/setup");
+  });
 });

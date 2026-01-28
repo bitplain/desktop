@@ -1,15 +1,17 @@
 import { NextResponse } from "next/server";
 import { buildDatabaseUrl } from "@/lib/buildDatabaseUrl";
 import { completeSetup, createDefaultSetupDeps } from "@/lib/setupCompletion";
+import { getSetupStatus } from "@/lib/setupStatus";
 
 type SetupHandlerDeps = {
   completeSetup: typeof completeSetup;
   createDefaultSetupDeps: typeof createDefaultSetupDeps;
+  getSetupStatus: typeof getSetupStatus;
 };
 
 export async function handleSetupComplete(
   request: Request,
-  deps: SetupHandlerDeps = { completeSetup, createDefaultSetupDeps }
+  deps: SetupHandlerDeps = { completeSetup, createDefaultSetupDeps, getSetupStatus }
 ) {
   const body = await request.json().catch(() => ({}));
   const maskedBody = {
@@ -35,11 +37,17 @@ export async function handleSetupComplete(
     database: "desktop",
   });
   const databaseUrl = rawDatabaseUrl || (builtDatabaseUrl.ok ? builtDatabaseUrl.value : "");
-  const result = await deps.completeSetup({
-    databaseUrl,
-    email: String(body?.email ?? ""),
-    password: String(body?.password ?? ""),
-  }, deps.createDefaultSetupDeps());
+  const status = await deps.getSetupStatus();
+  const allowDatabaseUrlOverride = status === "dbUnavailable";
+  const result = await deps.completeSetup(
+    {
+      databaseUrl,
+      email: String(body?.email ?? ""),
+      password: String(body?.password ?? ""),
+      allowDatabaseUrlOverride,
+    },
+    deps.createDefaultSetupDeps()
+  );
 
   if (result.status === "invalid") {
     return NextResponse.json({ error: result.error }, { status: 400 });
