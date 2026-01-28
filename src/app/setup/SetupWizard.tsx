@@ -26,6 +26,7 @@ type LayoutProps = {
   dbPort: string;
   dbUser: string;
   dbPassword: string;
+  dbName: string;
   loading: boolean;
   error: string | null;
   success: boolean;
@@ -35,6 +36,7 @@ type LayoutProps = {
   onChangeDbPort: (value: string) => void;
   onChangeDbUser: (value: string) => void;
   onChangeDbPassword: (value: string) => void;
+  onChangeDbName: (value: string) => void;
   onSubmit: (event: React.FormEvent) => void;
   onNext: () => void;
   onBack: () => void;
@@ -50,6 +52,7 @@ export function SetupWizardLayout({
   dbPort,
   dbUser,
   dbPassword,
+  dbName,
   loading,
   error,
   success,
@@ -59,6 +62,7 @@ export function SetupWizardLayout({
   onChangeDbPort,
   onChangeDbUser,
   onChangeDbPassword,
+  onChangeDbName,
   onSubmit,
   onNext,
   onBack,
@@ -129,6 +133,15 @@ export function SetupWizardLayout({
                       type="password"
                       value={dbPassword}
                       onChange={(event) => onChangeDbPassword(event.target.value)}
+                      required
+                    />
+                  </label>
+                  <label className="setup-field">
+                    <span>Database</span>
+                    <input
+                      className="xp-input"
+                      value={dbName}
+                      onChange={(event) => onChangeDbName(event.target.value)}
                       required
                     />
                   </label>
@@ -205,6 +218,7 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
   const [dbPort, setDbPort] = useState("");
   const [dbUser, setDbUser] = useState("");
   const [dbPassword, setDbPassword] = useState("");
+  const [dbName, setDbName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -217,15 +231,22 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
       dbPort,
       dbUser,
       dbPassword,
+      dbName,
       email,
       password,
     }),
-    [dbHost, dbPort, dbUser, dbPassword, email, password]
+    [dbHost, dbPort, dbUser, dbPassword, dbName, email, password]
   );
 
   const onNext = () => {
     setError(null);
-    if (!dbHost.trim() || !dbPort.trim() || !dbUser.trim() || !dbPassword.trim()) {
+    if (
+      !dbHost.trim() ||
+      !dbPort.trim() ||
+      !dbUser.trim() ||
+      !dbPassword.trim() ||
+      !dbName.trim()
+    ) {
       setError("Заполните все поля базы данных.");
       return;
     }
@@ -262,6 +283,7 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
       dbPort={dbPort}
       dbUser={dbUser}
       dbPassword={dbPassword}
+      dbName={dbName}
       loading={loading}
       error={error}
       success={success}
@@ -271,6 +293,7 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
       onChangeDbPort={setDbPort}
       onChangeDbUser={setDbUser}
       onChangeDbPassword={setDbPassword}
+      onChangeDbName={setDbName}
       onSubmit={onSubmit}
       onNext={onNext}
       onBack={onBack}
