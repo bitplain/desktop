@@ -11,6 +11,12 @@ type WizardProps = {
 
 type WizardStep = "db" | "admin";
 
+export function getWizardInitialStep(
+  status: Exclude<SetupStatus, "ready">
+): WizardStep {
+  return status === "needsSetup" || status === "dbUnavailable" ? "db" : "admin";
+}
+
 type LayoutProps = {
   status: Exclude<SetupStatus, "ready">;
   step: WizardStep;
@@ -84,6 +90,11 @@ export function SetupWizardLayout({
               <div className="login-form-header">Setup wizard</div>
               {step === "db" ? (
                 <div className="setup-db">
+                  {status === "dbUnavailable" ? (
+                    <div className="setup-note">
+                      База недоступна. Проверьте параметры подключения.
+                    </div>
+                  ) : null}
                   <label className="setup-field">
                     <span>Host</span>
                     <input
@@ -189,9 +200,7 @@ export function SetupWizardLayout({
 export default function SetupWizard({ initialStatus }: WizardProps) {
   const router = useRouter();
   const [status] = useState(initialStatus);
-  const [step, setStep] = useState<WizardStep>(
-    initialStatus === "needsSetup" ? "db" : "admin"
-  );
+  const [step, setStep] = useState<WizardStep>(getWizardInitialStep(initialStatus));
   const [dbHost, setDbHost] = useState("");
   const [dbPort, setDbPort] = useState("");
   const [dbUser, setDbUser] = useState("");

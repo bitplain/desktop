@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { renderToString } from "react-dom/server";
-import { SetupWizardLayout } from "../SetupWizard";
+import { SetupWizardLayout, getWizardInitialStep } from "../SetupWizard";
 
 const baseProps = {
   status: "needsSetup" as const,
@@ -48,5 +48,18 @@ describe("setup wizard layout", () => {
     );
     expect(dbHtml).toContain("Далее");
     expect(adminHtml).toContain("Запустить настройку");
+  });
+
+  it("shows database unavailable note on db step", () => {
+    const html = renderToString(
+      <SetupWizardLayout {...baseProps} status="dbUnavailable" step="db" />
+    );
+    expect(html).toContain("База недоступна");
+  });
+});
+
+describe("setup wizard initial step", () => {
+  it("starts on db step when dbUnavailable", () => {
+    expect(getWizardInitialStep("dbUnavailable")).toBe("db");
   });
 });
