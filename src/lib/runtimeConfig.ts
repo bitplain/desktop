@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 export type RuntimeConfig = {
   databaseUrl: string;
+  databaseSsl?: boolean;
   nextAuthSecret: string;
   keysEncryptionSecret: string;
 };
@@ -22,12 +23,18 @@ function readConfigFile(path: string): RuntimeConfig | null {
 
 function buildEnvConfig(): RuntimeConfig | null {
   const databaseUrl = process.env.DATABASE_URL?.trim() || "";
+  const databaseSsl = process.env.DATABASE_SSL?.trim() || "";
   const nextAuthSecret = process.env.NEXTAUTH_SECRET?.trim() || "";
   const keysEncryptionSecret = process.env.KEYS_ENCRYPTION_SECRET?.trim() || "";
   if (!databaseUrl || !nextAuthSecret || !keysEncryptionSecret) {
     return null;
   }
-  return { databaseUrl, nextAuthSecret, keysEncryptionSecret };
+  return {
+    databaseUrl,
+    databaseSsl: databaseSsl ? databaseSsl === "true" : undefined,
+    nextAuthSecret,
+    keysEncryptionSecret,
+  };
 }
 
 export function loadRuntimeConfig(options?: { mockConfig?: RuntimeConfig | null }) {
@@ -37,6 +44,9 @@ export function loadRuntimeConfig(options?: { mockConfig?: RuntimeConfig | null 
     return null;
   }
   process.env.DATABASE_URL ||= resolved.databaseUrl;
+  if (resolved.databaseSsl !== undefined) {
+    process.env.DATABASE_SSL ||= resolved.databaseSsl ? "true" : "false";
+  }
   process.env.NEXTAUTH_SECRET ||= resolved.nextAuthSecret;
   process.env.KEYS_ENCRYPTION_SECRET ||= resolved.keysEncryptionSecret;
   return resolved;

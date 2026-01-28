@@ -13,6 +13,7 @@ import { validateEmail, validatePassword } from "./validation";
 
 export type SetupCompletionInput = {
   databaseUrl?: string;
+  databaseSsl?: boolean;
   email: string;
   password: string;
   allowDatabaseUrlOverride?: boolean;
@@ -54,6 +55,7 @@ export async function completeSetup(
   }
 
   let config = deps.loadConfig();
+  const databaseSsl = Boolean(input.databaseSsl);
   if (!config) {
     const dbCheck = deps.validateDatabaseUrl(input.databaseUrl ?? "");
     if (!dbCheck.ok) {
@@ -61,6 +63,7 @@ export async function completeSetup(
     }
     config = {
       databaseUrl: input.databaseUrl ?? "",
+      databaseSsl,
       nextAuthSecret: deps.generateSecret(),
       keysEncryptionSecret: deps.generateSecret(),
     };
@@ -73,6 +76,7 @@ export async function completeSetup(
     config = {
       ...config,
       databaseUrl: input.databaseUrl,
+      databaseSsl,
     };
     await deps.writeConfig(config);
   }
@@ -108,6 +112,9 @@ export function createDefaultSetupDeps(): SetupCompletionDeps {
     },
     applyConfig: (config) => {
       process.env.DATABASE_URL = config.databaseUrl;
+      if (config.databaseSsl !== undefined) {
+        process.env.DATABASE_SSL = config.databaseSsl ? "true" : "false";
+      }
       process.env.NEXTAUTH_SECRET = config.nextAuthSecret;
       process.env.KEYS_ENCRYPTION_SECRET = config.keysEncryptionSecret;
     },

@@ -48,6 +48,7 @@ describe("setup complete handler", () => {
         dbUser: "desktop",
         dbPassword: "desktop",
         dbName: "customdb",
+        dbSsl: true,
         email: "admin@test.dev",
         password: "Password1!",
       }),
@@ -61,7 +62,9 @@ describe("setup complete handler", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(received?.databaseUrl).toBe("postgresql://desktop:desktop@db:5432/customdb");
+    expect(received?.databaseUrl).toBe(
+      "postgresql://desktop:desktop@db:5432/customdb?sslmode=require&sslaccept=accept_invalid_certs"
+    );
   });
 
   it("allows database override when db is unavailable", async () => {

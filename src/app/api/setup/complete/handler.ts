@@ -29,12 +29,14 @@ export async function handleSetupComplete(
     body: maskedBody,
   });
   const rawDatabaseUrl = String(body?.databaseUrl ?? "");
+  const dbSsl = Boolean(body?.dbSsl);
   const builtDatabaseUrl = buildDatabaseUrl({
     host: String(body?.dbHost ?? ""),
     port: String(body?.dbPort ?? ""),
     user: String(body?.dbUser ?? ""),
     password: String(body?.dbPassword ?? ""),
     database: String(body?.dbName ?? ""),
+    ssl: dbSsl,
   });
   const databaseUrl = rawDatabaseUrl || (builtDatabaseUrl.ok ? builtDatabaseUrl.value : "");
   const status = await deps.getSetupStatus();
@@ -45,6 +47,7 @@ export async function handleSetupComplete(
       email: String(body?.email ?? ""),
       password: String(body?.password ?? ""),
       allowDatabaseUrlOverride,
+      databaseSsl: dbSsl,
     },
     deps.createDefaultSetupDeps()
   );
