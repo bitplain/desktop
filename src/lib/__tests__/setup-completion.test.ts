@@ -35,9 +35,18 @@ describe("setup completion", () => {
     expect(result.status).toBe("ok");
     expect(deps.writeConfig).toHaveBeenCalledOnce();
     expect(deps.applyConfig).toHaveBeenCalledOnce();
-    expect(deps.ensureDatabaseExists).toHaveBeenCalledOnce();
     expect(deps.runMigrations).toHaveBeenCalledOnce();
     expect(deps.createAdmin).toHaveBeenCalledOnce();
+  });
+
+  it("does not attempt to create databases automatically", async () => {
+    const deps = baseDeps();
+    const result = await completeSetup(
+      { databaseUrl: "postgres://db", email: "admin@test.dev", password: "Password1!" },
+      deps
+    );
+    expect(result.status).toBe("ok");
+    expect(deps.ensureDatabaseExists).not.toHaveBeenCalled();
   });
 
   it("skips config write when config exists", async () => {
@@ -53,7 +62,6 @@ describe("setup completion", () => {
     );
     expect(result.status).toBe("ok");
     expect(deps.writeConfig).not.toHaveBeenCalled();
-    expect(deps.ensureDatabaseExists).toHaveBeenCalledOnce();
   });
 
   it("overrides database url when allowed", async () => {
@@ -121,6 +129,5 @@ describe("setup completion", () => {
     );
     expect(result.status).toBe("alreadySetup");
     expect(deps.createAdmin).not.toHaveBeenCalled();
-    expect(deps.ensureDatabaseExists).toHaveBeenCalledOnce();
   });
 });

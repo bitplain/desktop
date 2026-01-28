@@ -80,7 +80,6 @@ export async function completeSetup(
   deps.applyConfig(config);
 
   try {
-    await deps.ensureDatabaseExists(config.databaseUrl);
     await deps.runMigrations();
     const count = await deps.getUserCount();
     if (count > 0) {
