@@ -17,6 +17,7 @@ export type SetupCompletionInput = {
   email: string;
   password: string;
   allowDatabaseUrlOverride?: boolean;
+  allowAutoDbFix?: boolean;
 };
 
 export type SetupCompletionResult =
@@ -30,6 +31,7 @@ export type SetupCompletionDeps = {
   writeConfig: (config: RuntimeConfig) => Promise<void>;
   applyConfig: (config: RuntimeConfig) => void;
   ensureDatabaseExists: (databaseUrl: string) => Promise<void>;
+  repairDatabaseAccess: (input: { databaseUrl: string; databaseSsl?: boolean }) => Promise<void>;
   runMigrations: () => Promise<void>;
   getUserCount: () => Promise<number>;
   createAdmin: (input: { email: string; password: string }) => Promise<void>;
@@ -95,6 +97,32 @@ export async function completeSetup(
     });
     return { status: "ok" };
   } catch (error) {
+    if (input.allowAutoDbFix) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (/permission denied|access denied|denied access|does not exist|not available/i.test(message)) {
+        try {
+          await deps.repairDatabaseAccess({
+            databaseUrl: config.databaseUrl,
+            databaseSsl: config.databaseSsl,
+          });
+          await deps.runMigrations();
+          const count = await deps.getUserCount();
+          if (count > 0) {
+            return { status: "alreadySetup" };
+          }
+          await deps.createAdmin({
+            email: emailCheck.value ?? "",
+            password: passwordCheck.value ?? "",
+          });
+          return { status: "ok" };
+        } catch (repairError) {
+          return {
+            status: "dbError",
+            error: repairError instanceof Error ? repairError.message : "Database error",
+          };
+        }
+      }
+    }
     return {
       status: "dbError",
       error: error instanceof Error ? error.message : "Database error",
@@ -120,6 +148,10 @@ export function createDefaultSetupDeps(): SetupCompletionDeps {
     },
     ensureDatabaseExists: async (databaseUrl) => {
       await ensureDatabaseExists(databaseUrl);
+    },
+    repairDatabaseAccess: async ({ databaseUrl, databaseSsl }) => {
+      const { repairDatabaseAccess } = await import("./adminRepair");
+      await repairDatabaseAccess({ databaseUrl, databaseSsl });
     },
     runMigrations: async () => {
       const prismaBin = resolve(process.cwd(), "node_modules/.bin/prisma");

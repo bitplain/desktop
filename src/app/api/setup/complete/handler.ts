@@ -48,6 +48,7 @@ export async function handleSetupComplete(
       password: String(body?.password ?? ""),
       allowDatabaseUrlOverride,
       databaseSsl: dbSsl,
+      allowAutoDbFix: true,
     },
     deps.createDefaultSetupDeps()
   );
