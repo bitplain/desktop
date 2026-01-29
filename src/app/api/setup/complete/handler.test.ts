@@ -22,12 +22,13 @@ describe("setup complete handler", () => {
     expect((await response.json()).error).toBe("bad");
   });
 
-  it("maps alreadySetup to 409", async () => {
+  it("maps alreadySetup to 200", async () => {
     const response = await handleSetupComplete(makeRequest({}), {
       completeSetup: async () => ({ status: "alreadySetup" }),
       ...baseDeps,
     });
-    expect(response.status).toBe(409);
+    expect(response.status).toBe(200);
+    expect((await response.json()).alreadySetup).toBe(true);
   });
 
   it("maps ok to 200", async () => {
