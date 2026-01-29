@@ -3,9 +3,11 @@ import type { RuntimeConfig } from "../runtimeConfig";
 
 const ensureDatabaseReady = vi.hoisted(() => vi.fn());
 const getPrisma = vi.hoisted(() => vi.fn());
+const repairDatabaseAccess = vi.hoisted(() => vi.fn());
 
 vi.mock("../databaseReady", () => ({ ensureDatabaseReady }));
 vi.mock("../db", () => ({ getPrisma }));
+vi.mock("../adminRepair", () => ({ repairDatabaseAccess }));
 
 import { getSetupStatus } from "../setupStatus";
 
@@ -43,42 +45,35 @@ describe("setup status", () => {
     expect(await getSetupStatus({ mockConfig })).toBe("dbUnavailable");
   });
 
-  it("auto-enables ssl during setup when self-signed error occurs", async () => {
+  it("auto-repairs when access is denied during setup", async () => {
     const count = vi.fn().mockResolvedValue(0);
     getPrisma.mockReturnValue({ user: { count } });
     ensureDatabaseReady
-      .mockRejectedValueOnce(new Error("self-signed certificate"))
+      .mockRejectedValueOnce(new Error("permission denied"))
       .mockResolvedValueOnce(undefined);
-    const saveConfig = vi.fn().mockResolvedValue(undefined);
+    repairDatabaseAccess.mockResolvedValue(undefined);
 
-    const status = await getSetupStatus({
-      mockConfig,
-      allowAutoSslFix: true,
-      saveConfig,
-    });
+    const status = await getSetupStatus({ mockConfig, allowAutoDbFix: true });
 
     expect(status).toBe("needsAdmin");
-    expect(saveConfig).toHaveBeenCalledWith(
-      expect.objectContaining({
-        databaseSsl: true,
-      })
-    );
+    expect(repairDatabaseAccess).toHaveBeenCalledWith({
+      databaseUrl: mockConfig.databaseUrl,
+      databaseSsl: mockConfig.databaseSsl,
+    });
     expect(ensureDatabaseReady).toHaveBeenCalledTimes(2);
-    const secondCallUrl = ensureDatabaseReady.mock.calls[1]?.[0] as string;
-    expect(secondCallUrl).toContain("sslmode=require");
-    expect(secondCallUrl).toContain("sslaccept=accept_invalid_certs");
   });
 
-  it("does not auto-enable ssl when not in setup flow", async () => {
-    ensureDatabaseReady.mockRejectedValue(new Error("self signed certificate"));
-    const saveConfig = vi.fn().mockResolvedValue(undefined);
+  it("auto-repairs when database is missing during setup", async () => {
+    const count = vi.fn().mockResolvedValue(0);
+    getPrisma.mockReturnValue({ user: { count } });
+    ensureDatabaseReady
+      .mockRejectedValueOnce(new Error('database "desktop" does not exist'))
+      .mockResolvedValueOnce(undefined);
+    repairDatabaseAccess.mockResolvedValue(undefined);
 
-    const status = await getSetupStatus({
-      mockConfig,
-      saveConfig,
-    });
+    const status = await getSetupStatus({ mockConfig, allowAutoDbFix: true });
 
-    expect(status).toBe("dbUnavailable");
-    expect(saveConfig).not.toHaveBeenCalled();
+    expect(status).toBe("needsAdmin");
+    expect(repairDatabaseAccess).toHaveBeenCalled();
   });
 });

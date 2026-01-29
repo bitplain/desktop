@@ -39,7 +39,7 @@ export async function handleSetupComplete(
     ssl: dbSsl,
   });
   const databaseUrl = rawDatabaseUrl || (builtDatabaseUrl.ok ? builtDatabaseUrl.value : "");
-  const status = await deps.getSetupStatus({ allowAutoSslFix: true });
+  const status = await deps.getSetupStatus({ allowAutoDbFix: true, allowAutoSslFix: true });
   const allowDatabaseUrlOverride = status === "dbUnavailable";
   const result = await deps.completeSetup(
     {
