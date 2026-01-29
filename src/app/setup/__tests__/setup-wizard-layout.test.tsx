@@ -43,6 +43,9 @@ describe("setup wizard layout", () => {
     expect(html).toContain("Password");
     expect(html).toContain("Database");
     expect(html).toContain("SSL");
+    expect(html).toContain(
+      "Включайте, если у Postgres самоподписанный сертификат (ошибка self-signed)."
+    );
   });
 
   it("omits database name and secrets step", () => {
