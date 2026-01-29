@@ -6,6 +6,7 @@ const baseDeps = (): SetupCompletionDeps => ({
   writeConfig: vi.fn().mockResolvedValue(undefined),
   applyConfig: vi.fn(),
   ensureDatabaseExists: vi.fn().mockResolvedValue(undefined),
+  repairDatabaseAccess: vi.fn().mockResolvedValue(undefined),
   runMigrations: vi.fn().mockResolvedValue(undefined),
   getUserCount: vi.fn().mockResolvedValue(0),
   createAdmin: vi.fn().mockResolvedValue(undefined),
@@ -158,5 +159,32 @@ describe("setup completion", () => {
     );
     expect(result.status).toBe("alreadySetup");
     expect(deps.createAdmin).not.toHaveBeenCalled();
+  });
+
+  it("repairs access and retries migrations when denied", async () => {
+    const deps = baseDeps();
+    const runMigrations = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("P1010: User was denied access"))
+      .mockResolvedValueOnce(undefined);
+    deps.runMigrations = runMigrations;
+
+    const result = await completeSetup(
+      {
+        databaseUrl: "postgres://db",
+        databaseSsl: true,
+        email: "admin@test.dev",
+        password: "Password1!",
+        allowAutoDbFix: true,
+      },
+      deps
+    );
+
+    expect(result.status).toBe("ok");
+    expect(deps.repairDatabaseAccess).toHaveBeenCalledWith({
+      databaseUrl: "postgres://db",
+      databaseSsl: true,
+    });
+    expect(runMigrations).toHaveBeenCalledTimes(2);
   });
 });

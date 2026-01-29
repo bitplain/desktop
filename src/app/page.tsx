@@ -9,7 +9,7 @@ import { getSetupStatus } from "@/lib/setupStatus";
 import DatabaseUnavailableCard from "@/components/DatabaseUnavailableCard";
 
 export default async function HomePage() {
-  const status = await getSetupStatus();
+  const status = await getSetupStatus({ allowAutoDbFix: true, allowAutoSslFix: true });
   const setupRedirect = getSetupRedirect(status);
   if (setupRedirect) {
     redirect(setupRedirect);
