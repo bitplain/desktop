@@ -5,6 +5,21 @@ type RepairInput = {
   databaseSsl?: boolean;
 };
 
+export type AdminProvisionInput = {
+  admin: {
+    host: string;
+    port: string;
+    user: string;
+    password: string;
+    ssl: boolean;
+  };
+  app: {
+    database: string;
+    user: string;
+    password: string;
+  };
+};
+
 function escapeIdentifier(value: string) {
   return `"${value.replace(/"/g, '""')}"`;
 }
@@ -29,6 +44,55 @@ function buildAdminUrl(url: URL) {
   return adminUrl.toString();
 }
 
+function buildConnectionString(input: {
+  host: string;
+  port: string;
+  user: string;
+  password: string;
+  database: string;
+}) {
+  const encodedUser = encodeURIComponent(input.user);
+  const encodedPassword = encodeURIComponent(input.password);
+  return `postgresql://${encodedUser}:${encodedPassword}@${input.host}:${input.port}/${input.database}`;
+}
+
+async function runProvisionQueries(
+  client: Client,
+  appDatabase: string,
+  appUser: string,
+  appPassword: string
+) {
+  const roleResult = await client.query("SELECT 1 FROM pg_roles WHERE rolname = $1", [
+    appUser,
+  ]);
+  if (roleResult.rows.length === 0) {
+    await client.query(`CREATE ROLE ${escapeIdentifier(appUser)} LOGIN PASSWORD $1`, [
+      appPassword,
+    ]);
+  } else {
+    await client.query(`ALTER ROLE ${escapeIdentifier(appUser)} WITH LOGIN PASSWORD $1`, [
+      appPassword,
+    ]);
+  }
+
+  const dbResult = await client.query("SELECT 1 FROM pg_database WHERE datname = $1", [
+    appDatabase,
+  ]);
+  if (dbResult.rows.length === 0) {
+    await client.query(
+      `CREATE DATABASE ${escapeIdentifier(appDatabase)} OWNER ${escapeIdentifier(appUser)}`
+    );
+  }
+  await client.query(
+    `ALTER DATABASE ${escapeIdentifier(appDatabase)} OWNER TO ${escapeIdentifier(appUser)}`
+  );
+  await client.query(
+    `GRANT ALL PRIVILEGES ON DATABASE ${escapeIdentifier(appDatabase)} TO ${escapeIdentifier(
+      appUser
+    )}`
+  );
+}
+
 export async function repairDatabaseAccess(input: RepairInput) {
   const { url, database, user, password } = parseDatabaseUrl(input.databaseUrl);
   const adminUrl = buildAdminUrl(url);
@@ -39,39 +103,9 @@ export async function repairDatabaseAccess(input: RepairInput) {
     ssl,
   });
 
-  await adminClient.connect();
+    await adminClient.connect();
   try {
-    const roleResult = await adminClient.query(
-      "SELECT 1 FROM pg_roles WHERE rolname = $1",
-      [user]
-    );
-    if (roleResult.rows.length === 0) {
-      await adminClient.query(
-        `CREATE ROLE ${escapeIdentifier(user)} LOGIN PASSWORD $1`,
-        [password]
-      );
-    } else {
-      await adminClient.query(
-        `ALTER ROLE ${escapeIdentifier(user)} WITH LOGIN PASSWORD $1`,
-        [password]
-      );
-    }
-
-    const dbResult = await adminClient.query(
-      "SELECT 1 FROM pg_database WHERE datname = $1",
-      [database]
-    );
-    if (dbResult.rows.length === 0) {
-      await adminClient.query(
-        `CREATE DATABASE ${escapeIdentifier(database)} OWNER ${escapeIdentifier(user)}`
-      );
-    }
-    await adminClient.query(
-      `ALTER DATABASE ${escapeIdentifier(database)} OWNER TO ${escapeIdentifier(user)}`
-    );
-    await adminClient.query(
-      `GRANT ALL PRIVILEGES ON DATABASE ${escapeIdentifier(database)} TO ${escapeIdentifier(user)}`
-    );
+    await runProvisionQueries(adminClient, database, user, password);
   } finally {
     await adminClient.end();
   }
@@ -93,6 +127,69 @@ export async function repairDatabaseAccess(input: RepairInput) {
     );
     await dbClient.query(
       `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO ${escapeIdentifier(user)}`
+    );
+  } finally {
+    await dbClient.end();
+  }
+}
+
+export async function provisionDatabaseWithAdmin(input: AdminProvisionInput) {
+  const adminDatabase = buildConnectionString({
+    host: input.admin.host.trim(),
+    port: input.admin.port.trim(),
+    user: input.admin.user.trim(),
+    password: input.admin.password.trim(),
+    database: "postgres",
+  });
+  const ssl = input.admin.ssl ? { rejectUnauthorized: false } : undefined;
+
+  const adminClient = new Client({
+    connectionString: adminDatabase,
+    ssl,
+  });
+
+  await adminClient.connect();
+  try {
+    await runProvisionQueries(
+      adminClient,
+      input.app.database.trim(),
+      input.app.user.trim(),
+      input.app.password.trim()
+    );
+  } finally {
+    await adminClient.end();
+  }
+
+  const appAdminUrl = buildConnectionString({
+    host: input.admin.host.trim(),
+    port: input.admin.port.trim(),
+    user: input.admin.user.trim(),
+    password: input.admin.password.trim(),
+    database: input.app.database.trim(),
+  });
+  const dbClient = new Client({
+    connectionString: appAdminUrl,
+    ssl,
+  });
+  await dbClient.connect();
+  try {
+    await dbClient.query(
+      `GRANT ALL PRIVILEGES ON SCHEMA public TO ${escapeIdentifier(input.app.user.trim())}`
+    );
+    await dbClient.query(
+      `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO ${escapeIdentifier(
+        input.app.user.trim()
+      )}`
+    );
+    await dbClient.query(
+      `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO ${escapeIdentifier(
+        input.app.user.trim()
+      )}`
+    );
+    await dbClient.query(
+      `ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO ${escapeIdentifier(
+        input.app.user.trim()
+      )}`
     );
   } finally {
     await dbClient.end();

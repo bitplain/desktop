@@ -43,6 +43,9 @@ function withSslParams(databaseUrl: string) {
     if (!url.searchParams.get("sslaccept")) {
       url.searchParams.set("sslaccept", "accept_invalid_certs");
     }
+    if (!url.searchParams.get("uselibpqcompat")) {
+      url.searchParams.set("uselibpqcompat", "true");
+    }
     return url.toString();
   } catch {
     return databaseUrl;
