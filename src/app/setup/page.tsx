@@ -2,12 +2,13 @@ export const dynamic = "force-dynamic";
 
 import { redirect } from "next/navigation";
 import { getSetupStatus } from "@/lib/setupStatus";
-import SetupWizard from "./SetupWizard";
+import { getSetupRedirect } from "@/lib/setupRoutes";
 
 export default async function SetupPage() {
   const status = await getSetupStatus({ allowAutoDbFix: true, allowAutoSslFix: true });
   if (status === "ready") {
     redirect("/");
   }
-  return <SetupWizard initialStatus={status} />;
+  const target = getSetupRedirect(status) ?? "/setup/step-1";
+  redirect(target);
 }

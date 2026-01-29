@@ -21,7 +21,9 @@ export function buildDatabaseUrl(input: DbParts): Result {
   const encodedUser = encodeURIComponent(user);
   const encodedPassword = encodeURIComponent(password);
   const baseUrl = `postgresql://${encodedUser}:${encodedPassword}@${host}:${port}/${database}`;
-  const sslSuffix = input.ssl ? "?sslmode=require&sslaccept=accept_invalid_certs" : "";
+  const sslSuffix = input.ssl
+    ? "?sslmode=require&sslaccept=accept_invalid_certs&uselibpqcompat=true"
+    : "";
   return {
     ok: true,
     value: `${baseUrl}${sslSuffix}`,

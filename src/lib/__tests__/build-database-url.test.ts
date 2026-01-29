@@ -29,7 +29,7 @@ describe("buildDatabaseUrl", () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.value).toBe(
-        "postgresql://desk:pa%20ss@db:5432/desktop?sslmode=require&sslaccept=accept_invalid_certs"
+        "postgresql://desk:pa%20ss@db:5432/desktop?sslmode=require&sslaccept=accept_invalid_certs&uselibpqcompat=true"
       );
     }
   });

@@ -280,6 +280,17 @@ textarea {
   color: var(--text-muted);
 }
 
+.setup-field-inline {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.setup-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
 .setup-actions {
   display: flex;
   gap: 10px;

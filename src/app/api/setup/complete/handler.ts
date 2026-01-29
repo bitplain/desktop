@@ -30,6 +30,13 @@ export async function handleSetupComplete(
   });
   const rawDatabaseUrl = String(body?.databaseUrl ?? "");
   const dbSsl = Boolean(body?.dbSsl);
+  const hasDbFields =
+    body?.dbHost ||
+    body?.dbPort ||
+    body?.dbUser ||
+    body?.dbPassword ||
+    body?.dbName ||
+    body?.databaseUrl;
   const builtDatabaseUrl = buildDatabaseUrl({
     host: String(body?.dbHost ?? ""),
     port: String(body?.dbPort ?? ""),
@@ -38,12 +45,13 @@ export async function handleSetupComplete(
     database: String(body?.dbName ?? ""),
     ssl: dbSsl,
   });
-  const databaseUrl = rawDatabaseUrl || (builtDatabaseUrl.ok ? builtDatabaseUrl.value : "");
+  const databaseUrl =
+    rawDatabaseUrl || (hasDbFields && builtDatabaseUrl.ok ? builtDatabaseUrl.value : "");
   const status = await deps.getSetupStatus({ allowAutoDbFix: true, allowAutoSslFix: true });
   const allowDatabaseUrlOverride = status === "dbUnavailable";
   const result = await deps.completeSetup(
     {
-      databaseUrl,
+      databaseUrl: databaseUrl || undefined,
       email: String(body?.email ?? ""),
       password: String(body?.password ?? ""),
       allowDatabaseUrlOverride,
