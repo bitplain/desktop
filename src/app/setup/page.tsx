@@ -5,7 +5,7 @@ import { getSetupStatus } from "@/lib/setupStatus";
 import SetupWizard from "./SetupWizard";
 
 export default async function SetupPage() {
-  const status = await getSetupStatus();
+  const status = await getSetupStatus({ allowAutoSslFix: true });
   if (status === "ready") {
     redirect("/");
   }
