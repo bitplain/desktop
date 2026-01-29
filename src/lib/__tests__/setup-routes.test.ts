@@ -6,8 +6,8 @@ describe("setup redirects", () => {
     expect(getSetupRedirect("needsSetup")).toBe("/setup/step-1");
   });
 
-  it("routes needsAdmin to /setup/step-1", () => {
-    expect(getSetupRedirect("needsAdmin")).toBe("/setup/step-1");
+  it("routes needsAdmin to /setup/step-4", () => {
+    expect(getSetupRedirect("needsAdmin")).toBe("/setup/step-4");
   });
 
   it("routes dbUnavailable to /setup/step-1", () => {

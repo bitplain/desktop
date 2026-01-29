@@ -1,5 +1,7 @@
 "use client";
 
+export const dynamic = "force-dynamic";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { EcoButton, EcoForm, EcoInput, EcoNotice } from "@/components/ui/eco";

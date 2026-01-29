@@ -63,7 +63,7 @@ describe("setup complete handler", () => {
 
     expect(response.status).toBe(200);
     expect(received?.databaseUrl).toBe(
-      "postgresql://desktop:desktop@db:5432/customdb?sslmode=require&sslaccept=accept_invalid_certs"
+      "postgresql://desktop:desktop@db:5432/customdb?sslmode=require&sslaccept=accept_invalid_certs&uselibpqcompat=true"
     );
   });
 
