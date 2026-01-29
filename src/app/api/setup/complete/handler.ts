@@ -65,7 +65,7 @@ export async function handleSetupComplete(
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
   if (result.status === "alreadySetup") {
-    return NextResponse.json({ error: "Setup already completed" }, { status: 409 });
+    return NextResponse.json({ ok: true, alreadySetup: true });
   }
   if (result.status === "dbError") {
     return NextResponse.json({ error: result.error }, { status: 503 });
