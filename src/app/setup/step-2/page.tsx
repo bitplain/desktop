@@ -71,7 +71,12 @@ export default function SetupStepTwoPage() {
         </label>
         <label className="setup-field setup-field-inline">
           <span>SSL (самоподписанный)</span>
-          <input type="checkbox" checked={ssl} onChange={(event) => setSsl(event.target.checked)} />
+          <input
+            className="setup-checkbox"
+            type="checkbox"
+            checked={ssl}
+            onChange={(event) => setSsl(event.target.checked)}
+          />
         </label>
         <div className="setup-note">
           Включайте, если Postgres использует самоподписанный сертификат.

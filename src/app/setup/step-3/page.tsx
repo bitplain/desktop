@@ -122,7 +122,12 @@ export default function SetupStepThreePage() {
         </label>
         <label className="setup-field setup-field-inline">
           <span>SSL (самоподписанный)</span>
-          <input type="checkbox" checked={dbSsl} onChange={(event) => setDbSsl(event.target.checked)} />
+          <input
+            className="setup-checkbox"
+            type="checkbox"
+            checked={dbSsl}
+            onChange={(event) => setDbSsl(event.target.checked)}
+          />
         </label>
         <div className="setup-note">
           Если сервер Postgres использует SSL с самоподписанным сертификатом, включите
