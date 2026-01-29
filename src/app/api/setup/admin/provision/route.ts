@@ -53,9 +53,11 @@ export async function POST(request: Request) {
     );
   }
 
+  const nextAuthUrl = request.headers.get("origin") || undefined;
   const config = {
     databaseUrl: dbUrlResult.value,
     databaseSsl: app.ssl,
+    nextAuthUrl,
     nextAuthSecret: randomBytes(32).toString("hex"),
     keysEncryptionSecret: randomBytes(32).toString("hex"),
   };
