@@ -157,6 +157,10 @@ export function SetupWizardLayout({
                       onChange={(event) => onChangeDbSsl(event.target.checked)}
                     />
                   </label>
+                  <div className="setup-note">
+                    Включайте, если у Postgres самоподписанный сертификат (ошибка
+                    self-signed).
+                  </div>
                 </div>
               ) : (
                 <>
