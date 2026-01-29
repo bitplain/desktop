@@ -24,6 +24,10 @@ function escapeIdentifier(value: string) {
   return `"${value.replace(/"/g, '""')}"`;
 }
 
+function escapeLiteral(value: string) {
+  return `'${value.replace(/\\/g, "\\\\").replace(/'/g, "''")}'`;
+}
+
 function parseDatabaseUrl(databaseUrl: string) {
   const url = new URL(databaseUrl);
   const database = url.pathname.replace("/", "").trim();
@@ -62,17 +66,18 @@ async function runProvisionQueries(
   appUser: string,
   appPassword: string
 ) {
+  const passwordLiteral = escapeLiteral(appPassword);
   const roleResult = await client.query("SELECT 1 FROM pg_roles WHERE rolname = $1", [
     appUser,
   ]);
   if (roleResult.rows.length === 0) {
-    await client.query(`CREATE ROLE ${escapeIdentifier(appUser)} LOGIN PASSWORD $1`, [
-      appPassword,
-    ]);
+    await client.query(
+      `CREATE ROLE ${escapeIdentifier(appUser)} LOGIN PASSWORD ${passwordLiteral}`
+    );
   } else {
-    await client.query(`ALTER ROLE ${escapeIdentifier(appUser)} WITH LOGIN PASSWORD $1`, [
-      appPassword,
-    ]);
+    await client.query(
+      `ALTER ROLE ${escapeIdentifier(appUser)} WITH LOGIN PASSWORD ${passwordLiteral}`
+    );
   }
 
   const dbResult = await client.query("SELECT 1 FROM pg_database WHERE datname = $1", [

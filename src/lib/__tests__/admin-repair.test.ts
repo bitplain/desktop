@@ -40,6 +40,7 @@ describe("repairDatabaseAccess", () => {
 
     const adminQueries = instances[0].queries.join("\n");
     expect(adminQueries).toContain("CREATE ROLE");
+    expect(adminQueries).toContain("PASSWORD 'pass'");
     expect(adminQueries).toContain("CREATE DATABASE");
     expect(adminQueries).toContain("GRANT ALL PRIVILEGES ON DATABASE");
 
@@ -72,6 +73,7 @@ describe("provisionDatabaseWithAdmin", () => {
 
     const adminQueries = instances[0].queries.join("\n");
     expect(adminQueries).toContain("CREATE ROLE");
+    expect(adminQueries).toContain("PASSWORD 'pass'");
     expect(adminQueries).toContain("CREATE DATABASE");
     expect(adminQueries).toContain("GRANT ALL PRIVILEGES ON DATABASE");
   });
