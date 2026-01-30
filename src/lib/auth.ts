@@ -1,17 +1,42 @@
 import type { NextAuthOptions } from "next-auth";
+import type { NextRequest } from "next/server";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { getPrisma } from "./db";
 import { loadRuntimeConfig } from "./runtimeConfig";
 
-export function getAuthOptions(): NextAuthOptions {
-  loadRuntimeConfig();
+type RequestLike = Pick<NextRequest, "headers"> & { nextUrl?: URL };
 
-  const nextAuthUrl = process.env.NEXTAUTH_URL?.trim() ?? "";
+function resolveNextAuthUrl(request?: RequestLike) {
+  const envUrl = process.env.NEXTAUTH_URL?.trim();
+  if (envUrl) {
+    return envUrl;
+  }
+  if (request) {
+    const proto =
+      request.headers.get("x-forwarded-proto") ??
+      request.headers.get("x-forwarded-protocol") ??
+      request.nextUrl?.protocol?.replace(":", "") ??
+      "http";
+    const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+    if (host) {
+      return `${proto}://${host}`;
+    }
+  }
+  return "";
+}
+
+export function getAuthOptions(request?: RequestLike): NextAuthOptions {
+  loadRuntimeConfig();
+  const nextAuthUrl = resolveNextAuthUrl(request);
+  if (nextAuthUrl && !process.env.NEXTAUTH_URL) {
+    process.env.NEXTAUTH_URL = nextAuthUrl;
+  }
   const useSecureCookies = nextAuthUrl.startsWith("https://");
 
   return {
     useSecureCookies,
+    trustHost: true,
     providers: [
       CredentialsProvider({
         name: "Credentials",
