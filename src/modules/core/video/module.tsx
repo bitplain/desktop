@@ -14,6 +14,7 @@ const manifest: ModuleManifest = {
   window: {
     hideChrome: true,
     dragHandleSelector: ".xp-window .titlebar",
+    defaultSize: { width: 520, height: 920 },
   },
   Window: VideoWindow,
 };
