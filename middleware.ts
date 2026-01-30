@@ -2,6 +2,15 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
+function resolveRequestProto(request: NextRequest) {
+  return (
+    request.headers.get("x-forwarded-proto") ??
+    request.headers.get("x-forwarded-protocol") ??
+    request.nextUrl?.protocol?.replace(":", "") ??
+    "http"
+  );
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   if (pathname.startsWith("/api")) {
@@ -21,7 +30,8 @@ export async function middleware(request: NextRequest) {
   if (!secret) {
     return NextResponse.next();
   }
-  const token = await getToken({ req: request, secret });
+  const proto = resolveRequestProto(request);
+  const token = await getToken({ req: request, secret, secureCookie: proto === "https" });
   const isAuthRoute =
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
