@@ -8,6 +8,7 @@ import { EcoButton, EcoCard, EcoForm, EcoInput, EcoNotice } from "@/components/u
 import { postJson } from "@/lib/http";
 import { getSetupRedirect } from "@/lib/setupRoutes";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import { ICON_PATHS } from "@/lib/iconMap";
 
 export default function RegisterPage() {
   const { playSound } = useSettings();
@@ -73,8 +74,8 @@ export default function RegisterPage() {
         <aside className="auth-hero">
           <div className="auth-brand">
             <span
-              className="auth-brand-icon"
-              style={{ backgroundImage: "url(/icons/xp/window.png)" }}
+              className="login-brand-icon"
+              style={{ backgroundImage: `url(${ICON_PATHS.brandDesktop})` }}
               aria-hidden
             />
             <div>

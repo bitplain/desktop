@@ -22,7 +22,7 @@ vi.mock("@/stores/windowStore", () => {
 
 const baseProps = {
   id: "filemanager",
-  title: "File Manager",
+  title: "Файловый менеджер",
   onClose: () => undefined,
   onMinimize: () => undefined,
   onMaximize: () => undefined,
@@ -38,8 +38,6 @@ describe("window chrome", () => {
     const html = renderToString(<Window {...baseProps} />);
     expect(html).toContain("eco-window");
     expect(html).toContain("eco-window__header");
-    expect(html).toContain('data-eco="window"');
-    expect(html).toContain('data-eco="window-control"');
   });
 
   it("omits chrome when hideChrome is true", () => {

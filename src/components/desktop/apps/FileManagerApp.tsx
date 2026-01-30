@@ -101,7 +101,7 @@ export default function FileManagerApp({
     view === VIEW_FAVORITES ? "Избранное" : listPath || "Корень";
 
   const titleLabel =
-    view === VIEW_FAVORITES ? "Избранное" : listPath ? listPath : "File Manager";
+    view === VIEW_FAVORITES ? "Избранное" : listPath ? listPath : "Файловый менеджер";
 
   const loadFavorites = async () => {
     const res = await fetch("/api/filemanager/favorites");

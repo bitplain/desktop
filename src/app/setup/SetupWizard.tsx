@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { EcoButton, EcoCard, EcoForm, EcoInput, EcoNotice } from "@/components/ui/eco";
 import { postJson } from "@/lib/http";
 import type { SetupStatus } from "@/lib/setupStatus";
+import { ICON_PATHS } from "@/lib/iconMap";
 
 type WizardProps = {
   initialStatus: Exclude<SetupStatus, "ready">;
@@ -79,8 +80,8 @@ export function SetupWizardLayout({
         <div className="auth-hero">
           <div className="auth-brand">
             <span
-              className="auth-brand-icon"
-              style={{ backgroundImage: "url(/icons/xp/window.png)" }}
+              className="login-brand-icon"
+              style={{ backgroundImage: `url(${ICON_PATHS.brandDesktop})` }}
               aria-hidden
             />
             <div>

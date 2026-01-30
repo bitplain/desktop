@@ -9,6 +9,7 @@ import { EcoButton, EcoCard, EcoForm, EcoInput, EcoNotice } from "@/components/u
 import { handleLoginSuccessFlow } from "@/lib/authFlow";
 import { getSetupRedirect } from "@/lib/setupRoutes";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import { ICON_PATHS } from "@/lib/iconMap";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -73,8 +74,8 @@ export default function LoginPage() {
         <aside className="auth-hero">
           <div className="auth-brand">
             <span
-              className="auth-brand-icon"
-              style={{ backgroundImage: "url(/icons/xp/window.png)" }}
+              className="login-brand-icon"
+              style={{ backgroundImage: `url(${ICON_PATHS.brandDesktop})` }}
               aria-hidden
             />
             <div>
@@ -82,10 +83,14 @@ export default function LoginPage() {
               <div className="auth-brand-subtitle">XP-workspace для модульных приложений</div>
             </div>
           </div>
-          <div className="auth-greeting">
-            <div className="auth-avatar" aria-hidden />
-            <div className="auth-greeting-title">Добро пожаловать</div>
-            <div className="auth-greeting-subtitle">
+          <div className="login-greeting">
+            <div
+              className="login-avatar"
+              style={{ backgroundImage: `url(${ICON_PATHS.loginWelcome})` }}
+              aria-hidden
+            />
+            <div className="login-greeting-title">Добро пожаловать</div>
+            <div className="login-greeting-subtitle">
               Войдите, чтобы открыть рабочий стол.
             </div>
           </div>
