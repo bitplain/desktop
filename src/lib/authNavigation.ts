@@ -22,3 +22,14 @@ export function getLogoutRedirect(
     return fallback;
   }
 }
+
+export function getAuthCallbackUrl(currentUrl?: string) {
+  if (!currentUrl) {
+    return undefined;
+  }
+  try {
+    return new URL(currentUrl).origin;
+  } catch {
+    return undefined;
+  }
+}
