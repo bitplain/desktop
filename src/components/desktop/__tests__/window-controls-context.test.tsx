@@ -23,7 +23,7 @@ vi.mock("@/stores/windowStore", () => {
 
 const baseProps = {
   id: "filemanager",
-  title: "File Manager",
+  title: "Файловый менеджер",
   onClose: () => undefined,
   onMinimize: () => undefined,
   onMaximize: () => undefined,

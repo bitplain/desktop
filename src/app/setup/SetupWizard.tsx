@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { postJson } from "@/lib/http";
 import type { SetupStatus } from "@/lib/setupStatus";
+import { ICON_PATHS } from "@/lib/iconMap";
 
 type WizardProps = {
   initialStatus: Exclude<SetupStatus, "ready">;
@@ -65,7 +66,7 @@ export function SetupWizardLayout({
           <div className="login-brand">
             <span
               className="login-brand-icon"
-              style={{ backgroundImage: "url(/icons/xp/window.png)" }}
+              style={{ backgroundImage: `url(${ICON_PATHS.brandDesktop})` }}
               aria-hidden
             />
             <div>

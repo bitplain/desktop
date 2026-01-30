@@ -1,18 +1,19 @@
 import type { ModuleManifest } from "@/modules/types";
 import SystemApp from "@/components/desktop/apps/SystemApp";
+import { ICON_PATHS } from "@/lib/iconMap";
 
 const SystemWindow: ModuleManifest["Window"] = () => (
   <SystemApp
-    title="System"
+    title="Настройки"
     message="Настройки рабочего стола, звуки и сеть управляются локально."
   />
 );
 
 const manifest: ModuleManifest = {
   id: "system",
-  title: "System",
+  title: "Настройки",
   subtitle: "Настройки рабочего стола",
-  icon: "/icons/xp/monitor.png",
+  icon: ICON_PATHS.system,
   desktopIcon: true,
   startMenu: true,
   window: {

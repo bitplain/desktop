@@ -18,6 +18,8 @@
   --button-border: #6b8fd3;
   --button-shadow: rgba(18, 40, 86, 0.25);
   --accent: #f7b84a;
+  --icon-size: 48px;
+  --icon-radius: 10px;
   --cursor-default: url("/cursors/xp-arrow.cur") 2 2,
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M4 3 L4 27 L10 21 L14 30 L18 28 L14 19 L24 19 Z' fill='white' stroke='black' stroke-width='2'/%3E%3C/svg%3E") 1 1,
     default;
@@ -146,10 +148,10 @@ textarea {
 }
 
 .login-brand-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  background-size: cover;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  border-radius: var(--icon-radius);
+  background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4);
@@ -172,10 +174,14 @@ textarea {
 }
 
 .login-avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.2) url("/icons/xp/user.svg") center/40px no-repeat;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  border-radius: var(--icon-radius);
+  background-color: rgba(255, 255, 255, 0.2);
+  background-image: url("/icons/xp/user.svg");
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
   border: 1px solid rgba(255, 255, 255, 0.4);
   box-shadow: inset 0 0 0 1px rgba(11, 24, 54, 0.2);
 }
@@ -323,13 +329,13 @@ textarea {
 }
 
 .desktop-icon-glyph {
-  width: 40px;
-  height: 40px;
-  border-radius: 9px;
+  width: var(--icon-size);
+  height: var(--icon-size);
+  border-radius: var(--icon-radius);
   border: 1px solid rgba(255, 255, 255, 0.4);
   box-shadow: 0 6px 14px rgba(10, 14, 26, 0.3);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(207, 220, 255, 0.8));
-  background-size: cover;
+  background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
 }

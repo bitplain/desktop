@@ -1,5 +1,6 @@
 import type { ModuleManifest } from "@/modules/types";
 import FileManagerApp from "@/components/desktop/apps/FileManagerApp";
+import { ICON_PATHS } from "@/lib/iconMap";
 
 const FileManagerWindow: ModuleManifest["Window"] = ({ openWindow }) => (
   <FileManagerApp
@@ -10,9 +11,9 @@ const FileManagerWindow: ModuleManifest["Window"] = ({ openWindow }) => (
 
 const manifest: ModuleManifest = {
   id: "filemanager",
-  title: "File Manager",
+  title: "Файловый менеджер",
   subtitle: "Файлы пользователя",
-  icon: "/icons/xp/folder.png",
+  icon: ICON_PATHS.fileManager,
   desktopIcon: true,
   startMenu: true,
   window: {

@@ -7,6 +7,7 @@ import { useSettings } from "@/components/desktop/SettingsProvider";
 import { postJson } from "@/lib/http";
 import { getSetupRedirect } from "@/lib/setupRoutes";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import { ICON_PATHS } from "@/lib/iconMap";
 
 export default function RegisterPage() {
   const { playSound } = useSettings();
@@ -73,7 +74,7 @@ export default function RegisterPage() {
           <div className="login-brand">
             <span
               className="login-brand-icon"
-              style={{ backgroundImage: "url(/icons/xp/window.png)" }}
+              style={{ backgroundImage: `url(${ICON_PATHS.brandDesktop})` }}
               aria-hidden
             />
             <div>

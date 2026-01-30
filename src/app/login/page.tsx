@@ -8,6 +8,7 @@ import { useSettings } from "@/components/desktop/SettingsProvider";
 import { handleLoginSuccessFlow } from "@/lib/authFlow";
 import { getSetupRedirect } from "@/lib/setupRoutes";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
+import { ICON_PATHS } from "@/lib/iconMap";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -73,7 +74,7 @@ export default function LoginPage() {
           <div className="login-brand">
             <span
               className="login-brand-icon"
-              style={{ backgroundImage: "url(/icons/xp/window.png)" }}
+              style={{ backgroundImage: `url(${ICON_PATHS.brandDesktop})` }}
               aria-hidden
             />
             <div>
@@ -82,7 +83,11 @@ export default function LoginPage() {
             </div>
           </div>
           <div className="login-greeting">
-            <div className="login-avatar" aria-hidden />
+            <div
+              className="login-avatar"
+              style={{ backgroundImage: `url(${ICON_PATHS.loginWelcome})` }}
+              aria-hidden
+            />
             <div className="login-greeting-title">Добро пожаловать</div>
             <div className="login-greeting-subtitle">
               Войдите, чтобы открыть рабочий стол.
