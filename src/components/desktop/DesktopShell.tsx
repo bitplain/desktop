@@ -20,6 +20,7 @@ type WindowConfig = {
   icon?: string;
   Window: ModuleManifest["Window"];
   defaultOpen?: boolean;
+  defaultSize?: { width: number; height: number };
   canClose?: boolean;
   window?: ModuleManifest["window"];
 };
@@ -50,13 +51,19 @@ export default function DesktopShell({
       icon: module.icon,
       Window: module.Window,
       defaultOpen: module.defaultOpen ?? false,
+      defaultSize: module.window?.defaultSize,
       canClose: true,
       window: module.window,
     }));
   }, [modules, userEmail]);
 
   const storeConfigs = useMemo(
-    () => windowConfigs.map(({ id, defaultOpen }) => ({ id, defaultOpen })),
+    () =>
+      windowConfigs.map(({ id, defaultOpen, defaultSize }) => ({
+        id,
+        defaultOpen,
+        defaultSize,
+      })),
     [windowConfigs]
   );
 

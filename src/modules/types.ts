@@ -11,6 +11,7 @@ export type ModuleManifest = {
   window?: {
     hideChrome?: boolean;
     dragHandleSelector?: string;
+    defaultSize?: { width: number; height: number };
   };
   Window: ComponentType<{
     userEmail?: string | null;
