@@ -1,4 +1,5 @@
 import { XpWindow } from "@/components/desktop/apps/shared/XpWindow";
+import { EcoPanel } from "@/components/ui/eco";
 
 export default function SystemApp({
   title,
@@ -10,8 +11,10 @@ export default function SystemApp({
   return (
     <XpWindow title={title}>
       <div className="stack">
-        <div className="panel-title">{title}</div>
-        <p className="muted">{message}</p>
+        <EcoPanel>
+          <div className="panel-title">{title}</div>
+          <p className="muted">{message}</p>
+        </EcoPanel>
       </div>
     </XpWindow>
   );

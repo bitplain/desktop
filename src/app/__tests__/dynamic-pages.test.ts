@@ -14,5 +14,9 @@ describe("dynamic pages", () => {
     expectDynamic("src/app/page.tsx");
     expectDynamic("src/app/setup/page.tsx");
     expectDynamic("src/app/setup/admin/page.tsx");
+    expectDynamic("src/app/setup/step-1/page.tsx");
+    expectDynamic("src/app/setup/step-2/page.tsx");
+    expectDynamic("src/app/setup/step-3/page.tsx");
+    expectDynamic("src/app/setup/step-4/page.tsx");
   });
 });

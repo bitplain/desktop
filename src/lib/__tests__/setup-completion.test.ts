@@ -6,6 +6,7 @@ const baseDeps = (): SetupCompletionDeps => ({
   writeConfig: vi.fn().mockResolvedValue(undefined),
   applyConfig: vi.fn(),
   ensureDatabaseExists: vi.fn().mockResolvedValue(undefined),
+  repairDatabaseAccess: vi.fn().mockResolvedValue(undefined),
   runMigrations: vi.fn().mockResolvedValue(undefined),
   getUserCount: vi.fn().mockResolvedValue(0),
   createAdmin: vi.fn().mockResolvedValue(undefined),
@@ -29,42 +30,161 @@ describe("setup completion", () => {
   it("writes config and creates admin when fresh", async () => {
     const deps = baseDeps();
     const result = await completeSetup(
-      { databaseUrl: "postgres://db", email: "admin@test.dev", password: "Password1!" },
+      {
+        databaseUrl: "postgres://db",
+        databaseSsl: true,
+        email: "admin@test.dev",
+        password: "Password1!",
+      },
       deps
     );
     expect(result.status).toBe("ok");
-    expect(deps.writeConfig).toHaveBeenCalledOnce();
+    expect(deps.writeConfig).toHaveBeenCalledWith(
+      expect.objectContaining({ databaseSsl: true })
+    );
     expect(deps.applyConfig).toHaveBeenCalledOnce();
-    expect(deps.ensureDatabaseExists).toHaveBeenCalledOnce();
     expect(deps.runMigrations).toHaveBeenCalledOnce();
     expect(deps.createAdmin).toHaveBeenCalledOnce();
+  });
+
+  it("does not attempt to create databases automatically", async () => {
+    const deps = baseDeps();
+    const result = await completeSetup(
+      {
+        databaseUrl: "postgres://db",
+        databaseSsl: true,
+        email: "admin@test.dev",
+        password: "Password1!",
+      },
+      deps
+    );
+    expect(result.status).toBe("ok");
+    expect(deps.ensureDatabaseExists).not.toHaveBeenCalled();
   });
 
   it("skips config write when config exists", async () => {
     const deps = baseDeps();
     deps.loadConfig = () => ({
       databaseUrl: "postgres://existing",
+      databaseSsl: false,
       nextAuthSecret: "secret-aaaaaaaaaaaaaaa",
       keysEncryptionSecret: "secret-bbbbbbbbbbbbbbb",
     });
     const result = await completeSetup(
-      { databaseUrl: "postgres://ignored", email: "admin@test.dev", password: "Password1!" },
+      {
+        databaseUrl: "postgres://ignored",
+        databaseSsl: true,
+        email: "admin@test.dev",
+        password: "Password1!",
+      },
       deps
     );
     expect(result.status).toBe("ok");
     expect(deps.writeConfig).not.toHaveBeenCalled();
-    expect(deps.ensureDatabaseExists).toHaveBeenCalledOnce();
+  });
+
+  it("overrides database url when allowed", async () => {
+    const deps = baseDeps();
+    const writeConfig = vi.fn().mockResolvedValue(undefined);
+    const applyConfig = vi.fn();
+    deps.loadConfig = () => ({
+      databaseUrl: "postgres://existing",
+      databaseSsl: false,
+      nextAuthSecret: "secret-aaaaaaaaaaaaaaa",
+      keysEncryptionSecret: "secret-bbbbbbbbbbbbbbb",
+    });
+    deps.writeConfig = writeConfig;
+    deps.applyConfig = applyConfig;
+
+    const result = await completeSetup(
+      {
+        databaseUrl: "postgres://new",
+        databaseSsl: true,
+        email: "admin@test.dev",
+        password: "Password1!",
+        allowDatabaseUrlOverride: true,
+      },
+      deps
+    );
+
+    expect(result.status).toBe("ok");
+    expect(writeConfig).toHaveBeenCalledWith({
+      databaseUrl: "postgres://new",
+      databaseSsl: true,
+      nextAuthSecret: "secret-aaaaaaaaaaaaaaa",
+      keysEncryptionSecret: "secret-bbbbbbbbbbbbbbb",
+    });
+    expect(applyConfig).toHaveBeenCalledWith({
+      databaseUrl: "postgres://new",
+      databaseSsl: true,
+      nextAuthSecret: "secret-aaaaaaaaaaaaaaa",
+      keysEncryptionSecret: "secret-bbbbbbbbbbbbbbb",
+    });
+  });
+
+  it("rejects override when database url is invalid", async () => {
+    const deps = baseDeps();
+    deps.loadConfig = () => ({
+      databaseUrl: "postgres://existing",
+      databaseSsl: false,
+      nextAuthSecret: "secret-aaaaaaaaaaaaaaa",
+      keysEncryptionSecret: "secret-bbbbbbbbbbbbbbb",
+    });
+
+    const result = await completeSetup(
+      {
+        databaseUrl: "mysql://bad",
+        databaseSsl: true,
+        email: "admin@test.dev",
+        password: "Password1!",
+        allowDatabaseUrlOverride: true,
+      },
+      deps
+    );
+
+    expect(result.status).toBe("invalid");
   });
 
   it("returns alreadySetup when users exist", async () => {
     const deps = baseDeps();
     deps.getUserCount = vi.fn().mockResolvedValue(2);
     const result = await completeSetup(
-      { databaseUrl: "postgres://db", email: "admin@test.dev", password: "Password1!" },
+      {
+        databaseUrl: "postgres://db",
+        databaseSsl: true,
+        email: "admin@test.dev",
+        password: "Password1!",
+      },
       deps
     );
     expect(result.status).toBe("alreadySetup");
     expect(deps.createAdmin).not.toHaveBeenCalled();
-    expect(deps.ensureDatabaseExists).toHaveBeenCalledOnce();
+  });
+
+  it("repairs access and retries migrations when denied", async () => {
+    const deps = baseDeps();
+    const runMigrations = vi
+      .fn()
+      .mockRejectedValueOnce(new Error("P1010: User was denied access"))
+      .mockResolvedValueOnce(undefined);
+    deps.runMigrations = runMigrations;
+
+    const result = await completeSetup(
+      {
+        databaseUrl: "postgres://db",
+        databaseSsl: true,
+        email: "admin@test.dev",
+        password: "Password1!",
+        allowAutoDbFix: true,
+      },
+      deps
+    );
+
+    expect(result.status).toBe("ok");
+    expect(deps.repairDatabaseAccess).toHaveBeenCalledWith({
+      databaseUrl: "postgres://db",
+      databaseSsl: true,
+    });
+    expect(runMigrations).toHaveBeenCalledTimes(2);
   });
 });

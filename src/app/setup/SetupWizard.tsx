@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { EcoButton, EcoCard, EcoForm, EcoInput, EcoNotice } from "@/components/ui/eco";
 import { postJson } from "@/lib/http";
 import type { SetupStatus } from "@/lib/setupStatus";
 import { ICON_PATHS } from "@/lib/iconMap";
@@ -12,6 +13,12 @@ type WizardProps = {
 
 type WizardStep = "db" | "admin";
 
+export function getWizardInitialStep(
+  status: Exclude<SetupStatus, "ready">
+): WizardStep {
+  return status === "needsSetup" || status === "dbUnavailable" ? "db" : "admin";
+}
+
 type LayoutProps = {
   status: Exclude<SetupStatus, "ready">;
   step: WizardStep;
@@ -21,6 +28,8 @@ type LayoutProps = {
   dbPort: string;
   dbUser: string;
   dbPassword: string;
+  dbName: string;
+  dbSsl: boolean;
   loading: boolean;
   error: string | null;
   success: boolean;
@@ -30,6 +39,8 @@ type LayoutProps = {
   onChangeDbPort: (value: string) => void;
   onChangeDbUser: (value: string) => void;
   onChangeDbPassword: (value: string) => void;
+  onChangeDbName: (value: string) => void;
+  onChangeDbSsl: (value: boolean) => void;
   onSubmit: (event: React.FormEvent) => void;
   onNext: () => void;
   onBack: () => void;
@@ -45,6 +56,8 @@ export function SetupWizardLayout({
   dbPort,
   dbUser,
   dbPassword,
+  dbName,
+  dbSsl,
   loading,
   error,
   success,
@@ -54,24 +67,26 @@ export function SetupWizardLayout({
   onChangeDbPort,
   onChangeDbUser,
   onChangeDbPassword,
+  onChangeDbName,
+  onChangeDbSsl,
   onSubmit,
   onNext,
   onBack,
   onLogin,
 }: LayoutProps) {
   return (
-    <div className="login-screen">
-      <div className="login-panel setup-panel">
-        <div className="login-hero">
-          <div className="login-brand">
+    <div className="auth-shell">
+      <EcoCard className="auth-card setup-card">
+        <div className="auth-hero">
+          <div className="auth-brand">
             <span
               className="login-brand-icon"
               style={{ backgroundImage: `url(${ICON_PATHS.brandDesktop})` }}
               aria-hidden
             />
             <div>
-              <div className="login-brand-title">Desktop</div>
-              <div className="login-brand-subtitle">Первый запуск системы</div>
+              <div className="auth-brand-title">Desktop</div>
+              <div className="auth-brand-subtitle">Первый запуск системы</div>
             </div>
           </div>
           <div className="setup-steps">
@@ -79,16 +94,20 @@ export function SetupWizardLayout({
             <div className="setup-step">2. Администратор</div>
           </div>
         </div>
-        <div className="login-form">
+        <div className="auth-form">
           {!success ? (
-            <form className="stack" onSubmit={onSubmit}>
-              <div className="login-form-header">Setup wizard</div>
+            <EcoForm className="auth-form-body" onSubmit={onSubmit}>
+              <div className="auth-form-header">Setup wizard</div>
               {step === "db" ? (
                 <div className="setup-db">
+                  {status === "dbUnavailable" ? (
+                    <div className="setup-note">
+                      База недоступна. Проверьте параметры подключения.
+                    </div>
+                  ) : null}
                   <label className="setup-field">
                     <span>Host</span>
-                    <input
-                      className="xp-input"
+                    <EcoInput
                       value={dbHost}
                       onChange={(event) => onChangeDbHost(event.target.value)}
                       required
@@ -96,8 +115,7 @@ export function SetupWizardLayout({
                   </label>
                   <label className="setup-field">
                     <span>Port</span>
-                    <input
-                      className="xp-input"
+                    <EcoInput
                       value={dbPort}
                       onChange={(event) => onChangeDbPort(event.target.value)}
                       required
@@ -105,8 +123,7 @@ export function SetupWizardLayout({
                   </label>
                   <label className="setup-field">
                     <span>User</span>
-                    <input
-                      className="xp-input"
+                    <EcoInput
                       value={dbUser}
                       onChange={(event) => onChangeDbUser(event.target.value)}
                       required
@@ -114,24 +131,45 @@ export function SetupWizardLayout({
                   </label>
                   <label className="setup-field">
                     <span>Password</span>
-                    <input
-                      className="xp-input"
+                    <EcoInput
                       type="password"
                       value={dbPassword}
                       onChange={(event) => onChangeDbPassword(event.target.value)}
                       required
                     />
                   </label>
+                  <label className="setup-field">
+                    <span>Database</span>
+                    <input
+                      className="xp-input"
+                      value={dbName}
+                      onChange={(event) => onChangeDbName(event.target.value)}
+                      required
+                    />
+                  </label>
+                  <label className="setup-field setup-field-inline">
+                    <span>SSL (самоподписанный)</span>
+                    <input
+                      type="checkbox"
+                      checked={dbSsl}
+                      onChange={(event) => onChangeDbSsl(event.target.checked)}
+                    />
+                  </label>
+                  <div className="setup-note">
+                    Включайте, если у Postgres самоподписанный сертификат (ошибка
+                    self-signed).
+                  </div>
                 </div>
               ) : (
                 <>
                   {status === "needsAdmin" ? (
-                    <div className="setup-note">База уже настроена. Создайте администратора.</div>
+                    <EcoNotice className="setup-note">
+                      База уже настроена. Создайте администратора.
+                    </EcoNotice>
                   ) : null}
                   <label className="setup-field">
                     <span>Email администратора</span>
-                    <input
-                      className="xp-input"
+                    <EcoInput
                       type="email"
                       value={email}
                       onChange={(event) => onChangeEmail(event.target.value)}
@@ -140,8 +178,7 @@ export function SetupWizardLayout({
                   </label>
                   <label className="setup-field">
                     <span>Пароль администратора</span>
-                    <input
-                      className="xp-input"
+                    <EcoInput
                       type="password"
                       value={password}
                       onChange={(event) => onChangePassword(event.target.value)}
@@ -150,39 +187,39 @@ export function SetupWizardLayout({
                   </label>
                 </>
               )}
-              {error ? <div className="notice">{error}</div> : null}
+              {error ? <EcoNotice>{error}</EcoNotice> : null}
               <div className="setup-actions">
                 {step === "admin" && status === "needsSetup" ? (
-                  <button className="xp-button secondary" type="button" onClick={onBack}>
+                  <EcoButton variant="secondary" type="button" onClick={onBack}>
                     Назад
-                  </button>
+                  </EcoButton>
                 ) : null}
                 {step === "db" ? (
-                  <button className="xp-button" type="button" onClick={onNext}>
+                  <EcoButton type="button" onClick={onNext}>
                     Далее
-                  </button>
+                  </EcoButton>
                 ) : (
-                  <button className="xp-button" type="submit" disabled={loading}>
+                  <EcoButton type="submit" disabled={loading}>
                     {loading ? "Настраиваем..." : "Запустить настройку"}
-                  </button>
+                  </EcoButton>
                 )}
               </div>
-            </form>
+            </EcoForm>
           ) : (
             <div className="setup-success">
-              <div className="login-form-header">Готово</div>
+              <div className="auth-form-header">Готово</div>
               <div className="setup-success-list">
                 <div>Конфигурация сохранена</div>
                 <div>База данных подготовлена</div>
                 <div>Администратор создан</div>
               </div>
-              <button className="xp-button" onClick={onLogin}>
+              <EcoButton onClick={onLogin}>
                 Войти
-              </button>
+              </EcoButton>
             </div>
           )}
         </div>
-      </div>
+      </EcoCard>
     </div>
   );
 }
@@ -190,13 +227,13 @@ export function SetupWizardLayout({
 export default function SetupWizard({ initialStatus }: WizardProps) {
   const router = useRouter();
   const [status] = useState(initialStatus);
-  const [step, setStep] = useState<WizardStep>(
-    initialStatus === "needsSetup" ? "db" : "admin"
-  );
+  const [step, setStep] = useState<WizardStep>(getWizardInitialStep(initialStatus));
   const [dbHost, setDbHost] = useState("");
   const [dbPort, setDbPort] = useState("");
   const [dbUser, setDbUser] = useState("");
   const [dbPassword, setDbPassword] = useState("");
+  const [dbName, setDbName] = useState("");
+  const [dbSsl, setDbSsl] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -209,15 +246,23 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
       dbPort,
       dbUser,
       dbPassword,
+      dbName,
+      dbSsl,
       email,
       password,
     }),
-    [dbHost, dbPort, dbUser, dbPassword, email, password]
+    [dbHost, dbPort, dbUser, dbPassword, dbName, dbSsl, email, password]
   );
 
   const onNext = () => {
     setError(null);
-    if (!dbHost.trim() || !dbPort.trim() || !dbUser.trim() || !dbPassword.trim()) {
+    if (
+      !dbHost.trim() ||
+      !dbPort.trim() ||
+      !dbUser.trim() ||
+      !dbPassword.trim() ||
+      !dbName.trim()
+    ) {
       setError("Заполните все поля базы данных.");
       return;
     }
@@ -254,6 +299,8 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
       dbPort={dbPort}
       dbUser={dbUser}
       dbPassword={dbPassword}
+      dbName={dbName}
+      dbSsl={dbSsl}
       loading={loading}
       error={error}
       success={success}
@@ -263,6 +310,8 @@ export default function SetupWizard({ initialStatus }: WizardProps) {
       onChangeDbPort={setDbPort}
       onChangeDbUser={setDbUser}
       onChangeDbPassword={setDbPassword}
+      onChangeDbName={setDbName}
+      onChangeDbSsl={setDbSsl}
       onSubmit={onSubmit}
       onNext={onNext}
       onBack={onBack}

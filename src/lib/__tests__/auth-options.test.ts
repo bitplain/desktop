@@ -23,4 +23,18 @@ describe("auth options", () => {
     const authOptions = await loadAuthOptions();
     expect(authOptions.useSecureCookies).toBe(true);
   });
+
+  it("derives NEXTAUTH_URL from request origin when env missing", async () => {
+    vi.stubEnv("NEXTAUTH_URL", "");
+    const mod = await import("../auth");
+    const authOptions = mod.getAuthOptions({
+      headers: new Headers({
+        host: "10.10.1.236:3000",
+        "x-forwarded-proto": "http",
+      }),
+      nextUrl: new URL("http://10.10.1.236:3000/login"),
+    });
+    expect(authOptions.useSecureCookies).toBe(false);
+    expect(process.env.NEXTAUTH_URL).toBe("http://10.10.1.236:3000");
+  });
 });

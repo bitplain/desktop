@@ -9,6 +9,7 @@ const makeRequest = (body: unknown) =>
 
 const baseDeps = {
   createDefaultSetupDeps: () => ({}),
+  getSetupStatus: async () => "needsSetup" as const,
 };
 
 describe("setup complete handler", () => {
@@ -21,12 +22,13 @@ describe("setup complete handler", () => {
     expect((await response.json()).error).toBe("bad");
   });
 
-  it("maps alreadySetup to 409", async () => {
+  it("maps alreadySetup to 200", async () => {
     const response = await handleSetupComplete(makeRequest({}), {
       completeSetup: async () => ({ status: "alreadySetup" }),
       ...baseDeps,
     });
-    expect(response.status).toBe(409);
+    expect(response.status).toBe(200);
+    expect((await response.json()).alreadySetup).toBe(true);
   });
 
   it("maps ok to 200", async () => {
@@ -46,6 +48,8 @@ describe("setup complete handler", () => {
         dbPort: "5432",
         dbUser: "desktop",
         dbPassword: "desktop",
+        dbName: "customdb",
+        dbSsl: true,
         email: "admin@test.dev",
         password: "Password1!",
       }),
@@ -59,6 +63,23 @@ describe("setup complete handler", () => {
     );
 
     expect(response.status).toBe(200);
-    expect(received?.databaseUrl).toBe("postgresql://desktop:desktop@db:5432/desktop");
+    expect(received?.databaseUrl).toBe(
+      "postgresql://desktop:desktop@db:5432/customdb?sslmode=require&sslaccept=accept_invalid_certs&uselibpqcompat=true"
+    );
+  });
+
+  it("allows database override when db is unavailable", async () => {
+    let received: { allowDatabaseUrlOverride?: boolean } | null = null;
+    const response = await handleSetupComplete(makeRequest({}), {
+      completeSetup: async (input) => {
+        received = input;
+        return { status: "ok" };
+      },
+      createDefaultSetupDeps: () => ({}),
+      getSetupStatus: async () => "dbUnavailable",
+    });
+
+    expect(response.status).toBe(200);
+    expect(received?.allowDatabaseUrlOverride).toBe(true);
   });
 });

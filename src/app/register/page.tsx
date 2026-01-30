@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useSettings } from "@/components/desktop/SettingsProvider";
+import { EcoButton, EcoCard, EcoForm, EcoInput, EcoNotice } from "@/components/ui/eco";
 import { postJson } from "@/lib/http";
 import { getSetupRedirect } from "@/lib/setupRoutes";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
@@ -68,41 +69,39 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="login-screen">
-      <div className="login-panel">
-        <div className="login-hero">
-          <div className="login-brand">
+    <div className="auth-shell">
+      <EcoCard className="auth-card">
+        <aside className="auth-hero">
+          <div className="auth-brand">
             <span
               className="login-brand-icon"
               style={{ backgroundImage: `url(${ICON_PATHS.brandDesktop})` }}
               aria-hidden
             />
             <div>
-              <div className="login-brand-title">Desktop</div>
-              <div className="login-brand-subtitle">XP-workspace для модульных приложений</div>
+              <div className="auth-brand-title">Desktop</div>
+              <div className="auth-brand-subtitle">XP-workspace для модульных приложений</div>
             </div>
           </div>
-          <div className="login-greeting">
-            <div className="login-avatar" aria-hidden />
-            <div className="login-greeting-title">Создайте учетную запись</div>
-            <div className="login-greeting-subtitle">
+          <div className="auth-greeting">
+            <div className="auth-avatar" aria-hidden />
+            <div className="auth-greeting-title">Создайте учетную запись</div>
+            <div className="auth-greeting-subtitle">
               Заполните данные, чтобы открыть рабочий стол.
             </div>
           </div>
-        </div>
-        <div className="login-form">
-          <div className="login-form-header">Регистрация</div>
-          <form className="stack" onSubmit={onSubmit}>
-            <input
-              className="xp-input"
+        </aside>
+        <section className="auth-form">
+          <div className="auth-form-header">Регистрация</div>
+          <EcoForm className="auth-form-body" onSubmit={onSubmit}>
+            <EcoInput
               type="email"
               placeholder="Email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               required
             />
-            <input
-              className="xp-input"
+            <EcoInput
               type="password"
               placeholder="Пароль (мин. 10 символов)"
               value={password}
@@ -110,29 +109,28 @@ export default function RegisterPage() {
               minLength={10}
               required
             />
-            <input
-              className="xp-input"
+            <EcoInput
               type="text"
               placeholder="Invite code"
               value={inviteCode}
               onChange={(event) => setInviteCode(event.target.value)}
               required
             />
-            <div className="muted">
+            <div className="auth-hint">
               Пароль: 10+ символов, буквы в обоих регистрах, цифра и символ.
             </div>
-            {error ? <div className="notice">{error}</div> : null}
-            {message ? <div className="notice">{message}</div> : null}
-            {!online ? <div className="notice">Нет соединения.</div> : null}
-            <button className="xp-button" type="submit" disabled={loading || !online}>
+            {error ? <EcoNotice>{error}</EcoNotice> : null}
+            {message ? <EcoNotice>{message}</EcoNotice> : null}
+            {!online ? <EcoNotice>Нет соединения.</EcoNotice> : null}
+            <EcoButton type="submit" disabled={loading || !online}>
               {loading ? "Создаю..." : "Создать"}
-            </button>
-            <p className="muted">
+            </EcoButton>
+            <p className="auth-hint">
               Уже есть аккаунт? <Link href="/login">Войти</Link>
             </p>
-          </form>
-        </div>
-      </div>
+          </EcoForm>
+        </section>
+      </EcoCard>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { handleLogoutFlow } from "@/lib/authFlow";
@@ -8,47 +8,68 @@ import { useSettings } from "./SettingsProvider";
 
 export type StartMenuItem = {
   id: string;
-  label: string;
-  description?: string;
+  title: string;
   icon?: string;
-  action: { type: "window"; target: string } | { type: "route"; target: string };
+  href?: string;
+  section: "left" | "right";
+  hasSubmenu?: boolean;
+  disabled?: boolean;
+  action?: { type: "window"; target: string } | { type: "route"; target: string };
 };
 
 export default function StartMenu({
   open,
-  leftItems,
-  rightItems,
-  programItems,
-  onCascade,
-  onTile,
+  items,
   onClose,
   onOpenWindow,
+  onPower,
   userEmail,
 }: {
   open: boolean;
-  leftItems: StartMenuItem[];
-  rightItems: StartMenuItem[];
-  programItems: StartMenuItem[];
-  onCascade: () => void;
-  onTile: () => void;
+  items: StartMenuItem[];
   onClose: () => void;
   onOpenWindow: (id: string) => void;
+  onPower?: () => void;
   userEmail?: string | null;
 }) {
   const router = useRouter();
   const { playSound } = useSettings();
-  const [programsOpen, setProgramsOpen] = useState(false);
+  const firstItemRef = useRef<HTMLButtonElement | null>(null);
+
+  const leftItems = useMemo(
+    () => items.filter((item) => item.section === "left"),
+    [items]
+  );
+  const rightItems = useMemo(
+    () => items.filter((item) => item.section === "right"),
+    [items]
+  );
 
   if (!open) {
     return null;
   }
 
+  const firstItemId = leftItems[0]?.id ?? rightItems[0]?.id;
+
+  useEffect(() => {
+    firstItemRef.current?.focus();
+  }, []);
+
   const handleAction = (item: StartMenuItem) => {
+    if (item.disabled) {
+      return;
+    }
     playSound("click");
-    if (item.action.type === "route") {
+    if (item.action?.type === "route") {
       router.push(item.action.target);
-    } else {
+    } else if (item.action?.type === "window") {
       onOpenWindow(item.action.target);
+    } else if (item.href) {
+      if (item.href.startsWith("/")) {
+        router.push(item.href);
+      } else {
+        window.location.href = item.href;
+      }
     }
     onClose();
   };
@@ -63,144 +84,87 @@ export default function StartMenu({
   };
 
   return (
-    <div className="start-menu" onClick={(event) => event.stopPropagation()}>
+    <div
+      className="start-menu"
+      id="start-menu"
+      role="menu"
+      aria-label="Start menu"
+      onClick={(event) => event.stopPropagation()}
+    >
       <div className="start-menu-header">
-        <div className="start-menu-profile">
-          <div className="start-menu-avatar" aria-hidden />
-          <div>
-            <div className="start-menu-username">
-              {userEmail || "Гость"}
-            </div>
-            <div className="start-menu-brand">Desktop</div>
-          </div>
+        <div className="start-menu-avatar" aria-hidden />
+        <div className="start-menu-usertext">
+          <div className="start-menu-username">{userEmail || "User"}</div>
+          <div className="start-menu-subtitle">Eco Calm</div>
         </div>
       </div>
       <div className="start-menu-body">
-        <div className="start-menu-left">
+        <div className="start-menu-column start-menu-left">
+          <div className="start-menu-column-title">Pinned / Recent</div>
           {leftItems.map((item) => (
             <button
               key={item.id}
-              className="start-menu-item"
+              className={`start-menu-item ${item.disabled ? "is-disabled" : ""}`}
               type="button"
               onClick={() => handleAction(item)}
+              ref={item.id === firstItemId ? firstItemRef : null}
+              role="menuitem"
+              disabled={item.disabled}
+              aria-disabled={item.disabled}
             >
-              {item.icon ? (
-                <span
-                  className="start-menu-icon"
-                  style={{ backgroundImage: `url(${item.icon})` }}
-                  aria-hidden
-                />
-              ) : null}
-              <div className="start-menu-text">
-                <div className="start-menu-label">{item.label}</div>
-                {item.description ? (
-                  <div className="start-menu-desc">{item.description}</div>
-                ) : null}
-              </div>
+              <span
+                className="start-menu-icon"
+                style={item.icon ? { backgroundImage: `url(${item.icon})` } : undefined}
+                aria-hidden
+              />
+              <span className="start-menu-label">{item.title}</span>
             </button>
           ))}
-          <div className="start-menu-divider" />
-          <button
-            className="start-menu-item programs"
-            type="button"
-            onMouseEnter={() => setProgramsOpen(true)}
-            onClick={() => setProgramsOpen((prev) => !prev)}
-          >
-            <span className="start-menu-icon programs-icon" aria-hidden />
-            <div className="start-menu-text">
-              <div className="start-menu-label">Programs</div>
-            </div>
-            <span className="start-menu-arrow">▶</span>
-          </button>
-          <button
-            className="start-menu-item"
-            type="button"
-            onClick={() => {
-              playSound("click");
-              onCascade();
-              onClose();
-            }}
-          >
-            <span className="start-menu-icon utility-icon" aria-hidden />
-            <div className="start-menu-text">
-              <div className="start-menu-label">Cascade Windows</div>
-              <div className="start-menu-desc">Уложить окна каскадом</div>
-            </div>
-          </button>
-          <button
-            className="start-menu-item"
-            type="button"
-            onClick={() => {
-              playSound("click");
-              onTile();
-              onClose();
-            }}
-          >
-            <span className="start-menu-icon utility-icon" aria-hidden />
-            <div className="start-menu-text">
-              <div className="start-menu-label">Tile Windows</div>
-              <div className="start-menu-desc">Разложить плиткой</div>
-            </div>
-          </button>
         </div>
-        <div className="start-menu-right">
+        <div className="start-menu-column start-menu-right">
+          <div className="start-menu-column-title">Places</div>
           {rightItems.map((item) => (
             <button
               key={item.id}
-              className="start-menu-item"
+              className={`start-menu-item ${item.hasSubmenu ? "has-submenu" : ""} ${
+                item.disabled ? "is-disabled" : ""
+              }`}
               type="button"
               onClick={() => handleAction(item)}
+              ref={item.id === firstItemId ? firstItemRef : null}
+              role="menuitem"
+              disabled={item.disabled}
+              aria-disabled={item.disabled}
             >
-              {item.icon ? (
-                <span
-                  className="start-menu-icon"
-                  style={{ backgroundImage: `url(${item.icon})` }}
-                  aria-hidden
-                />
+              <span
+                className="start-menu-icon"
+                style={item.icon ? { backgroundImage: `url(${item.icon})` } : undefined}
+                aria-hidden
+              />
+              <span className="start-menu-label">{item.title}</span>
+              {item.hasSubmenu ? (
+                <span className="start-menu-arrow" aria-hidden>
+                  ›
+                </span>
               ) : null}
-              <div className="start-menu-text">
-                <div className="start-menu-label">{item.label}</div>
-                {item.description ? (
-                  <div className="start-menu-desc">{item.description}</div>
-                ) : null}
-              </div>
             </button>
           ))}
         </div>
       </div>
-      {programsOpen ? (
-        <div
-          className="start-menu-programs"
-          onMouseEnter={() => setProgramsOpen(true)}
-          onMouseLeave={() => setProgramsOpen(false)}
-        >
-          {programItems.map((item) => (
-            <button
-              key={item.id}
-              className="start-menu-item"
-              type="button"
-              onClick={() => handleAction(item)}
-            >
-              {item.icon ? (
-                <span
-                  className="start-menu-icon"
-                  style={{ backgroundImage: `url(${item.icon})` }}
-                  aria-hidden
-                />
-              ) : null}
-              <div className="start-menu-text">
-                <div className="start-menu-label">{item.label}</div>
-                {item.description ? (
-                  <div className="start-menu-desc">{item.description}</div>
-                ) : null}
-              </div>
-            </button>
-          ))}
-        </div>
-      ) : null}
       <div className="start-menu-footer">
         <button className="start-menu-action" type="button" onClick={handleLogout}>
-          Выход из системы
+          Log off
+        </button>
+        <button
+          className="start-menu-action is-accent"
+          type="button"
+          onClick={() => {
+            playSound("click");
+            onPower?.();
+            onClose();
+          }}
+        >
+          Power
         </button>
       </div>
     </div>
