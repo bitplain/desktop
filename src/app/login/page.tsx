@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useSettings } from "@/components/desktop/SettingsProvider";
 import { EcoButton, EcoCard, EcoForm, EcoInput, EcoNotice } from "@/components/ui/eco";
 import { handleLoginSuccessFlow } from "@/lib/authFlow";
+import { getAuthCallbackUrl } from "@/lib/authNavigation";
 import { getSetupRedirect } from "@/lib/setupRoutes";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { ICON_PATHS } from "@/lib/iconMap";
@@ -46,10 +47,14 @@ export default function LoginPage() {
     setError(null);
 
     try {
+      const callbackUrl = getAuthCallbackUrl(
+        typeof window !== "undefined" ? window.location.href : undefined
+      );
       const result = await signIn("credentials", {
         email,
         password,
         redirect: false,
+        callbackUrl,
       });
 
       if (result?.error) {
