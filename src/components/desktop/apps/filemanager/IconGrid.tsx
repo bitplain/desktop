@@ -1,3 +1,4 @@
+import { EcoFileGrid } from "@/components/ui/eco";
 import type { FileManagerView } from "./TaskPane";
 
 export type FileManagerEntry =
@@ -13,6 +14,7 @@ export type FileManagerEntry =
     };
 
 type IconGridProps = {
+  className?: string;
   view: FileManagerView;
   entries: FileManagerEntry[];
   favorites: Set<string>;
@@ -25,6 +27,7 @@ type IconGridProps = {
 };
 
 export function IconGrid({
+  className,
   view,
   entries,
   favorites,
@@ -35,12 +38,13 @@ export function IconGrid({
   onOpenFavorites,
   onOpenVideo,
 }: IconGridProps) {
+  const rootClassName = ["grid", className].filter(Boolean).join(" ");
   return (
-    <div className="grid">
+    <EcoFileGrid className={rootClassName}>
       <div
         role="button"
         tabIndex={0}
-        className={`item ${view === "favorites" ? "selected" : ""}`}
+        className={`item eco-file-item ${view === "favorites" ? "selected" : ""}`}
         onDoubleClick={onOpenFavorites}
         onKeyDown={(event) => {
           if (event.key === "Enter" || event.key === " ") {
@@ -57,7 +61,7 @@ export function IconGrid({
         <div
           role="button"
           tabIndex={0}
-          className="item"
+          className="item eco-file-item"
           onDoubleClick={onOpenVideo}
           onKeyDown={(event) => {
             if (event.key === "Enter" || event.key === " ") {
@@ -79,7 +83,7 @@ export function IconGrid({
             key={entry.path}
             role="button"
             tabIndex={0}
-            className={`item ${isSelected ? "selected" : ""}`}
+            className={`item eco-file-item ${isSelected ? "selected" : ""}`}
             onClick={() => onSelect(entry.path)}
             onDoubleClick={() => onOpen(entry)}
             onKeyDown={(event) => {
@@ -110,6 +114,6 @@ export function IconGrid({
           </div>
         );
       })}
-    </div>
+    </EcoFileGrid>
   );
 }

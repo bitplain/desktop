@@ -28,6 +28,17 @@ describe("window store", () => {
     expect(alpha.size).toEqual({ width: 760, height: 520 });
   });
 
+  it("uses custom default size when provided", () => {
+    const store = createWindowStore();
+    store.getState().setViewport({ width: 1400, height: 900 });
+    store.getState().initWindows([
+      { id: "video", defaultOpen: true, defaultSize: { width: 420, height: 860 } },
+    ]);
+
+    const video = store.getState().windowsById.video;
+    expect(video.size).toEqual({ width: 420, height: 860 });
+  });
+
   it("opens windows and brings them to front", () => {
     const store = createWindowStore();
     store.getState().setViewport({ width: 1400, height: 900 });

@@ -13,6 +13,12 @@ if (existsSync(configPath)) {
     if (config?.databaseUrl && !process.env.DATABASE_URL) {
       process.env.DATABASE_URL = String(config.databaseUrl);
     }
+    if (config?.databaseSsl !== undefined && !process.env.DATABASE_SSL) {
+      process.env.DATABASE_SSL = config.databaseSsl ? "true" : "false";
+    }
+    if (config?.nextAuthUrl && !process.env.NEXTAUTH_URL) {
+      process.env.NEXTAUTH_URL = String(config.nextAuthUrl);
+    }
     if (config?.nextAuthSecret && !process.env.NEXTAUTH_SECRET) {
       process.env.NEXTAUTH_SECRET = String(config.nextAuthSecret);
     }

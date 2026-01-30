@@ -26,32 +26,73 @@ type SettingsContextValue = SettingsState & {
 };
 
 const STORAGE_KEY = "desktop.settings";
+const THEME_KEY = "theme";
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
 
 const defaultSettings: SettingsState = {
-  theme: "light",
+  theme: "dark",
   soundEnabled: true,
 };
+
+function resolveStoredTheme(): ThemeMode {
+  if (typeof window === "undefined") {
+    return defaultSettings.theme;
+  }
+
+  const explicit = window.localStorage.getItem(THEME_KEY);
+  if (explicit === "light" || explicit === "dark") {
+    return explicit;
+  }
+
+  try {
+    const legacyRaw = window.localStorage.getItem(STORAGE_KEY);
+    if (legacyRaw) {
+      const legacy = JSON.parse(legacyRaw) as Partial<SettingsState>;
+      if (legacy.theme === "light" || legacy.theme === "dark") {
+        window.localStorage.setItem(THEME_KEY, legacy.theme);
+        return legacy.theme;
+      }
+    }
+  } catch {
+    // ignore legacy parse errors
+  }
+
+  if (window.matchMedia?.("(prefers-color-scheme: light)").matches) {
+    return "light";
+  }
+
+  return "dark";
+}
+
+function resolveStoredSound(): boolean {
+  if (typeof window === "undefined") {
+    return defaultSettings.soundEnabled;
+  }
+
+  try {
+    const legacyRaw = window.localStorage.getItem(STORAGE_KEY);
+    if (!legacyRaw) {
+      return defaultSettings.soundEnabled;
+    }
+    const legacy = JSON.parse(legacyRaw) as Partial<SettingsState>;
+    return typeof legacy.soundEnabled === "boolean"
+      ? legacy.soundEnabled
+      : defaultSettings.soundEnabled;
+  } catch {
+    return defaultSettings.soundEnabled;
+  }
+}
 
 function loadSettings(): SettingsState {
   if (typeof window === "undefined") {
     return defaultSettings;
   }
 
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      return defaultSettings;
-    }
-    const parsed = JSON.parse(raw) as Partial<SettingsState>;
-    return {
-      theme: parsed.theme === "dark" ? "dark" : "light",
-      soundEnabled: typeof parsed.soundEnabled === "boolean" ? parsed.soundEnabled : true,
-    };
-  } catch {
-    return defaultSettings;
-  }
+  return {
+    theme: resolveStoredTheme(),
+    soundEnabled: resolveStoredSound(),
+  };
 }
 
 export default function SettingsProvider({ children }: { children: React.ReactNode }) {
@@ -62,6 +103,7 @@ export default function SettingsProvider({ children }: { children: React.ReactNo
     if (typeof window === "undefined") {
       return;
     }
+    window.localStorage.setItem(THEME_KEY, settings.theme);
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
     document.documentElement.dataset.theme = settings.theme;
   }, [settings]);

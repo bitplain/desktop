@@ -18,6 +18,7 @@ type Size = { width: number; height: number };
 export type WindowConfig = {
   id: string;
   defaultOpen?: boolean;
+  defaultSize?: Size;
 };
 
 export type WindowState = {
@@ -85,7 +86,7 @@ const createInitialState = (configs: WindowConfig[]): WindowState[] => {
       x: 120 + index * OFFSET_X,
       y: 80 + index * OFFSET_Y,
     },
-    size: DEFAULT_SIZE,
+    size: config.defaultSize ?? DEFAULT_SIZE,
   }));
 };
 
@@ -621,4 +622,3 @@ export const createWindowStore = () =>
 
 export const selectOpenWindowIds = (state: WindowStoreState) =>
   state.order.filter((id) => state.windowsById[id]?.isOpen);
-

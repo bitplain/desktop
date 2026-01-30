@@ -3,6 +3,7 @@
 import type { ErrorInfo, ReactNode } from "react";
 import { Component } from "react";
 import { reportClientError } from "./ClientErrorReporter";
+import ClientErrorFallback from "./ClientErrorFallback";
 
 type Props = {
   children: ReactNode;
@@ -31,9 +32,8 @@ export default class ClientErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <main className="stack">
-          <h2>Application error: a client-side exception has occurred while loading.</h2>
-          <p>Check the browser console for more information.</p>
+        <main className="auth-shell">
+          <ClientErrorFallback />
         </main>
       );
     }

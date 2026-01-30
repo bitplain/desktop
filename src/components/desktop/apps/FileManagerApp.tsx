@@ -295,7 +295,7 @@ export default function FileManagerApp({
     <div className="xp-explorer" role="application" aria-label="Windows XP Explorer">
       <XpTitlebar title={titleLabel} />
 
-      <div className="menubar" aria-label="Menu bar">
+      <div className="menubar eco-menubar" aria-label="Menu bar">
         <div>Файл</div>
         <div>Правка</div>
         <div>Вид</div>
@@ -304,7 +304,7 @@ export default function FileManagerApp({
         <div>Справка</div>
       </div>
 
-      <div className="toolbar" aria-label="Toolbar">
+      <div className="toolbar eco-toolbar" aria-label="Toolbar">
         <div className="tool-btn">
           <div className="tool-icon" aria-hidden="true" />
           <div>Назад</div>
@@ -329,7 +329,7 @@ export default function FileManagerApp({
         </div>
       </div>
 
-      <div className="addressbar" aria-label="Address bar">
+      <div className="addressbar eco-addressbar" aria-label="Address bar">
         <div className="addr-label">Адрес:</div>
         <div className="addr-field">
           <div className="disk-icon" aria-hidden="true" />
@@ -340,7 +340,7 @@ export default function FileManagerApp({
         </button>
       </div>
 
-      <div className="content">
+      <div className="content eco-filemanager">
         <aside className="taskpane" aria-label="Task pane">
           <TaskPane
             view={view}
@@ -375,7 +375,7 @@ export default function FileManagerApp({
         </main>
       </div>
 
-      <div className="statusbar" aria-label="Status bar">
+      <div className="statusbar eco-statusbar" aria-label="Status bar">
         <div>Объектов: {statusCount}</div>
         <div>{selectedLabel ?? "—"}</div>
       </div>

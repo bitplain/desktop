@@ -1,4 +1,5 @@
 import type { NextAuthOptions } from "next-auth";
+import type { NextRequest } from "next/server";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 import { getPrisma } from "./db";

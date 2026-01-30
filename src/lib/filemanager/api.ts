@@ -1,15 +1,64 @@
 import { getPrisma } from "@/lib/db";
-import {
-  createFolder,
-  deleteFile,
-  deleteFolder,
-  ensureUserVideoRoot,
-  listEntries,
-} from "@/lib/filemanager/service";
+import { ensureUserVideoRoot } from "@/lib/filemanager/service";
 import { normalizeRelativePath } from "@/lib/filemanager/paths";
+import { decryptSecret } from "@/lib/storage/crypto";
+import { createLocalProvider } from "@/lib/storage/localProvider";
+import { createSmbProvider } from "@/lib/storage/smbProvider";
+import type { StorageProvider } from "@/lib/storage/types";
+import { buildRemotePath, normalizeStorageSubPath } from "@/lib/storage/paths";
 
 export function getDataDir() {
   return process.env.DATA_DIR?.trim() || "/data";
+}
+
+type StorageContext = {
+  provider: StorageProvider;
+  mapPath: (path: string) => string;
+  source: "local" | "smb";
+};
+
+export async function getStorageContext({
+  dataDir,
+  userId,
+}: {
+  dataDir: string;
+  userId: string;
+}): Promise<StorageContext> {
+  if (!process.env.DATABASE_URL?.trim()) {
+    return {
+      provider: createLocalProvider({ dataDir, userId }),
+      mapPath: (path) => path,
+      source: "local",
+    };
+  }
+  const prisma = getPrisma();
+  const connection = await prisma.storageConnection.findUnique({
+    where: { userId },
+  });
+  if (!connection) {
+    return {
+      provider: createLocalProvider({ dataDir, userId }),
+      mapPath: (path) => path,
+      source: "local",
+    };
+  }
+  const secret = process.env.KEYS_ENCRYPTION_SECRET?.trim();
+  if (!secret) {
+    throw new Error("KEYS_ENCRYPTION_SECRET is required");
+  }
+  const password = decryptSecret(connection.passwordEncrypted, secret);
+  const subPath = normalizeStorageSubPath(connection.subPath ?? "");
+  const provider = createSmbProvider({
+    host: connection.host,
+    share: connection.share,
+    username: connection.username,
+    password,
+  });
+  return {
+    provider,
+    mapPath: (path) => buildRemotePath(path, subPath),
+    source: "smb",
+  };
 }
 
 export async function listHandler({
@@ -21,7 +70,8 @@ export async function listHandler({
   userId: string;
   path: string;
 }) {
-  return listEntries(dataDir, userId, path);
+  const context = await getStorageContext({ dataDir, userId });
+  return context.provider.list(context.mapPath(path));
 }
 
 export async function createFolderHandler({
@@ -35,7 +85,9 @@ export async function createFolderHandler({
   parentPath: string;
   name: string;
 }) {
-  await createFolder(dataDir, userId, parentPath, name);
+  const context = await getStorageContext({ dataDir, userId });
+  const fullPath = [parentPath, name].filter(Boolean).join("/");
+  await context.provider.createFolder(context.mapPath(fullPath));
   return { ok: true };
 }
 
@@ -48,7 +100,8 @@ export async function deleteFolderHandler({
   userId: string;
   path: string;
 }) {
-  await deleteFolder(dataDir, userId, path);
+  const context = await getStorageContext({ dataDir, userId });
+  await context.provider.deleteFolder(context.mapPath(path));
   return { ok: true };
 }
 
@@ -61,7 +114,8 @@ export async function deleteFileHandler({
   userId: string;
   path: string;
 }) {
-  await deleteFile(dataDir, userId, path);
+  const context = await getStorageContext({ dataDir, userId });
+  await context.provider.deleteFile(context.mapPath(path));
   return { ok: true };
 }
 
@@ -71,7 +125,7 @@ export async function listFavoritesHandler({ userId }: { userId: string }) {
     where: { userId },
     orderBy: { createdAt: "desc" },
   });
-  return favorites.map((fav) => fav.relativePath);
+  return favorites.map((fav: { relativePath: string }) => fav.relativePath);
 }
 
 export async function addFavoriteHandler({
@@ -113,5 +167,13 @@ export async function removeFavoriteHandler({
 }
 
 export async function ensureVideoRoot({ dataDir, userId }: { dataDir: string; userId: string }) {
-  await ensureUserVideoRoot(dataDir, userId);
+  const context = await getStorageContext({ dataDir, userId });
+  if (context.source === "local") {
+    await ensureUserVideoRoot(dataDir, userId);
+    return;
+  }
+  const target = context.mapPath("video");
+  if (target) {
+    await context.provider.createFolder(target);
+  }
 }

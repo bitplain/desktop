@@ -3,5 +3,5 @@ export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 
 export default function SetupAdminPage() {
-  redirect("/setup");
+  redirect("/setup/step-1");
 }

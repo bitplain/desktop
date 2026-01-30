@@ -32,7 +32,7 @@ type DragState = {
 };
 
 type ResizeDirection = "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw";
-const TASKBAR_HEIGHT = 44;
+const TASKBAR_HEIGHT = 34;
 const FALLBACK_POSITION: Position = { x: 0, y: 0 };
 const FALLBACK_SIZE: Size = { width: 0, height: 0 };
 
@@ -286,9 +286,10 @@ export default function Window({
 
   return (
     <section
-      className={`window ${isMinimized ? "is-minimized" : ""} ${
+      className={`window eco-window ${isMinimized ? "is-minimized" : ""} ${
         isMaximized ? "is-maximized" : ""
       } ${hideChrome ? "window--chromeless" : ""}`}
+      data-eco="window"
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
         zIndex,
@@ -307,8 +308,8 @@ export default function Window({
       aria-hidden={isMinimized}
     >
       {hideChrome ? null : (
-        <div className="window-header">
-          <div className="window-titlebar">
+        <div className="window-header eco-window__header">
+          <div className="window-titlebar eco-window__titlebar">
             {icon ? (
               <span
                 className="window-icon"
@@ -321,22 +322,25 @@ export default function Window({
               {subtitle ? <div className="window-subtitle">{subtitle}</div> : null}
             </div>
           </div>
-          <div className="window-controls">
+          <div className="window-controls eco-window__controls">
             <button
               className="window-control minimize"
               type="button"
+              data-eco="window-control"
               aria-label="Minimize"
               onClick={controls.minimize}
             />
             <button
               className="window-control maximize"
               type="button"
+              data-eco="window-control"
               aria-label="Maximize"
               onClick={controls.maximize}
             />
             <button
               className="window-control close"
               type="button"
+              data-eco="window-control"
               aria-label="Close"
               onClick={controls.close}
             />

@@ -13,8 +13,11 @@ import { validateEmail, validatePassword } from "./validation";
 
 export type SetupCompletionInput = {
   databaseUrl?: string;
+  databaseSsl?: boolean;
   email: string;
   password: string;
+  allowDatabaseUrlOverride?: boolean;
+  allowAutoDbFix?: boolean;
 };
 
 export type SetupCompletionResult =
@@ -28,6 +31,7 @@ export type SetupCompletionDeps = {
   writeConfig: (config: RuntimeConfig) => Promise<void>;
   applyConfig: (config: RuntimeConfig) => void;
   ensureDatabaseExists: (databaseUrl: string) => Promise<void>;
+  repairDatabaseAccess: (input: { databaseUrl: string; databaseSsl?: boolean }) => Promise<void>;
   runMigrations: () => Promise<void>;
   getUserCount: () => Promise<number>;
   createAdmin: (input: { email: string; password: string }) => Promise<void>;
@@ -53,6 +57,7 @@ export async function completeSetup(
   }
 
   let config = deps.loadConfig();
+  const databaseSsl = Boolean(input.databaseSsl);
   if (!config) {
     const dbCheck = deps.validateDatabaseUrl(input.databaseUrl ?? "");
     if (!dbCheck.ok) {
@@ -60,8 +65,20 @@ export async function completeSetup(
     }
     config = {
       databaseUrl: input.databaseUrl ?? "",
+      databaseSsl,
       nextAuthSecret: deps.generateSecret(),
       keysEncryptionSecret: deps.generateSecret(),
+    };
+    await deps.writeConfig(config);
+  } else if (input.allowDatabaseUrlOverride && input.databaseUrl) {
+    const dbCheck = deps.validateDatabaseUrl(input.databaseUrl);
+    if (!dbCheck.ok) {
+      return { status: "invalid", error: dbCheck.error ?? "Invalid database url" };
+    }
+    config = {
+      ...config,
+      databaseUrl: input.databaseUrl,
+      databaseSsl,
     };
     await deps.writeConfig(config);
   }
@@ -69,7 +86,6 @@ export async function completeSetup(
   deps.applyConfig(config);
 
   try {
-    await deps.ensureDatabaseExists(config.databaseUrl);
     await deps.runMigrations();
     const count = await deps.getUserCount();
     if (count > 0) {
@@ -81,6 +97,32 @@ export async function completeSetup(
     });
     return { status: "ok" };
   } catch (error) {
+    if (input.allowAutoDbFix) {
+      const message = error instanceof Error ? error.message : String(error);
+      if (/permission denied|access denied|denied access|does not exist|not available/i.test(message)) {
+        try {
+          await deps.repairDatabaseAccess({
+            databaseUrl: config.databaseUrl,
+            databaseSsl: config.databaseSsl,
+          });
+          await deps.runMigrations();
+          const count = await deps.getUserCount();
+          if (count > 0) {
+            return { status: "alreadySetup" };
+          }
+          await deps.createAdmin({
+            email: emailCheck.value ?? "",
+            password: passwordCheck.value ?? "",
+          });
+          return { status: "ok" };
+        } catch (repairError) {
+          return {
+            status: "dbError",
+            error: repairError instanceof Error ? repairError.message : "Database error",
+          };
+        }
+      }
+    }
     return {
       status: "dbError",
       error: error instanceof Error ? error.message : "Database error",
@@ -98,11 +140,18 @@ export function createDefaultSetupDeps(): SetupCompletionDeps {
     },
     applyConfig: (config) => {
       process.env.DATABASE_URL = config.databaseUrl;
+      if (config.databaseSsl !== undefined) {
+        process.env.DATABASE_SSL = config.databaseSsl ? "true" : "false";
+      }
       process.env.NEXTAUTH_SECRET = config.nextAuthSecret;
       process.env.KEYS_ENCRYPTION_SECRET = config.keysEncryptionSecret;
     },
     ensureDatabaseExists: async (databaseUrl) => {
       await ensureDatabaseExists(databaseUrl);
+    },
+    repairDatabaseAccess: async ({ databaseUrl, databaseSsl }) => {
+      const { repairDatabaseAccess } = await import("./adminRepair");
+      await repairDatabaseAccess({ databaseUrl, databaseSsl });
     },
     runMigrations: async () => {
       const prismaBin = resolve(process.cwd(), "node_modules/.bin/prisma");
