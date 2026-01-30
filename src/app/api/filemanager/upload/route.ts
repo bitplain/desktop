@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { basename, extname } from "node:path";
-import { mkdir, writeFile } from "node:fs/promises";
 import { getAuthOptions } from "@/lib/auth";
-import { ensureVideoRoot, getDataDir } from "@/lib/filemanager/api";
-import { resolveUserPath } from "@/lib/filemanager/paths";
+import { getDataDir, getStorageContext } from "@/lib/filemanager/api";
 
 const ALLOWED_EXTENSIONS = new Set([".mp4"]);
 
@@ -34,9 +32,8 @@ export async function POST(request: Request) {
   }
 
   const dataDir = getDataDir();
-  await ensureVideoRoot({ dataDir, userId: session.user.id });
-  const { target } = resolveUserPath(dataDir, session.user.id, path);
-  await mkdir(target, { recursive: true });
+  const context = await getStorageContext({ dataDir, userId: session.user.id });
+  const mappedPath = context.mapPath(path);
 
   const uploaded: { name: string; path: string; size: number }[] = [];
   for (const file of files) {
@@ -45,12 +42,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });
     }
     const buffer = Buffer.from(await file.arrayBuffer());
-    const destination = resolveUserPath(
-      dataDir,
-      session.user.id,
-      [path, name].filter(Boolean).join("/")
-    ).target;
-    await writeFile(destination, buffer);
+    const destination = context.mapPath([path, name].filter(Boolean).join("/"));
+    await context.provider.writeFile(destination, buffer);
     uploaded.push({ name, path: [path, name].filter(Boolean).join("/"), size: buffer.length });
   }
 
