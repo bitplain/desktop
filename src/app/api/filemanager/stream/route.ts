@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { createReadStream } from "node:fs";
-import { stat } from "node:fs/promises";
 import { extname } from "node:path";
 import { getAuthOptions } from "@/lib/auth";
-import { getDataDir } from "@/lib/filemanager/api";
-import { normalizeRelativePath, resolveUserPath } from "@/lib/filemanager/paths";
+import { getDataDir, getStorageContext } from "@/lib/filemanager/api";
+import { normalizeRelativePath } from "@/lib/filemanager/paths";
 import { parseRange } from "@/lib/filemanager/stream";
 
 const ALLOWED_EXTENSIONS = new Set([".mp4"]);
@@ -30,14 +28,15 @@ export async function GET(request: Request) {
 
   const dataDir = getDataDir();
   try {
-    const { target } = resolveUserPath(dataDir, session.user.id, normalized);
-    const info = await stat(target);
+    const context = await getStorageContext({ dataDir, userId: session.user.id });
+    const mappedPath = context.mapPath(normalized);
+    const info = await context.provider.stat(mappedPath);
     const rangeHeader = request.headers.get("range");
     const range = parseRange(rangeHeader, info.size);
 
     if (range) {
       const { start, end } = range;
-      const stream = createReadStream(target, { start, end });
+      const stream = context.provider.createReadStream(mappedPath, { start, end });
       return new NextResponse(stream as unknown as ReadableStream, {
         status: 206,
         headers: {
@@ -49,7 +48,7 @@ export async function GET(request: Request) {
       });
     }
 
-    const stream = createReadStream(target);
+    const stream = context.provider.createReadStream(mappedPath);
     return new NextResponse(stream as unknown as ReadableStream, {
       headers: {
         "Content-Type": "video/mp4",
