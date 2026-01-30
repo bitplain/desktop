@@ -31,7 +31,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
   const proto = resolveRequestProto(request);
-  const token = await getToken({ req: request, secret, secureCookie: proto === "https" });
+  const preferSecure = proto === "https";
+  const token =
+    (await getToken({ req: request, secret, secureCookie: preferSecure })) ??
+    (await getToken({ req: request, secret, secureCookie: false }));
   const isAuthRoute =
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||

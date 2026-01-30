@@ -67,4 +67,20 @@ describe("middleware", () => {
       expect.objectContaining({ secureCookie: false })
     );
   });
+
+  it("falls back to non-secure cookie when secure cookie is missing", async () => {
+    mockGetToken.mockResolvedValueOnce(null).mockResolvedValueOnce({ sub: "user-id" });
+    const response = await middleware(
+      makeRequest("/", { host: "10.10.1.236:3000", proto: "https" })
+    );
+    expect(mockGetToken).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ secureCookie: true })
+    );
+    expect(mockGetToken).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ secureCookie: false })
+    );
+    expect(response.headers.get("x-middleware-next")).toBe("1");
+  });
 });
