@@ -5,13 +5,9 @@ import { compare } from "bcryptjs";
 import { getPrisma } from "./db";
 import { loadRuntimeConfig } from "./runtimeConfig";
 
-type RequestLike = Pick<NextRequest, "headers"> & { nextUrl?: URL };
+type RequestLike = { headers: Headers; nextUrl?: URL };
 
 function resolveNextAuthUrl(request?: RequestLike) {
-  const envUrl = process.env.NEXTAUTH_URL?.trim();
-  if (envUrl) {
-    return envUrl;
-  }
   if (request) {
     const origin = request.nextUrl?.origin;
     if (origin) {
@@ -27,13 +23,14 @@ function resolveNextAuthUrl(request?: RequestLike) {
       return `${proto}://${host}`;
     }
   }
-  return "";
+  return process.env.NEXTAUTH_URL?.trim() ?? "";
 }
 
 export function getAuthOptions(request?: RequestLike): NextAuthOptions {
   loadRuntimeConfig();
+
   const nextAuthUrl = resolveNextAuthUrl(request);
-  if (nextAuthUrl && !process.env.NEXTAUTH_URL) {
+  if (nextAuthUrl) {
     process.env.NEXTAUTH_URL = nextAuthUrl;
   }
   const useSecureCookies = nextAuthUrl.startsWith("https://");
