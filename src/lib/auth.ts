@@ -4,10 +4,34 @@ import { compare } from "bcryptjs";
 import { getPrisma } from "./db";
 import { loadRuntimeConfig } from "./runtimeConfig";
 
-export function getAuthOptions(): NextAuthOptions {
+type RequestLike = { headers: Headers; nextUrl?: URL };
+
+function resolveNextAuthUrl(request?: RequestLike) {
+  if (request) {
+    const origin = request.nextUrl?.origin;
+    if (origin) {
+      return origin;
+    }
+    const proto =
+      request.headers.get("x-forwarded-proto") ??
+      request.headers.get("x-forwarded-protocol") ??
+      request.nextUrl?.protocol?.replace(":", "") ??
+      "http";
+    const host = request.headers.get("x-forwarded-host") ?? request.headers.get("host");
+    if (host) {
+      return `${proto}://${host}`;
+    }
+  }
+  return process.env.NEXTAUTH_URL?.trim() ?? "";
+}
+
+export function getAuthOptions(request?: RequestLike): NextAuthOptions {
   loadRuntimeConfig();
 
-  const nextAuthUrl = process.env.NEXTAUTH_URL?.trim() ?? "";
+  const nextAuthUrl = resolveNextAuthUrl(request);
+  if (nextAuthUrl) {
+    process.env.NEXTAUTH_URL = nextAuthUrl;
+  }
   const useSecureCookies = nextAuthUrl.startsWith("https://");
 
   return {
