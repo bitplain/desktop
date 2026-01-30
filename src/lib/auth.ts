@@ -13,6 +13,10 @@ function resolveNextAuthUrl(request?: RequestLike) {
     return envUrl;
   }
   if (request) {
+    const origin = request.nextUrl?.origin;
+    if (origin) {
+      return origin;
+    }
     const proto =
       request.headers.get("x-forwarded-proto") ??
       request.headers.get("x-forwarded-protocol") ??
