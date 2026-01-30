@@ -8,8 +8,22 @@ vi.mock("next-auth/jwt", () => ({
 
 const mockGetToken = getToken as unknown as ReturnType<typeof vi.fn>;
 
-const makeRequest = (pathname: string) =>
-  ({ nextUrl: { pathname }, url: `http://localhost${pathname}` } as any);
+const makeRequest = (
+  pathname: string,
+  options?: { host?: string; proto?: string }
+) => {
+  const host = options?.host ?? "localhost";
+  const proto = options?.proto ?? "http";
+  return {
+    nextUrl: new URL(`${proto}://${host}${pathname}`),
+    url: `${proto}://${host}${pathname}`,
+    headers: new Headers({
+      host,
+      "x-forwarded-host": host,
+      "x-forwarded-proto": proto,
+    }),
+  } as any;
+};
 
 describe("middleware", () => {
   const originalSecret = process.env.NEXTAUTH_SECRET;
@@ -44,5 +58,13 @@ describe("middleware", () => {
     mockGetToken.mockResolvedValue(null);
     const response = await middleware(makeRequest("/"));
     expect(response.headers.get("x-middleware-next")).toBe("1");
+  });
+
+  it("uses request protocol to decide secure cookies", async () => {
+    mockGetToken.mockResolvedValue(null);
+    await middleware(makeRequest("/", { host: "10.10.1.236:3000", proto: "http" }));
+    expect(mockGetToken).toHaveBeenCalledWith(
+      expect.objectContaining({ secureCookie: false })
+    );
   });
 });
