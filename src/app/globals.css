@@ -953,6 +953,27 @@ textarea {
   overflow-wrap: anywhere;
 }
 
+.storage-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.storage-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: #d95c5c;
+  box-shadow: 0 0 0 2px rgba(217, 92, 92, 0.2);
+}
+
+.storage-status-dot.is-online {
+  background: #39b36a;
+  box-shadow: 0 0 0 2px rgba(57, 179, 106, 0.25);
+}
+
 .eco-form {
   display: grid;
   gap: 12px;
