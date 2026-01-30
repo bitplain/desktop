@@ -125,7 +125,7 @@ export async function listFavoritesHandler({ userId }: { userId: string }) {
     where: { userId },
     orderBy: { createdAt: "desc" },
   });
-  return favorites.map((fav) => fav.relativePath);
+  return favorites.map((fav: { relativePath: string }) => fav.relativePath);
 }
 
 export async function addFavoriteHandler({
