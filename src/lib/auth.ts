@@ -36,7 +36,6 @@ export function getAuthOptions(request?: RequestLike): NextAuthOptions {
 
   return {
     useSecureCookies,
-    trustHost: true,
     providers: [
       CredentialsProvider({
         name: "Credentials",
