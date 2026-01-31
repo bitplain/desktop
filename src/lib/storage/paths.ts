@@ -12,5 +12,6 @@ export function stripVideoPrefix(path: string) {
 
 export function buildRemotePath(path: string, subPath: string) {
   const tail = stripVideoPrefix(path);
-  return [subPath, tail].filter(Boolean).join("/");
+  const joined = [subPath, tail].filter(Boolean).join("/");
+  return joined || "\\";
 }
