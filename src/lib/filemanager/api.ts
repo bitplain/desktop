@@ -4,8 +4,10 @@ import { normalizeRelativePath } from "@/lib/filemanager/paths";
 import { decryptSecret } from "@/lib/storage/crypto";
 import { createLocalProvider } from "@/lib/storage/localProvider";
 import { createSmbProvider } from "@/lib/storage/smbProvider";
+import { buildFtpPath, createFtpProvider } from "@/lib/storage/ftpProvider";
 import type { StorageProvider } from "@/lib/storage/types";
 import { buildRemotePath, normalizeStorageSubPath } from "@/lib/storage/paths";
+import { selectActiveConnection } from "@/lib/storage/connection";
 
 export function getDataDir() {
   return process.env.DATA_DIR?.trim() || "/data";
@@ -14,7 +16,7 @@ export function getDataDir() {
 type StorageContext = {
   provider: StorageProvider;
   mapPath: (path: string) => string;
-  source: "local" | "smb";
+  source: "local" | "smb" | "ftp";
 };
 
 export async function getStorageContext({
@@ -32,9 +34,17 @@ export async function getStorageContext({
     };
   }
   const prisma = getPrisma();
-  const connection = await prisma.storageConnection.findUnique({
-    where: { userId },
-  });
+  const [user, connections] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { activeStorageProvider: true },
+    }),
+    prisma.storageConnection.findMany({ where: { userId } }),
+  ]);
+  const connection = selectActiveConnection(
+    (user?.activeStorageProvider as "SMB" | "FTP" | null) ?? null,
+    connections
+  );
   if (!connection) {
     return {
       provider: createLocalProvider({ dataDir, userId }),
@@ -48,6 +58,19 @@ export async function getStorageContext({
   }
   const password = decryptSecret(connection.passwordEncrypted, secret);
   const subPath = normalizeStorageSubPath(connection.subPath ?? "");
+  if (connection.provider === "FTP") {
+    const provider = createFtpProvider({
+      host: connection.host,
+      port: connection.port ?? 21,
+      username: connection.username,
+      password,
+    });
+    return {
+      provider,
+      mapPath: (path) => buildFtpPath(path, subPath),
+      source: "ftp",
+    };
+  }
   const provider = createSmbProvider({
     host: connection.host,
     share: connection.share,
