@@ -926,6 +926,69 @@ textarea {
   margin-bottom: 12px;
 }
 
+.storage-accordion {
+  display: grid;
+  gap: 12px;
+}
+
+.storage-section {
+  padding: 0;
+}
+
+.storage-section-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.storage-section-header:focus-visible {
+  outline: 2px solid rgba(111, 167, 222, 0.6);
+  outline-offset: 2px;
+}
+
+.storage-section-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.storage-active-badge {
+  font-size: 0.72rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(57, 179, 106, 0.3);
+  background: rgba(57, 179, 106, 0.12);
+  color: #2a7a4b;
+  letter-spacing: 0.02em;
+}
+
+.storage-section-chevron {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--text);
+  border-bottom: 2px solid var(--text);
+  transform: rotate(45deg);
+  opacity: 0.6;
+  transition: transform 0.2s ease;
+}
+
+.storage-section.is-open .storage-section-chevron {
+  transform: rotate(-135deg);
+}
+
+.storage-section-body {
+  padding: 0 14px 14px;
+}
+
 .storage-status-dot {
   width: 10px;
   height: 10px;

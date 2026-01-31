@@ -3,8 +3,9 @@ import { describe, expect, it } from "vitest";
 import SystemApp from "../SystemApp";
 
 describe("SystemApp", () => {
-  it("renders storage panel", () => {
+  it("renders smb and ftp sections", () => {
     const html = renderToString(<SystemApp title="Настройки" />);
-    expect(html).toContain("Файловая шара");
+    expect(html).toContain("SMB");
+    expect(html).toContain("FTP");
   });
 });
