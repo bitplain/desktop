@@ -9,16 +9,17 @@ export function toSmbPath(path: string) {
 }
 
 export type StorageConnectionRecord = {
-  provider: "SMB";
+  provider: "SMB" | "FTP";
   host: string;
   share: string;
   subPath: string;
   username: string;
   passwordEncrypted: string;
+  port?: number | null;
 };
 
 export function serializeStorageConnection(record: StorageConnectionRecord) {
-  return {
+  const base = {
     provider: record.provider,
     host: record.host,
     share: record.share,
@@ -26,4 +27,8 @@ export function serializeStorageConnection(record: StorageConnectionRecord) {
     username: record.username,
     hasPassword: Boolean(record.passwordEncrypted),
   };
+  if (record.port == null) {
+    return base;
+  }
+  return { ...base, port: record.port };
 }
