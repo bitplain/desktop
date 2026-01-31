@@ -10,10 +10,14 @@ import {
 import type { StorageEntry, StorageProvider } from "@/lib/storage/types";
 
 const VIDEO_FOLDER = "video";
+const FOTO_FOLDER = "foto";
 
 export async function ensureUserVideoRoot(dataDir: string, userId: string) {
   const root = buildUserRoot(dataDir, userId);
-  await mkdir(join(root, VIDEO_FOLDER), { recursive: true });
+  await Promise.all([
+    mkdir(join(root, VIDEO_FOLDER), { recursive: true }),
+    mkdir(join(root, FOTO_FOLDER), { recursive: true }),
+  ]);
   return root;
 }
 
