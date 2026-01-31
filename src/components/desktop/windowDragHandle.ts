@@ -9,7 +9,11 @@ export function shouldStartDragForTarget(target: ClosestTarget, dragSelector?: s
     target.closest(".window-controls") ||
     target.closest(".window-resize") ||
     target.closest(".win-buttons") ||
-    target.closest(".win-btn")
+    target.closest(".win-btn") ||
+    target.closest(".cfm-window-controls") ||
+    target.closest(".cfm-window-btn") ||
+    target.closest(".cfm-action-btn") ||
+    target.closest(".cfm-nav-btn")
   ) {
     return false;
   }

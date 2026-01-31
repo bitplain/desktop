@@ -17,4 +17,13 @@ describe("window drag handle", () => {
     const target = makeTarget([".xp-window .titlebar"]);
     expect(shouldStartDragForTarget(target, ".xp-window .titlebar")).toBe(true);
   });
+
+  it("does not start drag from cutefish window controls", () => {
+    const target = makeTarget([
+      ".cfm-window-btn",
+      ".cfm-window-controls",
+      ".cfm-header",
+    ]);
+    expect(shouldStartDragForTarget(target, ".cfm-header")).toBe(false);
+  });
 });
