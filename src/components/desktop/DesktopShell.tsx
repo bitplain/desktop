@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { useSettings } from "./SettingsProvider";
 import DesktopIcons, { DesktopIcon } from "./DesktopIcons";
@@ -11,6 +11,7 @@ import OfflineBanner from "@/components/OfflineBanner";
 import { debounce } from "@/lib/debounce";
 import { selectOpenWindowIds, useWindowStore } from "@/stores/windowStore";
 import type { ModuleManifest } from "@/modules/types";
+import { EcoMenu, EcoMenuItem } from "@/components/ui/eco";
 
 type WindowConfig = {
   id: string;
@@ -24,7 +25,7 @@ type WindowConfig = {
   window?: ModuleManifest["window"];
 };
 
-const TASKBAR_HEIGHT = 44;
+const TASKBAR_HEIGHT = 34;
 
 export default function DesktopShell({
   modules,
@@ -35,6 +36,8 @@ export default function DesktopShell({
 }) {
   const { playSound } = useSettings();
   const [startOpen, setStartOpen] = useState(false);
+  const startButtonRef = useRef<HTMLButtonElement | null>(null);
+  const previousStartOpen = useRef(false);
   const [contextMenu, setContextMenu] = useState<{
     open: boolean;
     x: number;
@@ -138,6 +141,28 @@ export default function DesktopShell({
     return () => saveLayout.cancel();
   }, [initialized, saveLayout, windowsById]);
 
+  useEffect(() => {
+    if (!startOpen) {
+      return;
+    }
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") {
+        return;
+      }
+      event.preventDefault();
+      setStartOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [startOpen]);
+
+  useEffect(() => {
+    if (previousStartOpen.current && !startOpen) {
+      startButtonRef.current?.focus();
+    }
+    previousStartOpen.current = startOpen;
+  }, [startOpen]);
+
   const handleOpenWindow = useCallback(
     (id: string) => {
       playSound("notify");
@@ -161,6 +186,22 @@ export default function DesktopShell({
       toggleMinimize(id);
     },
     [toggleMinimize, playSound]
+  );
+
+  const handleTaskbarActivate = useCallback(
+    (id: string) => {
+      const target = useWindowStore.getState().windowsById[id];
+      if (!target) {
+        return;
+      }
+      playSound(target.isMinimized ? "restore" : "click");
+      if (target.isMinimized) {
+        toggleMinimize(id);
+      } else {
+        focusWindow(id);
+      }
+    },
+    [focusWindow, playSound, toggleMinimize]
   );
 
   const handleToggleMaximize = useCallback(
@@ -233,14 +274,6 @@ export default function DesktopShell({
   const startMenuModules = orderedModules.filter((module) => module.startMenu ?? true);
   const desktopModules = orderedModules.filter((module) => module.desktopIcon ?? true);
 
-  const toStartItem = (module: ModuleManifest, prefix: string): StartMenuItem => ({
-    id: `${prefix}-${module.id}`,
-    label: module.title,
-    description: module.subtitle,
-    icon: module.icon,
-    action: { type: "window", target: module.id },
-  });
-
   const icons: DesktopIcon[] = desktopModules.map((module) => ({
     id: `desktop-${module.id}`,
     label: module.title,
@@ -249,15 +282,62 @@ export default function DesktopShell({
     action: { type: "window", target: module.id },
   }));
 
-  const startLeft: StartMenuItem[] = startMenuModules
-    .slice(0, 4)
-    .map((module) => toStartItem(module, "start"));
-  const startRight: StartMenuItem[] = startMenuModules
-    .slice(4)
-    .map((module) => toStartItem(module, "start"));
-  const programItems: StartMenuItem[] = startMenuModules.map((module) =>
-    toStartItem(module, "program")
+  const moduleMap = useMemo(
+    () => new Map(startMenuModules.map((module) => [module.id, module])),
+    [startMenuModules]
   );
+
+  const startLeft: StartMenuItem[] = startMenuModules.slice(0, 6).map((module) => ({
+    id: `pinned-${module.id}`,
+    title: module.title,
+    icon: module.icon,
+    href: `#${module.id}`,
+    section: "left",
+    action: { type: "window", target: module.id },
+  }));
+
+  const startRight: StartMenuItem[] = [
+    {
+      id: "right-apps",
+      title: "My Apps",
+      icon: "/icons/xp/programs.png",
+      href: "#apps",
+      section: "right",
+      hasSubmenu: true,
+    },
+    {
+      id: "right-about",
+      title: moduleMap.get("about")?.title ?? "About",
+      icon: moduleMap.get("about")?.icon ?? "/icons/xp/docs.png",
+      href: "#about",
+      section: "right",
+      action: moduleMap.get("about")
+        ? { type: "window", target: "about" }
+        : { type: "route", target: "/about" },
+    },
+    {
+      id: "right-links",
+      title: "Links",
+      icon: "/icons/xp/favorite.svg",
+      href: "#links",
+      section: "right",
+      hasSubmenu: true,
+    },
+    {
+      id: "right-search",
+      title: "Search",
+      icon: "/icons/xp/internet.png",
+      href: "#search",
+      section: "right",
+    },
+    {
+      id: "right-run",
+      title: "Run…",
+      icon: "/icons/xp/window.png",
+      href: "#run",
+      section: "right",
+    },
+  ];
 
   const contextModules = startMenuModules.slice(0, 3);
   const accountModule = startMenuModules.find((module) => module.id === "account");
@@ -265,7 +345,11 @@ export default function DesktopShell({
   return (
     <div
       className="desktop-root"
-      onClick={() => {
+      onClick={(event) => {
+        const target = event.target as HTMLElement;
+        if (target.closest(".start-menu") || target.closest(".start-button")) {
+          return;
+        }
         setStartOpen(false);
         setContextMenu((prev) => ({ ...prev, open: false }));
       }}
@@ -308,14 +392,13 @@ export default function DesktopShell({
         })}
       </div>
       {contextMenu.open ? (
-        <div
+        <EcoMenu
           className="desktop-menu"
           style={{ top: contextMenu.y, left: contextMenu.x }}
           onClick={(event) => event.stopPropagation()}
         >
-          <button
+          <EcoMenuItem
             className="desktop-menu-item"
-            type="button"
             onClick={() => {
               playSound("click");
               cascadeWindows();
@@ -323,10 +406,9 @@ export default function DesktopShell({
             }}
           >
             Cascade Windows
-          </button>
-          <button
+          </EcoMenuItem>
+          <EcoMenuItem
             className="desktop-menu-item"
-            type="button"
             onClick={() => {
               playSound("click");
               tileWindows();
@@ -334,23 +416,21 @@ export default function DesktopShell({
             }}
           >
             Tile Windows
-          </button>
-          <button
+          </EcoMenuItem>
+          <EcoMenuItem
             className="desktop-menu-item"
-            type="button"
             onClick={() => {
               handleResetLayout();
               setContextMenu((prev) => ({ ...prev, open: false }));
             }}
           >
             Сбросить раскладку
-          </button>
+          </EcoMenuItem>
           <div className="desktop-menu-divider" />
           {contextModules.map((module) => (
-            <button
+            <EcoMenuItem
               key={module.id}
               className="desktop-menu-item"
-              type="button"
               onClick={() => {
                 playSound("click");
                 handleOpenWindow(module.id);
@@ -358,20 +438,17 @@ export default function DesktopShell({
               }}
             >
               {module.title}
-            </button>
+            </EcoMenuItem>
           ))}
-        </div>
+        </EcoMenu>
       ) : null}
       <StartMenu
         key={startOpen ? "open" : "closed"}
         open={startOpen}
-        leftItems={startLeft}
-        rightItems={startRight}
-        programItems={programItems}
-        onCascade={cascadeWindows}
-        onTile={tileWindows}
+        items={[...startLeft, ...startRight]}
         onClose={() => setStartOpen(false)}
         onOpenWindow={handleOpenWindow}
+        onPower={() => playSound("shutdown")}
         userEmail={userEmail}
       />
       <Taskbar
@@ -379,11 +456,10 @@ export default function DesktopShell({
         activeId={activeId}
         startOpen={startOpen}
         onToggleStart={() => setStartOpen((prev) => !prev)}
-        onToggleWindow={handleToggleMinimize}
-        onCascade={cascadeWindows}
-        onTile={tileWindows}
+        onActivateWindow={handleTaskbarActivate}
         userEmail={userEmail ?? undefined}
         onOpenAccount={accountModule ? () => handleOpenWindow(accountModule.id) : undefined}
+        startButtonRef={startButtonRef}
       />
     </div>
   );

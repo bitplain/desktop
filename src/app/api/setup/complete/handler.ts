@@ -1,15 +1,17 @@
 import { NextResponse } from "next/server";
 import { buildDatabaseUrl } from "@/lib/buildDatabaseUrl";
 import { completeSetup, createDefaultSetupDeps } from "@/lib/setupCompletion";
+import { getSetupStatus } from "@/lib/setupStatus";
 
 type SetupHandlerDeps = {
   completeSetup: typeof completeSetup;
   createDefaultSetupDeps: typeof createDefaultSetupDeps;
+  getSetupStatus: typeof getSetupStatus;
 };
 
 export async function handleSetupComplete(
   request: Request,
-  deps: SetupHandlerDeps = { completeSetup, createDefaultSetupDeps }
+  deps: SetupHandlerDeps = { completeSetup, createDefaultSetupDeps, getSetupStatus }
 ) {
   const body = await request.json().catch(() => ({}));
   const maskedBody = {
@@ -27,25 +29,43 @@ export async function handleSetupComplete(
     body: maskedBody,
   });
   const rawDatabaseUrl = String(body?.databaseUrl ?? "");
+  const dbSsl = Boolean(body?.dbSsl);
+  const hasDbFields =
+    body?.dbHost ||
+    body?.dbPort ||
+    body?.dbUser ||
+    body?.dbPassword ||
+    body?.dbName ||
+    body?.databaseUrl;
   const builtDatabaseUrl = buildDatabaseUrl({
     host: String(body?.dbHost ?? ""),
     port: String(body?.dbPort ?? ""),
     user: String(body?.dbUser ?? ""),
     password: String(body?.dbPassword ?? ""),
-    database: "desktop",
+    database: String(body?.dbName ?? ""),
+    ssl: dbSsl,
   });
-  const databaseUrl = rawDatabaseUrl || (builtDatabaseUrl.ok ? builtDatabaseUrl.value : "");
-  const result = await deps.completeSetup({
-    databaseUrl,
-    email: String(body?.email ?? ""),
-    password: String(body?.password ?? ""),
-  }, deps.createDefaultSetupDeps());
+  const databaseUrl =
+    rawDatabaseUrl || (hasDbFields && builtDatabaseUrl.ok ? builtDatabaseUrl.value : "");
+  const status = await deps.getSetupStatus({ allowAutoDbFix: true, allowAutoSslFix: true });
+  const allowDatabaseUrlOverride = status === "dbUnavailable";
+  const result = await deps.completeSetup(
+    {
+      databaseUrl: databaseUrl || undefined,
+      email: String(body?.email ?? ""),
+      password: String(body?.password ?? ""),
+      allowDatabaseUrlOverride,
+      databaseSsl: dbSsl,
+      allowAutoDbFix: true,
+    },
+    deps.createDefaultSetupDeps()
+  );
 
   if (result.status === "invalid") {
     return NextResponse.json({ error: result.error }, { status: 400 });
   }
   if (result.status === "alreadySetup") {
-    return NextResponse.json({ error: "Setup already completed" }, { status: 409 });
+    return NextResponse.json({ ok: true, alreadySetup: true });
   }
   if (result.status === "dbError") {
     return NextResponse.json({ error: result.error }, { status: 503 });
