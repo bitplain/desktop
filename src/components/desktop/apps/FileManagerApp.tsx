@@ -8,9 +8,9 @@ import { PathBar } from "@/components/desktop/apps/filemanager/PathBar";
 import { Sidebar } from "@/components/desktop/apps/filemanager/Sidebar";
 import { StatusBar } from "@/components/desktop/apps/filemanager/StatusBar";
 import {
-  IconGrid,
   type FileManagerEntry,
 } from "@/components/desktop/apps/filemanager/IconGrid";
+import { ContentView } from "@/components/desktop/apps/filemanager/ContentView";
 
 type FileManagerView = "path" | "favorites";
 
@@ -388,10 +388,11 @@ export default function FileManagerApp({
         />
 
         <main className="cfm-content" aria-label="File view">
-          <IconGrid
+          <ContentView
             entries={gridEntries}
             favorites={favorites}
             selectedPath={selectedPath}
+            layout={layout}
             onSelect={setSelectedPath}
             onOpen={handleOpenEntry}
             onToggleFavorite={(entry) => {
