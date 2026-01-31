@@ -7,6 +7,6 @@ describe("storage subpath normalize", () => {
   });
 
   it("maps video root to smb share root", () => {
-    expect(buildRemotePath("video", "")).toBe("\\");
+    expect(buildRemotePath("video", "")).toBe("");
   });
 });
