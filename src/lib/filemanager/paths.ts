@@ -1,6 +1,6 @@
 import { resolve, relative, sep, posix } from "node:path";
 
-const RESERVED_ROOT = new Set(["video"]);
+const RESERVED_ROOT = new Set(["video", "foto"]);
 
 export function buildUserRoot(dataDir: string, userId: string) {
   return resolve(dataDir, "filemanager", userId);
