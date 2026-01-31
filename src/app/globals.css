@@ -1059,7 +1059,6 @@ textarea {
   background: var(--surface);
   color: var(--text);
 }
-
 .panel-title {
   font-weight: 700;
   margin-bottom: 8px;

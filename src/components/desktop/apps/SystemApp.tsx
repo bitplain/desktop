@@ -82,8 +82,8 @@ export default function SystemApp({ title }: { title: string }) {
     void loadConnection();
   }, []);
 
-  const updateField = (field: keyof FormState) =>
-    (event: React.ChangeEvent<HTMLInputElement>) => {
+  const updateField =
+    (field: keyof FormState) => (event: React.ChangeEvent<HTMLInputElement>) => {
       const value = event.target.value;
       setForm((prev) => ({ ...prev, [field]: value }));
     };
@@ -145,9 +145,7 @@ export default function SystemApp({ title }: { title: string }) {
           <div className="storage-panel-header">
             <div className="panel-title">Файловая шара</div>
             <span
-              className={`storage-status-dot ${
-                connected ? "is-online" : "is-offline"
-              }`}
+              className={`storage-status-dot ${connected ? "is-online" : "is-offline"}`}
               aria-hidden
             />
           </div>
