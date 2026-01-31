@@ -13,7 +13,7 @@ const manifest: ModuleManifest = {
   defaultOpen: true,
   window: {
     hideChrome: true,
-    dragHandleSelector: ".xp-window .titlebar",
+    dragHandleSelector: ".cfm-app-header",
   },
   Window: AboutWindow,
 };

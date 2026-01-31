@@ -13,7 +13,7 @@ const manifest: ModuleManifest = {
   startMenu: true,
   window: {
     hideChrome: true,
-    dragHandleSelector: ".xp-window .titlebar",
+    dragHandleSelector: ".cfm-app-header",
     defaultSize: { width: 520, height: 920 },
   },
   Window: VideoWindow,

@@ -14,7 +14,7 @@ const manifest: ModuleManifest = {
   startMenu: false,
   window: {
     hideChrome: true,
-    dragHandleSelector: ".xp-window .titlebar",
+    dragHandleSelector: ".cfm-app-header",
   },
   Window: UploadsWindow,
 };
