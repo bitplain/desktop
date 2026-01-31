@@ -1,6 +1,3 @@
-import { EcoFileGrid } from "@/components/ui/eco";
-import type { FileManagerView } from "./TaskPane";
-
 export type FileManagerEntry =
   | {
       type: "folder";
@@ -14,67 +11,24 @@ export type FileManagerEntry =
     };
 
 type IconGridProps = {
-  className?: string;
-  view: FileManagerView;
   entries: FileManagerEntry[];
   favorites: Set<string>;
   selectedPath: string | null;
   onSelect: (path: string) => void;
   onOpen: (entry: FileManagerEntry) => void;
   onToggleFavorite: (entry: FileManagerEntry & { type: "file" }) => void;
-  onOpenFavorites: () => void;
-  onOpenVideo: () => void;
 };
 
 export function IconGrid({
-  className,
-  view,
   entries,
   favorites,
   selectedPath,
   onSelect,
   onOpen,
   onToggleFavorite,
-  onOpenFavorites,
-  onOpenVideo,
 }: IconGridProps) {
-  const rootClassName = ["grid", className].filter(Boolean).join(" ");
   return (
-    <EcoFileGrid className={rootClassName}>
-      <div
-        role="button"
-        tabIndex={0}
-        className={`item eco-file-item ${view === "favorites" ? "selected" : ""}`}
-        onDoubleClick={onOpenFavorites}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            onOpenFavorites();
-          }
-        }}
-      >
-        <span className="icon favorite" aria-hidden />
-        <span className="label">Избранное</span>
-      </div>
-
-      {view === "root" ? (
-        <div
-          role="button"
-          tabIndex={0}
-          className="item eco-file-item"
-          onDoubleClick={onOpenVideo}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              onOpenVideo();
-            }
-          }}
-        >
-          <span className="icon folder" aria-hidden />
-          <span className="label">Видео</span>
-        </div>
-      ) : null}
-
+    <div className="grid">
       {entries.map((entry) => {
         const isSelected = selectedPath === entry.path;
         const isFavorite = favorites.has(entry.path);
@@ -83,7 +37,7 @@ export function IconGrid({
             key={entry.path}
             role="button"
             tabIndex={0}
-            className={`item eco-file-item ${isSelected ? "selected" : ""}`}
+            className={`item ${isSelected ? "selected" : ""}`}
             onClick={() => onSelect(entry.path)}
             onDoubleClick={() => onOpen(entry)}
             onKeyDown={(event) => {
@@ -114,6 +68,6 @@ export function IconGrid({
           </div>
         );
       })}
-    </EcoFileGrid>
+    </div>
   );
 }

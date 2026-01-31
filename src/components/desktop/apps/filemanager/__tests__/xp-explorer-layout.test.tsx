@@ -5,18 +5,14 @@ import FileManagerApp from "../../FileManagerApp";
 describe("xp explorer layout", () => {
   it("renders chrome sections", () => {
     const html = renderToString(
-      <FileManagerApp onOpenVideo={() => undefined} onOpenUploads={() => undefined} />
+      <FileManagerApp
+        onOpenVideo={() => undefined}
+        onOpenUploads={() => undefined}
+        userEmail="user@example.com"
+      />
     );
-    expect(html).toContain("Файл");
-    expect(html).toContain("Адрес:");
-    expect(html).toContain("Объектов");
-    expect(html).toContain("eco-menubar");
-    expect(html).toContain("eco-toolbar");
-    expect(html).toContain("eco-addressbar");
-    expect(html).toContain("eco-statusbar");
-    expect(html).toContain("eco-file-grid");
-    expect(html).toContain("eco-task-pane");
-    expect(html).toContain('data-eco="file-grid"');
-    expect(html).toContain('data-eco="task-pane"');
+    expect(html).toContain("Home");
+    expect(html).toContain("Desktop");
+    expect(html).toContain("Items:");
   });
 });

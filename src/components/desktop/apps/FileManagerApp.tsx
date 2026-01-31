@@ -3,16 +3,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { setVideoSelection } from "@/lib/videoSelectionStore";
 import { addUpload, updateUpload, type UploadItem } from "@/lib/uploadStore";
-import { TaskPane, type FileManagerView } from "@/components/desktop/apps/filemanager/TaskPane";
+import { HeaderBar } from "@/components/desktop/apps/filemanager/HeaderBar";
+import { PathBar } from "@/components/desktop/apps/filemanager/PathBar";
+import { Sidebar } from "@/components/desktop/apps/filemanager/Sidebar";
+import { StatusBar } from "@/components/desktop/apps/filemanager/StatusBar";
 import {
   IconGrid,
   type FileManagerEntry,
 } from "@/components/desktop/apps/filemanager/IconGrid";
-import { XpTitlebar } from "@/components/desktop/apps/shared/XpTitlebar";
 
-const VIEW_VIDEO: FileManagerView = "video";
-const VIEW_FAVORITES: FileManagerView = "favorites";
-const VIEW_ROOT: FileManagerView = "root";
+type FileManagerView = "path" | "favorites";
+
+type FileManagerLayout = "grid" | "list";
 
 type FolderEntry = {
   name: string;
@@ -36,12 +38,19 @@ function buildPath(base: string, name: string) {
 export default function FileManagerApp({
   onOpenVideo,
   onOpenUploads,
+  userEmail,
 }: {
   onOpenVideo: () => void;
   onOpenUploads: () => void;
+  userEmail?: string | null;
 }) {
-  const [view, setView] = useState<FileManagerView>(VIEW_VIDEO);
-  const [currentPath, setCurrentPath] = useState("video");
+  const [view, setView] = useState<FileManagerView>("path");
+  const [currentPath, setCurrentPath] = useState("");
+  const [layout, setLayout] = useState<FileManagerLayout>("grid");
+  const [history, setHistory] = useState<string[]>([""]);
+  const [historyIndex, setHistoryIndex] = useState(0);
+  const historyIndexRef = useRef(0);
+  const lastPathRef = useRef("");
   const [folders, setFolders] = useState<FolderEntry[]>([]);
   const [files, setFiles] = useState<FileEntry[]>([]);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
@@ -68,12 +77,12 @@ export default function FileManagerApp({
     });
   }, [files, favorites]);
 
-  const activeFiles = view === VIEW_FAVORITES ? favoritesList : files;
+  const activeFiles = view === "favorites" ? favoritesList : files;
 
-  const listPath = view === VIEW_ROOT ? "" : currentPath;
+  const listPath = view === "favorites" ? "video" : currentPath;
 
   const gridEntries: FileManagerEntry[] = useMemo(() => {
-    if (view === VIEW_FAVORITES) {
+    if (view === "favorites") {
       return favoritesList.map((file) => ({
         type: "file",
         name: file.name,
@@ -87,7 +96,7 @@ export default function FileManagerApp({
     }));
   }, [entries, favoritesList, view]);
 
-  const isEmpty = view === VIEW_FAVORITES ? favoritesList.length === 0 : entries.length === 0;
+  const isEmpty = view === "favorites" ? favoritesList.length === 0 : entries.length === 0;
 
   const selectedLabel = useMemo(() => {
     if (!selectedPath) return null;
@@ -95,13 +104,20 @@ export default function FileManagerApp({
     return match?.name ?? null;
   }, [gridEntries, selectedPath]);
 
-  const statusCount = view === VIEW_FAVORITES ? favoritesList.length : entries.length;
+  const statusCount = view === "favorites" ? favoritesList.length : entries.length;
 
-  const addressLabel =
-    view === VIEW_FAVORITES ? "Избранное" : listPath || "Корень";
+  const userLabel = userEmail?.split("@")[0] ?? "Guest";
 
-  const titleLabel =
-    view === VIEW_FAVORITES ? "Избранное" : listPath ? listPath : "Файловый менеджер";
+  const canGoBack = view === "favorites" ? Boolean(lastPathRef.current) : historyIndex > 0;
+  const canGoForward = view === "favorites" ? false : historyIndex < history.length - 1;
+
+  const sidebarActiveKey = useMemo(() => {
+    if (view === "favorites") return "home";
+    if (!currentPath) return "home";
+    if (currentPath.startsWith("video")) return "videos";
+    if (currentPath.startsWith("foto")) return "pictures";
+    return "home";
+  }, [currentPath, view]);
 
   const loadFavorites = async () => {
     const res = await fetch("/api/filemanager/favorites");
@@ -137,23 +153,72 @@ export default function FileManagerApp({
     loadFavorites();
   }, [listPath]);
 
-  const handleViewChange = (nextView: FileManagerView) => {
-    setView(nextView);
+  const pushHistory = (path: string) => {
+    const nextHistory = [...history.slice(0, historyIndex + 1), path];
+    historyIndexRef.current = nextHistory.length - 1;
+    setHistory(nextHistory);
+    setHistoryIndex(historyIndexRef.current);
+  };
+
+  const navigateTo = (path: string, push = true) => {
+    setView("path");
+    setCurrentPath(path);
     setSelectedPath(null);
     setError(null);
-    if (nextView === VIEW_ROOT) {
-      setCurrentPath("");
+    if (push) {
+      pushHistory(path);
+    }
+  };
+
+  const openFavorites = () => {
+    if (view !== "favorites") {
+      lastPathRef.current = currentPath;
+    }
+    setView("favorites");
+    setSelectedPath(null);
+    setError(null);
+  };
+
+  const handleBack = () => {
+    if (view === "favorites") {
+      navigateTo(lastPathRef.current || "", false);
       return;
     }
-    setCurrentPath("video");
+    if (historyIndexRef.current <= 0) return;
+    const nextIndex = historyIndexRef.current - 1;
+    historyIndexRef.current = nextIndex;
+    setHistoryIndex(nextIndex);
+    setCurrentPath(history[nextIndex] ?? "");
+    setSelectedPath(null);
+    setError(null);
+  };
+
+  const handleForward = () => {
+    if (view === "favorites") return;
+    if (historyIndexRef.current >= history.length - 1) return;
+    const nextIndex = historyIndexRef.current + 1;
+    historyIndexRef.current = nextIndex;
+    setHistoryIndex(nextIndex);
+    setCurrentPath(history[nextIndex] ?? "");
+    setSelectedPath(null);
+    setError(null);
+  };
+
+  const handleUp = () => {
+    if (view === "favorites") {
+      navigateTo(lastPathRef.current || "", false);
+      return;
+    }
+    if (!currentPath) return;
+    const segments = currentPath.split("/").filter(Boolean);
+    segments.pop();
+    navigateTo(segments.join("/"));
   };
 
   const openFolder = (folder: { name: string; path: string }) => {
-    if (view === VIEW_FAVORITES) return;
+    if (view === "favorites") return;
     const nextPath = buildPath(listPath, folder.name);
-    setCurrentPath(nextPath);
-    setView(VIEW_VIDEO);
-    setSelectedPath(null);
+    navigateTo(nextPath);
   };
 
   const handleOpenEntry = (entry: FileManagerEntry) => {
@@ -185,7 +250,7 @@ export default function FileManagerApp({
     if (!name) return;
     const trimmed = name.trim();
     if (!trimmed) return;
-    const parentPath = view === VIEW_ROOT ? "" : listPath;
+    const parentPath = listPath;
     try {
       const res = await fetch("/api/filemanager/folders", {
         method: "POST",
@@ -253,7 +318,7 @@ export default function FileManagerApp({
   const handleUpload = (filesToUpload: FileList | null) => {
     if (!filesToUpload || filesToUpload.length === 0) return;
     onOpenUploads();
-    const parentPath = view === VIEW_ROOT ? "" : listPath;
+    const parentPath = listPath;
 
     Array.from(filesToUpload).forEach((file) => {
       const id = `${Date.now()}-${file.name}-${Math.random().toString(36).slice(2, 8)}`;
@@ -292,70 +357,38 @@ export default function FileManagerApp({
   };
 
   return (
-    <div className="xp-explorer" role="application" aria-label="Windows XP Explorer">
-      <XpTitlebar title={titleLabel} />
+    <div className="cfm-window" role="application" aria-label="File Manager">
+      <HeaderBar
+        canGoBack={canGoBack}
+        canGoForward={canGoForward}
+        layout={layout}
+        canDelete={Boolean(selectedPath)}
+        favoritesActive={view === "favorites"}
+        onBack={handleBack}
+        onForward={handleForward}
+        onUp={handleUp}
+        onCreateFolder={handleCreateFolder}
+        onUpload={() => fileInputRef.current?.click()}
+        onDelete={handleDelete}
+        onOpenFavorites={openFavorites}
+        onLayoutChange={setLayout}
+      >
+        <PathBar
+          userLabel={userLabel}
+          path={view === "favorites" ? "video" : currentPath}
+          onNavigate={(path) => navigateTo(path)}
+        />
+      </HeaderBar>
 
-      <div className="menubar eco-menubar" aria-label="Menu bar">
-        <div>Файл</div>
-        <div>Правка</div>
-        <div>Вид</div>
-        <div>Избранное</div>
-        <div>Сервис</div>
-        <div>Справка</div>
-      </div>
+      <div className="cfm-body">
+        <Sidebar
+          activeKey={sidebarActiveKey}
+          onNavigate={(path) => navigateTo(path)}
+          onOpenFavorites={openFavorites}
+        />
 
-      <div className="toolbar eco-toolbar" aria-label="Toolbar">
-        <div className="tool-btn">
-          <div className="tool-icon" aria-hidden="true" />
-          <div>Назад</div>
-        </div>
-        <div className="tool-btn">
-          <div className="tool-icon" aria-hidden="true" />
-          <div>Вперёд</div>
-        </div>
-        <div className="tool-btn">
-          <div className="tool-icon" aria-hidden="true" />
-          <div>Поиск</div>
-        </div>
-        <div className="tool-btn">
-          <div className="tool-icon" aria-hidden="true" />
-          <div>Папки</div>
-        </div>
-        <div className="toolbar-spacer" />
-        <div className="mini-icons" aria-hidden="true">
-          <div className="mini" />
-          <div className="mini" />
-          <div className="mini" />
-        </div>
-      </div>
-
-      <div className="addressbar eco-addressbar" aria-label="Address bar">
-        <div className="addr-label">Адрес:</div>
-        <div className="addr-field">
-          <div className="disk-icon" aria-hidden="true" />
-          <div className="addr-text">{addressLabel}</div>
-        </div>
-        <button className="go-btn" type="button">
-          Переход
-        </button>
-      </div>
-
-      <div className="content eco-filemanager">
-        <aside className="taskpane" aria-label="Task pane">
-          <TaskPane
-            view={view}
-            loading={loading}
-            error={error}
-            selectedLabel={selectedLabel}
-            onViewChange={handleViewChange}
-            onCreateFolder={handleCreateFolder}
-            onUpload={() => fileInputRef.current?.click()}
-            onDelete={handleDelete}
-          />
-        </aside>
-        <main className="fileview" aria-label="File view">
+        <main className="cfm-content" aria-label="File view">
           <IconGrid
-            view={view}
             entries={gridEntries}
             favorites={favorites}
             selectedPath={selectedPath}
@@ -365,20 +398,19 @@ export default function FileManagerApp({
               const file = activeFiles.find((item) => item.path === entry.path);
               if (file) toggleFavorite(file);
             }}
-            onOpenFavorites={() => handleViewChange(VIEW_FAVORITES)}
-            onOpenVideo={() => handleViewChange(VIEW_VIDEO)}
           />
 
           {!loading && isEmpty ? (
-            <div className="muted">Папка пуста.</div>
+            <div className="cfm-empty">Папка пуста.</div>
           ) : null}
         </main>
       </div>
 
-      <div className="statusbar eco-statusbar" aria-label="Status bar">
-        <div>Объектов: {statusCount}</div>
-        <div>{selectedLabel ?? "—"}</div>
-      </div>
+      <StatusBar
+        itemsCount={statusCount}
+        selectedLabel={selectedLabel}
+        error={error}
+      />
 
       <input
         ref={fileInputRef}
