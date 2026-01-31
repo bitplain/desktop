@@ -1,6 +1,5 @@
 "use client";
 
-import { EcoAppTitlebar } from "@/components/ui/eco";
 import { useWindowControls } from "@/components/desktop/WindowControlsContext";
 
 export function XpTitlebar({ title }: { title: string }) {
@@ -10,37 +9,31 @@ export function XpTitlebar({ title }: { title: string }) {
   const close = controls?.close ?? (() => undefined);
 
   return (
-    <EcoAppTitlebar className="titlebar">
-      <div className="title-left eco-app-titlebar__left">
-        <div className="app-icon" aria-hidden="true" />
-        <div className="title">{title}</div>
+    <div className="cfm-header cfm-header--app cfm-app-header">
+      <div className="cfm-app-title">
+        <span className="cfm-app-icon" aria-hidden="true" />
+        <span className="cfm-app-name">{title}</span>
       </div>
-      <div className="win-buttons eco-app-titlebar__controls">
+      <div className="cfm-window-controls" aria-label="Window controls">
         <button
-          className="win-btn eco-titlebar-button"
           type="button"
+          className="cfm-window-btn minimize"
           aria-label="Свернуть"
           onClick={minimize}
-        >
-          _
-        </button>
+        />
         <button
-          className="win-btn eco-titlebar-button"
           type="button"
+          className="cfm-window-btn maximize"
           aria-label="Развернуть"
           onClick={maximize}
-        >
-          □
-        </button>
+        />
         <button
-          className="win-btn close eco-titlebar-button"
           type="button"
+          className="cfm-window-btn close"
           aria-label="Закрыть"
           onClick={close}
-        >
-          X
-        </button>
+        />
       </div>
-    </EcoAppTitlebar>
+    </div>
   );
 }
