@@ -24,7 +24,7 @@ describe("home page setup status", () => {
     getSetupRedirect.mockReturnValue(null);
     getServerSession.mockResolvedValue({ user: { email: "ops@local" } });
     getAuthOptions.mockReturnValue({});
-    headers.mockReturnValue(HEADER_TOKEN);
+    headers.mockResolvedValue(HEADER_TOKEN);
 
     const { default: HomePage } = await import("../page");
     const element = await HomePage();
@@ -41,7 +41,7 @@ describe("home page setup status", () => {
     getSetupRedirect.mockReturnValue(null);
     getServerSession.mockResolvedValue({ user: { email: "ops@local" } });
     getAuthOptions.mockReturnValue({});
-    headers.mockReturnValue(HEADER_TOKEN);
+    headers.mockResolvedValue(HEADER_TOKEN);
 
     const { default: HomePage } = await import("../page");
     const element = await HomePage();

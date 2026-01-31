@@ -5,7 +5,11 @@ import { compare } from "bcryptjs";
 import { getPrisma } from "./db";
 import { loadRuntimeConfig } from "./runtimeConfig";
 
-type RequestLike = { headers: Headers; nextUrl?: URL };
+type HeaderLike = {
+  get(name: string): string | null | undefined;
+};
+
+type RequestLike = { headers: HeaderLike; nextUrl?: URL };
 
 function resolveNextAuthUrl(request?: RequestLike) {
   if (request) {

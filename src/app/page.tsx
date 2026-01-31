@@ -23,7 +23,8 @@ export default async function HomePage() {
     );
   }
 
-  const session = await getServerSession(getAuthOptions({ headers: headers() }));
+  const requestHeaders = await headers();
+  const session = await getServerSession(getAuthOptions({ headers: requestHeaders }));
   if (!session?.user) {
     redirect("/login");
   }
