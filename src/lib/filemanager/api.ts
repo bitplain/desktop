@@ -64,7 +64,6 @@ export async function getStorageContext({
       port: connection.port ?? 21,
       username: connection.username,
       password,
-      subPath,
     });
     return {
       provider,

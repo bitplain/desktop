@@ -62,9 +62,7 @@ export function createFtpProvider(config: {
   port?: number | null;
   username: string;
   password: string;
-  subPath?: string;
 }): StorageProvider {
-  const basePath = config.subPath?.trim() ?? "";
   const port = config.port && config.port > 0 ? config.port : 21;
 
   return {
@@ -73,9 +71,6 @@ export function createFtpProvider(config: {
       return withClient(
         { host: config.host, port, username: config.username, password: config.password },
         async (client) => {
-          if (basePath) {
-            await client.cd(basePath);
-          }
           const items = await client.list(target);
           return splitEntries(path, items);
         }
@@ -86,9 +81,6 @@ export function createFtpProvider(config: {
       return withClient(
         { host: config.host, port, username: config.username, password: config.password },
         async (client) => {
-          if (basePath) {
-            await client.cd(basePath);
-          }
           const size = await client.size(target);
           return { size };
         }
@@ -100,9 +92,6 @@ export function createFtpProvider(config: {
       void withClient(
         { host: config.host, port, username: config.username, password: config.password },
         async (client) => {
-          if (basePath) {
-            await client.cd(basePath);
-          }
           const startAt = options?.start ?? 0;
           await client.downloadTo(stream, target, startAt);
         }
@@ -116,9 +105,6 @@ export function createFtpProvider(config: {
       return withClient(
         { host: config.host, port, username: config.username, password: config.password },
         async (client) => {
-          if (basePath) {
-            await client.cd(basePath);
-          }
           await client.uploadFrom(Readable.from(data), target);
         }
       );
@@ -128,9 +114,6 @@ export function createFtpProvider(config: {
       return withClient(
         { host: config.host, port, username: config.username, password: config.password },
         async (client) => {
-          if (basePath) {
-            await client.cd(basePath);
-          }
           await client.ensureDir(target);
         }
       );
@@ -140,9 +123,6 @@ export function createFtpProvider(config: {
       return withClient(
         { host: config.host, port, username: config.username, password: config.password },
         async (client) => {
-          if (basePath) {
-            await client.cd(basePath);
-          }
           await client.remove(target);
         }
       );
@@ -152,9 +132,6 @@ export function createFtpProvider(config: {
       return withClient(
         { host: config.host, port, username: config.username, password: config.password },
         async (client) => {
-          if (basePath) {
-            await client.cd(basePath);
-          }
           await client.removeDir(target);
         }
       );
