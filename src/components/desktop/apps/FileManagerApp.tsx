@@ -7,9 +7,7 @@ import { HeaderBar } from "@/components/desktop/apps/filemanager/HeaderBar";
 import { PathBar } from "@/components/desktop/apps/filemanager/PathBar";
 import { Sidebar } from "@/components/desktop/apps/filemanager/Sidebar";
 import { StatusBar } from "@/components/desktop/apps/filemanager/StatusBar";
-import {
-  type FileManagerEntry,
-} from "@/components/desktop/apps/filemanager/IconGrid";
+import { type FileManagerEntry } from "@/components/desktop/apps/filemanager/types";
 import { ContentView } from "@/components/desktop/apps/filemanager/ContentView";
 
 type FileManagerView = "path" | "favorites";

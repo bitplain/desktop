@@ -1,4 +1,4 @@
-import type { FileManagerEntry } from "./IconGrid";
+import type { FileManagerEntry } from "./types";
 
 type ContentViewProps = {
   entries: FileManagerEntry[];
