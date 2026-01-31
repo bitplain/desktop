@@ -286,10 +286,9 @@ export default function Window({
 
   return (
     <section
-      className={`window eco-window ${isMinimized ? "is-minimized" : ""} ${
+      className={`window ${isMinimized ? "is-minimized" : ""} ${
         isMaximized ? "is-maximized" : ""
       } ${hideChrome ? "window--chromeless" : ""}`}
-      data-eco="window"
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
         zIndex,
@@ -308,8 +307,8 @@ export default function Window({
       aria-hidden={isMinimized}
     >
       {hideChrome ? null : (
-        <div className="window-header eco-window__header">
-          <div className="window-titlebar eco-window__titlebar">
+        <div className="window-header">
+          <div className="window-titlebar">
             {icon ? (
               <span
                 className="window-icon"
@@ -322,25 +321,22 @@ export default function Window({
               {subtitle ? <div className="window-subtitle">{subtitle}</div> : null}
             </div>
           </div>
-          <div className="window-controls eco-window__controls">
+          <div className="window-controls">
             <button
               className="window-control minimize"
               type="button"
-              data-eco="window-control"
               aria-label="Minimize"
               onClick={controls.minimize}
             />
             <button
               className="window-control maximize"
               type="button"
-              data-eco="window-control"
               aria-label="Maximize"
               onClick={controls.maximize}
             />
             <button
               className="window-control close"
               type="button"
-              data-eco="window-control"
               aria-label="Close"
               onClick={controls.close}
             />
