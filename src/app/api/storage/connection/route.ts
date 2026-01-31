@@ -4,7 +4,51 @@ import { getAuthOptions } from "@/lib/auth";
 import { getPrisma } from "@/lib/db";
 import { encryptSecret } from "@/lib/storage/crypto";
 import { normalizeStorageSubPath } from "@/lib/storage/paths";
-import { serializeStorageConnection } from "@/lib/storage/connection";
+import {
+  serializeStorageConnection,
+  type StorageConnectionRecord,
+  type StorageProviderId,
+} from "@/lib/storage/connection";
+
+type ConnectionPayload = ReturnType<typeof serializeStorageConnection>;
+
+type ConnectionsResponse = {
+  activeProvider: StorageProviderId | null;
+  smb: ConnectionPayload | null;
+  ftp: ConnectionPayload | null;
+};
+
+function normalizeProvider(value: unknown): StorageProviderId | null {
+  const provider = String(value ?? "").trim().toUpperCase();
+  if (provider === "SMB" || provider === "FTP") {
+    return provider as StorageProviderId;
+  }
+  return null;
+}
+
+async function buildConnectionsResponse(userId: string): Promise<ConnectionsResponse> {
+  const prisma = getPrisma();
+  const [user, connections] = await Promise.all([
+    prisma.user.findUnique({
+      where: { id: userId },
+      select: { activeStorageProvider: true },
+    }),
+    prisma.storageConnection.findMany({ where: { userId } }),
+  ]);
+
+  const smb = connections.find((connection) => connection.provider === "SMB") as
+    | StorageConnectionRecord
+    | undefined;
+  const ftp = connections.find((connection) => connection.provider === "FTP") as
+    | StorageConnectionRecord
+    | undefined;
+
+  return {
+    activeProvider: (user?.activeStorageProvider as StorageProviderId | null) ?? null,
+    smb: smb ? serializeStorageConnection(smb) : null,
+    ftp: ftp ? serializeStorageConnection(ftp) : null,
+  };
+}
 
 export async function GET() {
   const session = await getServerSession(getAuthOptions());
@@ -12,17 +56,8 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const prisma = getPrisma();
-  const connection = await prisma.storageConnection.findUnique({
-    where: { userId: session.user.id },
-  });
-  if (!connection) {
-    return NextResponse.json({ connected: false });
-  }
-  return NextResponse.json({
-    connected: true,
-    connection: serializeStorageConnection(connection),
-  });
+  const data = await buildConnectionsResponse(session.user.id);
+  return NextResponse.json(data);
 }
 
 export async function POST(request: Request) {
@@ -32,14 +67,28 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json().catch(() => ({}));
+  const provider = normalizeProvider(body?.provider ?? "SMB");
+  if (!provider) {
+    return NextResponse.json({ error: "Invalid provider" }, { status: 400 });
+  }
+
   const host = String(body?.host ?? "").trim();
-  const share = String(body?.share ?? "").trim();
   const username = String(body?.username ?? "").trim();
   const subPath = normalizeStorageSubPath(String(body?.subPath ?? ""));
+  const share = provider === "SMB" ? String(body?.share ?? "").trim() : "";
   const password = String(body?.password ?? "");
+  const portRaw = provider === "FTP" ? body?.port : null;
+  const port =
+    provider === "FTP" ? Number(portRaw ?? 21) : null;
 
-  if (!host || !share || !username) {
+  if (!host || !username || (provider === "SMB" && !share)) {
     return NextResponse.json({ error: "Invalid connection data" }, { status: 400 });
+  }
+
+  if (provider === "FTP") {
+    if (!Number.isInteger(port) || port < 1 || port > 65535) {
+      return NextResponse.json({ error: "Invalid FTP port" }, { status: 400 });
+    }
   }
 
   const secret = process.env.KEYS_ENCRYPTION_SECRET?.trim();
@@ -48,8 +97,8 @@ export async function POST(request: Request) {
   }
 
   const prisma = getPrisma();
-  const existing = await prisma.storageConnection.findUnique({
-    where: { userId: session.user.id },
+  const existing = await prisma.storageConnection.findFirst({
+    where: { userId: session.user.id, provider },
   });
 
   let passwordEncrypted = existing?.passwordEncrypted ?? "";
@@ -61,40 +110,72 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Password is required" }, { status: 400 });
   }
 
-  const record = await prisma.storageConnection.upsert({
-    where: { userId: session.user.id },
-    update: {
-      provider: "SMB",
-      host,
-      share,
-      subPath,
-      username,
-      passwordEncrypted,
-    },
-    create: {
-      userId: session.user.id,
-      provider: "SMB",
-      host,
-      share,
-      subPath,
-      username,
-      passwordEncrypted,
-    },
+  if (existing) {
+    await prisma.storageConnection.update({
+      where: { id: existing.id },
+      data: {
+        provider,
+        host,
+        share,
+        subPath,
+        username,
+        passwordEncrypted,
+        port: port ?? null,
+      },
+    });
+  } else {
+    await prisma.storageConnection.create({
+      data: {
+        userId: session.user.id,
+        provider,
+        host,
+        share,
+        subPath,
+        username,
+        passwordEncrypted,
+        port: port ?? null,
+      },
+    });
+  }
+
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { activeStorageProvider: provider },
   });
 
-  return NextResponse.json({
-    connected: true,
-    connection: serializeStorageConnection(record),
-  });
+  const data = await buildConnectionsResponse(session.user.id);
+  return NextResponse.json(data);
 }
 
-export async function DELETE() {
+export async function DELETE(request: Request) {
   const session = await getServerSession(getAuthOptions());
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const url = new URL(request.url);
+  const provider = normalizeProvider(url.searchParams.get("provider"));
+  if (!provider) {
+    return NextResponse.json({ error: "Invalid provider" }, { status: 400 });
+  }
+
   const prisma = getPrisma();
-  await prisma.storageConnection.deleteMany({ where: { userId: session.user.id } });
-  return NextResponse.json({ ok: true });
+  await prisma.storageConnection.deleteMany({
+    where: { userId: session.user.id, provider },
+  });
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { activeStorageProvider: true },
+  });
+
+  if (user?.activeStorageProvider === provider) {
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { activeStorageProvider: null },
+    });
+  }
+
+  const data = await buildConnectionsResponse(session.user.id);
+  return NextResponse.json(data);
 }

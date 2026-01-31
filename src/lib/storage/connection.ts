@@ -18,6 +18,18 @@ export type StorageConnectionRecord = {
   port?: number | null;
 };
 
+export type StorageProviderId = StorageConnectionRecord["provider"];
+
+export function selectActiveConnection(
+  activeProvider: StorageProviderId | null,
+  connections: StorageConnectionRecord[]
+) {
+  if (!activeProvider) {
+    return null;
+  }
+  return connections.find((connection) => connection.provider === activeProvider) ?? null;
+}
+
 export function serializeStorageConnection(record: StorageConnectionRecord) {
   const base = {
     provider: record.provider,
