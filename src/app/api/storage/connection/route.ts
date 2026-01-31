@@ -78,15 +78,16 @@ export async function POST(request: Request) {
   const share = provider === "SMB" ? String(body?.share ?? "").trim() : "";
   const password = String(body?.password ?? "");
   const portRaw = provider === "FTP" ? body?.port : null;
-  const port =
-    provider === "FTP" ? Number(portRaw ?? 21) : null;
+  let port: number | null = null;
 
   if (!host || !username || (provider === "SMB" && !share)) {
     return NextResponse.json({ error: "Invalid connection data" }, { status: 400 });
   }
 
   if (provider === "FTP") {
-    if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    const parsedPort = Number(portRaw ?? 21);
+    port = parsedPort;
+    if (!Number.isInteger(parsedPort) || parsedPort < 1 || parsedPort > 65535) {
       return NextResponse.json({ error: "Invalid FTP port" }, { status: 400 });
     }
   }
