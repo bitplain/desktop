@@ -4,6 +4,7 @@ import { normalizeRelativePath } from "@/lib/filemanager/paths";
 import { decryptSecret } from "@/lib/storage/crypto";
 import { createLocalProvider } from "@/lib/storage/localProvider";
 import { createSmbProvider } from "@/lib/storage/smbProvider";
+import { buildFtpPath, createFtpProvider } from "@/lib/storage/ftpProvider";
 import type { StorageProvider } from "@/lib/storage/types";
 import { buildRemotePath, normalizeStorageSubPath } from "@/lib/storage/paths";
 import { selectActiveConnection } from "@/lib/storage/connection";
@@ -58,7 +59,18 @@ export async function getStorageContext({
   const password = decryptSecret(connection.passwordEncrypted, secret);
   const subPath = normalizeStorageSubPath(connection.subPath ?? "");
   if (connection.provider === "FTP") {
-    throw new Error("FTP provider is not configured");
+    const provider = createFtpProvider({
+      host: connection.host,
+      port: connection.port ?? 21,
+      username: connection.username,
+      password,
+      subPath,
+    });
+    return {
+      provider,
+      mapPath: (path) => buildFtpPath(path, subPath),
+      source: "ftp",
+    };
   }
   const provider = createSmbProvider({
     host: connection.host,
