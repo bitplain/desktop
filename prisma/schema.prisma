@@ -15,7 +15,7 @@ model User {
   createdAt    DateTime @default(now())
   invites      Invite[] @relation("InvitesCreated")
   videoFavorites VideoFavorite[]
-  storageConnection StorageConnection?
+  storageConnections StorageConnection[]
   activeStorageProvider StorageProvider?
 }
 
