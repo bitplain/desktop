@@ -22,6 +22,7 @@ describe("filemanager paths", () => {
 
   it("detects reserved root folders", () => {
     expect(isReservedRootFolder("video")).toBe(true);
+    expect(isReservedRootFolder("foto")).toBe(true);
     expect(isReservedRootFolder("docs")).toBe(false);
   });
 });

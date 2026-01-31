@@ -16,6 +16,7 @@ describe("filemanager service", () => {
     await ensureUserVideoRoot(base, "user-1");
     const result = await listEntries(base, "user-1", "");
     expect(result.folders.some((f) => f.name === "video")).toBe(true);
+    expect(result.folders.some((f) => f.name === "foto")).toBe(true);
   });
 
   it("creates and deletes folders", async () => {
